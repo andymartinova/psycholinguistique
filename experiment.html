@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expérience - Expérience Psycholinguistique</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+    <a href="index.html" class="home-button">🏠 Accueil</a>
+    
+    <div class="container">
+        <div class="progress-bar">
+            <div class="progress-fill"></div>
+            <span class="progress-text">Essai: <span id="trial-counter">1</span>/<span id="total-trials">24</span></span>
+        </div>
+
+        <div class="stimulus-area">
+            <div id="sentence-display" class="sentence"></div>
+            
+            <div class="question-area">
+                <p class="question">Cette phrase vous semble-t-elle grammaticale ?</p>
+                <div class="response-buttons">
+                    <button class="btn btn-grammatical" data-response="grammatical">✅ Grammaticale <span class="key-hint">(Y)</span></button>
+                    <button class="btn btn-ungrammatical" data-response="ungrammatical">❌ Non grammaticale <span class="key-hint">(N)</span></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="pause-area" style="display: none;">
+            <p>Pause - Prenez une courte pause si nécessaire</p>
+            <button id="pause-continue-btn" class="btn btn-continue">Continuer</button>
+        </div>
+
+        <div class="navigation-buttons" style="display: none;">
+            <a href="training.html" class="btn btn-secondary">← Retour à l'entraînement</a>
+            <a href="results.html" class="btn btn-primary">Voir les résultats</a>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/experiment.js"></script>
+</body>
+</html> 
