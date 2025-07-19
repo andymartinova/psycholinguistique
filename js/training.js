@@ -1,6 +1,3 @@
-import { EXPERIMENT_CONFIG } from './config.js';
-import { PRACTICE_SENTENCES } from './data.js';
-
 // Gestion de la page d'entraînement
 class TrainingPage {
     constructor() {

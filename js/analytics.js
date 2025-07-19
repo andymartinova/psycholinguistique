@@ -1,9 +1,3 @@
-import { generateSummary, downloadData, formatResponseTime } from './utils.js';
-import { AccuracyChart } from '../graphiques/accuracy-chart.js';
-import { ResponseTimeChart } from '../graphiques/response-time-chart.js';
-import { ParticipantComparisonChart } from '../graphiques/participant-comparison-chart.js';
-import { LearningCurveChart } from '../graphiques/learning-curve-chart.js';
-
 // Gestion de la page d'analyses
 class AnalyticsPage {
     constructor() {

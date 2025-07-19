@@ -1,5 +1,5 @@
 // Gestion de la page d'instructions
-export class InstructionsPage {
+class InstructionsPage {
     constructor() {
         this.setupEventHandlers();
     }

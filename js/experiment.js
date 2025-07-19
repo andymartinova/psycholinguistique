@@ -1,6 +1,3 @@
-import { EXPERIMENT_CONFIG } from './config.js';
-import { EXPERIMENTAL_SENTENCES } from './data.js';
-
 // Gestion de la page d'expérience principale
 class ExperimentPage {
     constructor() {

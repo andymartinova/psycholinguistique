@@ -1,5 +1,3 @@
-import { generateSummary, downloadData } from './utils.js';
-
 // Gestion de la page de résultats
 class ResultsPage {
     constructor() {

@@ -16,23 +16,49 @@
         
         <div class="instructions-content">
             <div class="info-box">
-                <h3>🎯 Votre tâche</h3>
-                <p>Vous allez voir des phrases en allemand. Pour chaque phrase, vous devez juger si elle vous semble grammaticale ou non.</p>
+                <h3>🎯 Objectif de l'expérience</h3>
+                <p>Vous allez participer à une expérience sur la compréhension des phrases en allemand. Votre tâche est de juger si chaque phrase vous semble grammaticalement correcte ou incorrecte.</p>
             </div>
 
             <div class="task-example">
-                <h4>Exemple :</h4>
-                <div class="example-phrase">"Der Mann liest ein Buch."</div>
-                <div class="response-options">
-                    <p>Cette phrase vous semble-t-elle grammaticale ?</p>
-                    <div class="buttons">
-                        <button class="btn btn-grammatical">✅ Grammaticale <span class="key-hint">(Y)</span></button>
-                        <button class="btn btn-ungrammatical">❌ Non grammaticale <span class="key-hint">(N)</span></button>
+                <h4>📝 Procédure</h4>
+                <ol>
+                    <li><strong>Entraînement :</strong> Vous commencerez par 3 phrases d'entraînement avec feedback</li>
+                    <li><strong>Expérience :</strong> Vous verrez 24 phrases et devrez juger leur grammaticalité</li>
+                    <li><strong>Réponse :</strong> Cliquez sur "Grammaticale" ou "Non grammaticale"</li>
+                    <li><strong>Vitesse :</strong> Répondez le plus rapidement et précisément possible</li>
+                </ol>
+            </div>
+
+            <div class="task-example">
+                <h4>⌨️ Contrôles</h4>
+                <ul>
+                    <li><strong>Souris :</strong> Cliquez sur les boutons</li>
+                    <li><strong>Clavier :</strong> Utilisez Y (ou O) pour "Grammaticale" et N pour "Non grammaticale"</li>
+                </ul>
+            </div>
+
+            <div class="important-notes">
+                <h4>⚠️ Important</h4>
+                <ul>
+                    <li>Ne revenez pas en arrière pendant l'expérience</li>
+                    <li>Ne fermez pas le navigateur</li>
+                    <li>Concentrez-vous sur la tâche</li>
+                    <li>L'expérience dure environ 10-15 minutes</li>
+                </ul>
+            </div>
+
+            <div class="task-example">
+                <h4>🔍 Exemples de phrases</h4>
+                <div class="example-phrases">
+                    <div class="example-phrase">
+                        <p><strong>Grammaticale :</strong> "Der Hund schläft im Garten." (Le chien dort dans le jardin.)</p>
+                    </div>
+                    <div class="example-phrase">
+                        <p><strong>Non grammaticale :</strong> "Der Hund schlafen im Garten." (Le chien dormir dans le jardin.)</p>
                     </div>
                 </div>
             </div>
-
-        
 
             <div class="practice-info">
                 <h4>🎓 Entraînement</h4>
@@ -42,10 +68,10 @@
 
         <div class="navigation-buttons">
             <a href="index.html" class="btn btn-secondary">← Retour à l'accueil</a>
-            <a href="training.html" class="btn btn-primary">Commencer l'entraînement</a>
+            <button id="start-practice-btn" class="btn btn-primary">Commencer l'entraînement</button>
         </div>
     </div>
 
-    <script type="module" src="js/instructions.js"></script>
+    <script src="js/instructions.js"></script>
 </body>
 </html> 
