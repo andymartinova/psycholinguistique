@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expérience Psycholinguistique - Allemand</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Expérience Psycholinguistique</h1>
+        <h2>Étude sur le traitement syntaxique en allemand</h2>
+        
+        <div class="info-box">
+            <h3>Objectif de l'étude</h3>
+            <p>Vous allez participer à une expérience sur la compréhension des phrases en allemand. L'objectif est d'observer comment les gens traitent différentes structures grammaticales en allemand. Certaines phrases seront simples, d'autres plus complexes, et certains pourront être incorrectes grammaticalement. Votre tâche est de juger si chaque phrase est grammaticalement correcte ou incorrecte, le plus rapidement et précisément possible.</p>
+            
+            <h3>Déroulement</h3>
+            <ul>
+                <li>Vous verrez des phrases en allemand</li>
+                <li>Pour chaque phrase, vous devrez juger si elle vous semble grammaticale</li>
+                <li>Répondez le plus rapidement possible</li>
+                <li>L'expérience dure environ 10-15 minutes</li>
+            </ul>
+        </div>
+
+        <div class="participant-info">
+            <h3>Informations participant</h3>
+            <div class="form-group">
+                <label for="participant-id">Numéro de participant:</label>
+                <input type="text" id="participant-id" value="P001" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="language-group">Groupe linguistique:</label>
+                <select id="language-group" required>
+                    <option value="">Sélectionnez votre groupe</option>
+                    <option value="LF">Locuteur natif français</option>
+                    <option value="LP" selected>Locuteur natif portugais </option>
+                </select>
+            </div>
+        </div>
+
+        <div class="navigation-buttons">
+            <button id="start-btn" class="btn btn-primary" disabled>Commencer l'expérience</button>
+            <a href="analytics.html" class="btn btn-secondary">📊 Voir les analyses</a>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/home.js"></script>
+</body>
+</html>
