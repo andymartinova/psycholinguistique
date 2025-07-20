@@ -3,75 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Instructions - Expérience Psycholinguistique</title>
+    <title data-i18n="instructions.title">Instructions - Expérience Psycholinguistique</title>
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
-    <a href="index.html" class="home-button">🏠 Accueil</a>
+    <a href="index.html" class="home-button" data-i18n="nav.home">🏠 Accueil</a>
     
     <div class="container">
-        <h2>📋 Instructions</h2>
+        <h2 data-i18n="instructions.title">📋 Instructions</h2>
         
         <div class="instructions-content">
             <div class="info-box">
-                <h3>🎯 Objectif de l'expérience</h3>
-                <p>Vous allez participer à une expérience sur la compréhension des phrases en allemand. Votre tâche est de juger si chaque phrase vous semble grammaticalement correcte ou incorrecte.</p>
+                <h3 data-i18n="instructions.objective_title">🎯 Objectif de l'expérience</h3>
+                <p data-i18n="instructions.objective_text">Vous allez participer à une expérience sur la compréhension des phrases en allemand. Votre tâche est de juger si chaque phrase vous semble grammaticalement correcte ou incorrecte.</p>
             </div>
 
             <div class="task-example">
-                <h4>📝 Procédure</h4>
-                <ol>
-                    <li><strong>Entraînement :</strong> Vous commencerez par 3 phrases d'entraînement avec feedback</li>
-                    <li><strong>Expérience :</strong> Vous verrez 24 phrases et devrez juger leur grammaticalité</li>
-                    <li><strong>Réponse :</strong> Cliquez sur "Grammaticale" ou "Non grammaticale"</li>
-                    <li><strong>Vitesse :</strong> Répondez le plus rapidement et précisément possible</li>
+                <h4 data-i18n="instructions.procedure_title">📝 Procédure</h4>
+                <ol id="procedure-steps">
+                    <!-- Les étapes seront remplies par JavaScript -->
                 </ol>
             </div>
 
             <div class="task-example">
-                <h4>⌨️ Contrôles</h4>
-                <ul>
-                    <li><strong>Souris :</strong> Cliquez sur les boutons</li>
-                    <li><strong>Clavier :</strong> Utilisez Y (ou O) pour "Grammaticale" et N pour "Non grammaticale"</li>
+                <h4 data-i18n="instructions.controls_title">⌨️ Contrôles</h4>
+                <ul id="controls-items">
+                    <!-- Les contrôles seront remplis par JavaScript -->
                 </ul>
             </div>
 
             <div class="important-notes">
-                <h4>⚠️ Important</h4>
-                <ul>
-                    <li>Ne revenez pas en arrière pendant l'expérience</li>
-                    <li>Ne fermez pas le navigateur</li>
-                    <li>Concentrez-vous sur la tâche</li>
-                    <li>L'expérience dure environ 10-15 minutes</li>
+                <h4 data-i18n="instructions.important_title">⚠️ Important</h4>
+                <ul id="important-items">
+                    <!-- Les points importants seront remplis par JavaScript -->
                 </ul>
             </div>
 
             <div class="task-example">
-                <h4>🔍 Exemples de phrases</h4>
+                <h4 data-i18n="instructions.examples_title">🔍 Exemples de phrases</h4>
                 <div class="example-phrases">
                     <div class="example-phrase">
-                        <p><strong>Grammaticale :</strong> "Der Hund schläft im Garten." (Le chien dort dans le jardin.)</p>
+                        <p><strong data-i18n="instructions.grammatical_example">Grammaticale : "Der Hund schläft im Garten." (Le chien dort dans le jardin.)</strong></p>
                     </div>
                     <div class="example-phrase">
-                        <p><strong>Non grammaticale :</strong> "Der Hund schlafen im Garten." (Le chien dormir dans le jardin.)</p>
+                        <p><strong data-i18n="instructions.ungrammatical_example">Non grammaticale : "Der Hund schlafen im Garten." (Le chien dormir dans le jardin.)</strong></p>
                     </div>
                 </div>
             </div>
 
             <div class="practice-info">
-                <h4>🎓 Entraînement</h4>
-                <p>Vous allez d'abord faire 3 essais d'entraînement avec feedback pour vous familiariser avec la tâche.</p>
+                <h4 data-i18n="instructions.training_title">🎓 Entraînement</h4>
+                <p data-i18n="instructions.training_text">Vous allez d'abord faire 3 essais d'entraînement avec feedback pour vous familiariser avec la tâche.</p>
             </div>
         </div>
 
         <div class="navigation-buttons">
-            <a href="index.html" class="btn btn-secondary">← Retour à l'accueil</a>
-            <button id="start-practice-btn" class="btn btn-primary">Commencer l'entraînement</button>
+            <a href="index.html" class="btn btn-secondary" data-i18n="instructions.back_button">← Retour à l'accueil</a>
+            <button id="start-practice-btn" class="btn btn-primary" data-i18n="instructions.start_training_button">Commencer l'entraînement</button>
         </div>
     </div>
 
+    <script src="js/i18n.js"></script>
     <script src="js/instructions.js"></script>
 </body>
 </html> 

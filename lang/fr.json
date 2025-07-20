@@ -1,0 +1,131 @@
+{
+  "nav": {
+    "home": "🏠 Accueil",
+    "instructions": "📋 Instructions",
+    "training": "🎓 Entraînement",
+    "experiment": "🧪 Expérience",
+    "results": "📊 Résultats",
+    "analytics": "📈 Analyses"
+  },
+  "home": {
+    "title": "Expérience Psycholinguistique",
+    "subtitle": "Étude sur la compréhension des phrases en allemand",
+    "welcome": "Bienvenue dans cette expérience de recherche !",
+    "description": "Cette expérience vise à étudier la compréhension des phrases en allemand. Votre participation nous aidera à mieux comprendre les processus cognitifs impliqués dans la compréhension linguistique.",
+    "start_button": "Commencer l'expérience",
+    "instructions_button": "Voir les instructions",
+    "analytics_button": "Analyses avancées"
+  },
+  "instructions": {
+    "title": "📋 Instructions",
+    "objective_title": "🎯 Objectif de l'expérience",
+    "objective_text": "Vous allez participer à une expérience sur la compréhension des phrases en allemand. Votre tâche est de juger si chaque phrase vous semble grammaticalement correcte ou incorrecte.",
+    "procedure_title": "📝 Procédure",
+    "procedure_steps": [
+      "Entraînement : Vous commencerez par 3 phrases d'entraînement avec feedback",
+      "Expérience : Vous verrez 24 phrases et devrez juger leur grammaticalité",
+      "Réponse : Cliquez sur \"Grammaticale\" ou \"Non grammaticale\"",
+      "Vitesse : Répondez le plus rapidement et précisément possible"
+    ],
+    "controls_title": "⌨️ Contrôles",
+    "controls_items": [
+      "Souris : Cliquez sur les boutons",
+      "Clavier : Utilisez Y (ou O) pour \"Grammaticale\" et N pour \"Non grammaticale\""
+    ],
+    "important_title": "⚠️ Important",
+    "important_items": [
+      "Ne revenez pas en arrière pendant l'expérience",
+      "Ne fermez pas le navigateur",
+      "Concentrez-vous sur la tâche",
+      "L'expérience dure environ 10-15 minutes"
+    ],
+    "examples_title": "🔍 Exemples de phrases",
+    "grammatical_example": "Grammaticale : \"Der Hund schläft im Garten.\" (Le chien dort dans le jardin.)",
+    "ungrammatical_example": "Non grammaticale : \"Der Hund schlafen im Garten.\" (Le chien dormir dans le jardin.)",
+    "training_title": "🎓 Entraînement",
+    "training_text": "Vous allez d'abord faire 3 essais d'entraînement avec feedback pour vous familiariser avec la tâche.",
+    "back_button": "← Retour à l'accueil",
+    "start_training_button": "Commencer l'entraînement"
+  },
+  "training": {
+    "title": "🎓 Entraînement",
+    "counter": "Essai d'entraînement",
+    "question": "Cette phrase vous semble-t-elle grammaticale ?",
+    "grammatical_button": "✅ Grammaticale",
+    "ungrammatical_button": "❌ Non grammaticale",
+    "key_hint_y": "(Y)",
+    "key_hint_n": "(N)",
+    "feedback_correct": "Correct ! Cette phrase est grammaticale.",
+    "feedback_incorrect": "Incorrect. Cette phrase n'est pas grammaticale.",
+    "next_button": "Suivant",
+    "progress": "Progression de l'entraînement"
+  },
+  "experiment": {
+    "title": "🧪 Expérience",
+    "counter": "Question",
+    "question": "Cette phrase vous semble-t-elle grammaticale ?",
+    "grammatical_button": "✅ Grammaticale",
+    "ungrammatical_button": "❌ Non grammaticale",
+    "key_hint_y": "(Y)",
+    "key_hint_n": "(N)",
+    "progress": "Progression de l'expérience",
+    "pause_title": "⏸️ Pause",
+    "pause_text": "Prenez une courte pause. Vous pouvez continuer quand vous êtes prêt.",
+    "continue_button": "Continuer"
+  },
+  "results": {
+    "title": "📊 Résultats",
+    "completion_title": "Expérience terminée !",
+    "completion_text": "Merci pour votre participation ! Voici un résumé de vos résultats :",
+    "summary_title": "Résumé des résultats",
+    "total_trials": "Nombre total d'essais",
+    "correct_answers": "Réponses correctes",
+    "accuracy": "Précision",
+    "average_time": "Temps de réponse moyen",
+    "conditions": {
+      "simple_ambiguous": "Simple, ambiguë",
+      "simple_unambiguous": "Simple, non ambiguë",
+      "complex_ambiguous": "Complexe, ambiguë",
+      "complex_unambiguous": "Complexe, non ambiguë"
+    },
+    "download_button": "📥 Télécharger les données",
+    "new_experiment_button": "🔄 Nouvelle expérience",
+    "analytics_button": "📈 Voir les analyses"
+  },
+  "analytics": {
+    "title": "📈 Analyses",
+    "import_title": "📁 Import de données",
+    "import_text": "Vous pouvez importer des fichiers JSON exportés depuis l'expérience pour analyser plusieurs participants.",
+    "import_button": "Choisir des fichiers",
+    "import_placeholder": "Aucun fichier sélectionné",
+    "no_files": "Aucun fichier importé",
+    "remove_file": "Supprimer",
+    "export_button": "📥 Exporter les analyses",
+    "clear_data_button": "🗑️ Effacer toutes les données",
+    "clear_confirm": "Êtes-vous sûr de vouloir effacer toutes les données importées ?",
+    "no_data": "Aucune donnée d'expérience trouvée. Importez des fichiers JSON ou complétez une expérience.",
+    "charts": {
+      "accuracy": "Précision par condition",
+      "response_time": "Temps de réponse par condition",
+      "participant_comparison": "Comparaison des participants",
+      "learning_curve": "Courbe d'apprentissage"
+    },
+    "stats": {
+      "total_participants": "Total participants",
+      "average_accuracy": "Précision moyenne",
+      "average_response_time": "Temps de réponse moyen"
+    }
+  },
+  "common": {
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "cancel": "Annuler",
+    "confirm": "Confirmer",
+    "close": "Fermer"
+  },
+  "language": {
+    "fr": "Français",
+    "pt": "Português"
+  }
+} 
