@@ -28,19 +28,23 @@ class InstructionsPage {
     populateLists() {
         // Remplit la liste des étapes de procédure
         const procedureSteps = document.getElementById('procedure-steps');
-        if (procedureSteps && window.i18n) {
-            const steps = window.i18n.t('instructions.procedure_steps');
-            if (Array.isArray(steps)) {
+        let steps = window.i18n && window.i18n.t('instructions.procedure_steps');
+        if (procedureSteps) {
+            if (Array.isArray(steps) && steps.length > 0) {
                 procedureSteps.innerHTML = steps.map(step => `<li>${step}</li>`).join('');
+            } else {
+                procedureSteps.innerHTML = '<li>(Aucune étape trouvée)</li>';
             }
         }
 
         // Remplit la liste des contrôles
         const controlsItems = document.getElementById('controls-items');
-        if (controlsItems && window.i18n) {
-            const controls = window.i18n.t('instructions.controls_items');
-            if (Array.isArray(controls)) {
+        let controls = window.i18n && window.i18n.t('instructions.controls_items');
+        if (controlsItems) {
+            if (Array.isArray(controls) && controls.length > 0) {
                 controlsItems.innerHTML = controls.map(control => `<li>${control}</li>`).join('');
+            } else {
+                controlsItems.innerHTML = '<li>(Aucun contrôle trouvé)</li>';
             }
         }
     }

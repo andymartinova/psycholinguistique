@@ -421,7 +421,16 @@ class AnalyticsPage {
 }
 
 // Initialisation
+// On attend que window.i18n soit prêt avant d'instancier la page
+
 document.addEventListener('DOMContentLoaded', () => {
-    const analytics = new AnalyticsPage();
-    window.removeFile = (index) => analytics.removeFile(index);
+    const waitForI18n = () => {
+        if (window.i18n && window.i18n.loaded) {
+            const analytics = new AnalyticsPage();
+            window.removeFile = (index) => analytics.removeFile(index);
+        } else {
+            setTimeout(waitForI18n, 50);
+        }
+    };
+    waitForI18n();
 }); 
