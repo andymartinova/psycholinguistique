@@ -21,8 +21,25 @@
                 <p data-i18n="home.description">Cette expérience vise à étudier la compréhension des phrases en allemand. Votre participation nous aidera à mieux comprendre les processus cognitifs impliqués dans la compréhension linguistique.</p>
             </div>
 
+            <form id="participant-form" class="participant-form" autocomplete="off">
+                <div class="form-group">
+                    <label for="participant-id" data-i18n="home.participant_label">Numéro de participant :</label>
+                    <input type="text" id="participant-id" name="participant-id" data-i18n-placeholder="home.participant_placeholder" placeholder="P001" required>
+                </div>
+                <div class="form-group">
+                    <label for="language-group" data-i18n="home.language_group_label">Groupe linguistique :</label>
+                    <select id="language-group" name="language-group" required>
+                        <option value="" data-i18n="home.language_group_select">Sélectionnez votre groupe</option>
+                        <option value="fr" data-i18n="home.language_group_fr">Locuteur natif français</option>
+                        <option value="pt" data-i18n="home.language_group_pt">Locuteur natif portugais</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary" data-i18n="home.start_button">Commencer l'expérience</button>
+                </div>
+            </form>
+
             <div class="action-buttons">
-                <a href="instructions.html" class="btn btn-primary" data-i18n="home.start_button">Commencer l'expérience</a>
                 <a href="instructions.html" class="btn btn-secondary" data-i18n="home.instructions_button">Voir les instructions</a>
                 <a href="analytics.html" class="btn btn-secondary" data-i18n="home.analytics_button">Analyses avancées</a>
             </div>

@@ -7,8 +7,8 @@ class ExperimentPage {
         this.responseTime = 0;
         this.currentSentence = null;
         this.justContinuedFromPause = false;
-        
         this.setupEventHandlers();
+        this.setupDynamicTranslation();
         this.startExperiment();
     }
 
@@ -28,29 +28,44 @@ class ExperimentPage {
         document.addEventListener('keydown', (e) => this.handleKeyPress(e));
     }
 
+    setupDynamicTranslation() {
+        // Pour traduire dynamiquement les boutons et textes statiques
+        const checkI18n = () => {
+            if (window.i18n && window.i18n.loaded) {
+                this.translateStaticTexts();
+            } else {
+                setTimeout(checkI18n, 100);
+            }
+        };
+        checkI18n();
+    }
+
+    translateStaticTexts() {
+        // Traduction des boutons et textes statiques
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            const translation = window.i18n.t(key);
+            if (translation) {
+                el.innerHTML = translation;
+            }
+        });
+    }
+
     handleKeyPress(event) {
         // Ignorer si les boutons sont désactivés ou si on est en pause
         const responseButtons = document.querySelector('.response-buttons');
         const pauseArea = document.querySelector('.pause-area');
-        
-        // Vérifier si les boutons sont disponibles et visibles
         if (!responseButtons || responseButtons.style.opacity === '0') {
             return;
         }
-        
-        // Vérifier si on est en pause
         if (pauseArea && pauseArea.style.display === 'block') {
             return;
         }
-
         const key = event.key.toLowerCase();
-        
         if (key === 'y' || key === 'o') {
-            // Y ou O pour Grammaticale
             event.preventDefault();
             this.handleResponse({ target: { dataset: { response: 'grammatical' } } });
         } else if (key === 'n') {
-            // N pour Non grammaticale
             event.preventDefault();
             this.handleResponse({ target: { dataset: { response: 'ungrammatical' } } });
         }
@@ -64,37 +79,25 @@ class ExperimentPage {
 
     nextTrial() {
         if (this.currentTrial >= EXPERIMENT_CONFIG.totalTrials) {
-            // Fin de l'expérience
             this.saveExperimentData();
             window.location.href = 'results.html';
             return;
         }
-
-        // Vérifier si on doit faire une pause
         if (this.currentTrial > 0 && this.currentTrial % EXPERIMENT_CONFIG.pauseAfterTrials === 0 && !this.justContinuedFromPause) {
             this.showPause();
             return;
         }
-
-        // Réinitialiser le flag
         this.justContinuedFromPause = false;
-
-        // Sélectionner une phrase aléatoire
         const availableSentences = EXPERIMENTAL_SENTENCES.filter(s => 
             !this.experimentData.some(d => d.sentence === s.sentence)
         );
-        
         if (availableSentences.length === 0) {
-            // Toutes les phrases ont été utilisées, mélanger et recommencer
             this.experimentData = [];
             this.currentSentence = EXPERIMENTAL_SENTENCES[Math.floor(Math.random() * EXPERIMENTAL_SENTENCES.length)];
         } else {
             this.currentSentence = availableSentences[Math.floor(Math.random() * availableSentences.length)];
         }
-
         this.displaySentence(this.currentSentence.sentence);
-        
-        // Mettre à jour les compteurs et la progression
         this.updateCounters();
         this.updateProgress();
     }
@@ -105,14 +108,8 @@ class ExperimentPage {
             sentenceDisplay.textContent = sentence;
             sentenceDisplay.classList.add('fade-in');
         }
-        
-        // Afficher les boutons immédiatement avec la phrase
         this.showResponseButtons();
-        
-        // Enregistrer le temps de début
         this.startTime = Date.now();
-        
-        // Retirer l'animation après un délai
         setTimeout(() => {
             const sentenceDisplay = document.querySelector('.sentence');
             if (sentenceDisplay) sentenceDisplay.classList.remove('fade-in');
@@ -121,25 +118,17 @@ class ExperimentPage {
 
     handleResponse(event) {
         let response;
-        
-        // Vérifier si c'est un clic sur un bouton ou une touche clavier
         if (event.target && event.target.closest) {
-            // Clic sur un bouton
             const button = event.target.closest('[data-response]');
             if (!button) return;
             response = button.dataset.response;
         } else {
-            // Touche clavier - la réponse est directement dans event.target.dataset.response
             response = event.target.dataset.response;
         }
-        
         this.responseTime = Date.now() - this.startTime;
-        
         this.disableResponseButtons();
-        
-        // Enregistrer les données pour l'expérience principale
         const trialData = {
-            trial: this.currentTrial + 1, // Utiliser le bon numéro d'essai
+            trial: this.currentTrial + 1,
             sentence: this.currentSentence.sentence,
             condition: this.currentSentence.condition,
             expected: this.currentSentence.expected,
@@ -148,33 +137,54 @@ class ExperimentPage {
             correct: response === this.currentSentence.expected,
             timestamp: new Date().toISOString()
         };
-        
         this.experimentData.push(trialData);
-        
-        // Incrémenter le compteur d'essai après avoir enregistré les données
+        this.showFeedback(response === this.currentSentence.expected);
         this.currentTrial++;
-        
-        // Passer au prochain essai après un court délai
         setTimeout(() => {
+            this.hideFeedback();
             this.enableResponseButtons();
             this.nextTrial();
-        }, 500);
+        }, 1000);
+    }
+
+    showFeedback(isCorrect) {
+        // Affiche un feedback visuel (optionnel, à adapter selon besoin)
+        // Ici, on peut afficher un message temporaire ou une animation
+        // Pour la démo, on affiche un message dans la barre de progression
+        const progressText = document.querySelector('.progress-text');
+        if (progressText) {
+            if (window.i18n && window.i18n.loaded) {
+                if (isCorrect) {
+                    progressText.innerHTML = '✅ ' + window.i18n.t('training.feedback_correct');
+                } else {
+                    let expected = this.currentSentence.expected === 'grammatical'
+                        ? window.i18n.t('experiment.grammatical_button')
+                        : window.i18n.t('experiment.ungrammatical_button');
+                    progressText.innerHTML = `❌ ${window.i18n.t('training.feedback_incorrect')}<br><span style="font-size:0.95em;">${window.i18n.t('training.expected_answer') || 'Réponse attendue'}: <b>${expected}</b></span>`;
+                }
+            } else {
+                progressText.textContent = isCorrect ? '✅ Correct !' : '❌ Incorrect.';
+            }
+        }
+    }
+
+    hideFeedback() {
+        // Remet le texte de progression normal
+        const progressText = document.querySelector('.progress-text');
+        if (progressText) {
+            progressText.innerHTML = window.i18n && window.i18n.loaded ? window.i18n.t('experiment.progress') : 'Essai';
+        }
     }
 
     continueExperiment() {
-        console.log('Fonction continueExperiment appelée');
         this.hidePause();
-        
-        // Activer le flag pour éviter de retomber dans la pause
         this.justContinuedFromPause = true;
-        
         this.nextTrial();
     }
 
     showPause() {
         const stimulusArea = document.querySelector('.stimulus-area');
         const pauseArea = document.querySelector('.pause-area');
-        
         if (stimulusArea) stimulusArea.style.display = 'none';
         if (pauseArea) pauseArea.style.display = 'block';
     }
@@ -182,7 +192,6 @@ class ExperimentPage {
     hidePause() {
         const pauseArea = document.querySelector('.pause-area');
         const stimulusArea = document.querySelector('.stimulus-area');
-        
         if (pauseArea) pauseArea.style.display = 'none';
         if (stimulusArea) stimulusArea.style.display = 'block';
     }
@@ -240,7 +249,6 @@ class ExperimentPage {
                 endTime: new Date().toISOString()
             }
         };
-        
         localStorage.setItem('experimentData', JSON.stringify(completeData));
     }
 }

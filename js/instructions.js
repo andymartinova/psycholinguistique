@@ -43,15 +43,6 @@ class InstructionsPage {
                 controlsItems.innerHTML = controls.map(control => `<li>${control}</li>`).join('');
             }
         }
-
-        // Remplit la liste des points importants
-        const importantItems = document.getElementById('important-items');
-        if (importantItems && window.i18n) {
-            const important = window.i18n.t('instructions.important_items');
-            if (Array.isArray(important)) {
-                importantItems.innerHTML = important.map(item => `<li>${item}</li>`).join('');
-            }
-        }
     }
 }
 

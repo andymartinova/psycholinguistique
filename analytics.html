@@ -3,30 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analyses - Expérience Psycholinguistique</title>
+    <title data-i18n="analytics.title">Analyses - Expérience Psycholinguistique</title>
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
-    <a href="index.html" class="home-button">🏠 Accueil</a>
+    <a href="index.html" class="home-button" data-i18n="nav.home">🏠 Accueil</a>
     
     <div class="container">
-        <h2>📊 Analyses détaillées</h2>
+        <h2 data-i18n="analytics.title">📊 Analyses détaillées</h2>
         
         <!-- Section d'import -->
         <div class="analytics-section">
-            <h3>📁 Import de données</h3>
+            <h3 data-i18n="analytics.import_title">📁 Import de données</h3>
             <div class="import-area">
                 <div class="file-upload">
                     <label for="file-input" class="file-upload-label">
                         <span class="file-upload-icon">📁</span>
-                        <span class="file-upload-text">Choisir un ou plusieurs fichiers JSON</span>
+                        <span class="file-upload-text" data-i18n="analytics.import_button">Choisir un ou plusieurs fichiers JSON</span>
                     </label>
                     <input type="file" id="file-input" multiple accept=".json" style="display: none;">
                 </div>
                 <div class="import-info">
-                    <p>Vous pouvez importer des fichiers JSON exportés depuis l'expérience pour analyser plusieurs participants.</p>
+                    <p data-i18n="analytics.import_text">Vous pouvez importer des fichiers JSON exportés depuis l'expérience pour analyser plusieurs participants.</p>
                 </div>
                 <div id="imported-files" class="imported-files-list">
                     <!-- Liste des fichiers importés -->
@@ -35,60 +35,60 @@
         </div>
 
         <div class="analytics-section">
-            <h3>Statistiques globales</h3>
+            <h3 data-i18n="analytics.stats_title">Statistiques globales</h3>
             <div id="global-stats" class="stats-grid">
                 <!-- Statistiques globales -->
             </div>
         </div>
 
         <div class="analytics-section">
-            <h3>Performance par condition</h3>
+            <h3 data-i18n="analytics.conditions_title">Performance par condition</h3>
             <div id="condition-stats" class="stats-grid">
                 <!-- Statistiques par condition -->
             </div>
         </div>
 
         <div class="analytics-section">
-            <h3>Comparaison des participants</h3>
+            <h3 data-i18n="analytics.participant_comparison_title">Comparaison des participants</h3>
             <div id="participant-comparison" class="stats-grid">
                 <!-- Comparaison des participants -->
             </div>
         </div>
 
         <div class="analytics-section">
-            <h3>📈 Graphiques</h3>
+            <h3 data-i18n="analytics.charts_title">📈 Graphiques</h3>
             <div id="charts-container" class="charts-container">
                 <div class="chart-card">
-                    <div class="chart-title">Précision par condition</div>
+                    <div class="chart-title" data-i18n="analytics.charts.accuracy">Précision par condition</div>
                     <div id="accuracy-chart" class="chart-container"></div>
                 </div>
                 <div class="chart-card">
-                    <div class="chart-title">Temps de réponse par condition</div>
+                    <div class="chart-title" data-i18n="analytics.charts.response_time">Temps de réponse par condition</div>
                     <div id="response-time-chart" class="chart-container"></div>
                 </div>
                 <div class="chart-card">
-                    <div class="chart-title">Comparaison des participants</div>
+                    <div class="chart-title" data-i18n="analytics.charts.participant_comparison">Comparaison des participants</div>
                     <div id="participant-chart" class="chart-container"></div>
                 </div>
                 <div class="chart-card">
-                    <div class="chart-title">Courbe d'apprentissage</div>
+                    <div class="chart-title" data-i18n="analytics.charts.learning_curve">Courbe d'apprentissage</div>
                     <div id="learning-curve-chart" class="chart-container"></div>
                 </div>
             </div>
         </div>
 
         <div class="analytics-section">
-            <h3>📋 Données brutes</h3>
+            <h3 data-i18n="analytics.raw_data_title">📋 Données brutes</h3>
             <div id="raw-data" class="data-table-container">
                 <!-- Tableau des données brutes -->
             </div>
         </div>
 
         <div class="navigation-buttons">
-            <a href="index.html" class="btn btn-secondary">🏠 Accueil</a>
-            <a href="results.html" class="btn btn-secondary">← Retour aux résultats</a>
-            <button id="export-analytics-btn" class="btn btn-primary">📥 Exporter les analyses</button>
-            <button id="clear-data-btn" class="btn btn-secondary">🗑️ Effacer toutes les données</button>
+            <a href="index.html" class="btn btn-secondary" data-i18n="nav.home">🏠 Accueil</a>
+            <a href="results.html" class="btn btn-secondary" data-i18n="results.title">← Retour aux résultats</a>
+            <button id="export-analytics-btn" class="btn btn-primary" data-i18n="analytics.export_button">📥 Exporter les analyses</button>
+            <button id="clear-data-btn" class="btn btn-secondary" data-i18n="analytics.clear_data_button">🗑️ Effacer toutes les données</button>
         </div>
     </div>
 
