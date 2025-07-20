@@ -490,11 +490,10 @@
 .response-buttons {
     display: flex;
     justify-content: center;
+    align-items: center;
     gap: 1rem;
     flex-wrap: wrap;
-    min-height: 60px;
-    align-items: center;
-    transition: opacity 0.3s ease;
+    margin-top: 1rem;
 }
 
 .btn-grammatical {

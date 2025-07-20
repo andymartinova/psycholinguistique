@@ -37,8 +37,17 @@ class ResultsPage {
     }
 
     loadExperimentData() {
-        const data = localStorage.getItem('experimentData');
-        return data ? JSON.parse(data) : null;
+        try {
+            const data = localStorage.getItem('experimentData');
+            if (!data) return null;
+            const parsed = JSON.parse(data);
+            if (!parsed || !parsed.experiment || !Array.isArray(parsed.experiment.data) || parsed.experiment.data.length === 0) {
+                return null;
+            }
+            return parsed;
+        } catch (e) {
+            return null;
+        }
     }
 
     displayResults() {
@@ -53,7 +62,13 @@ class ResultsPage {
     displaySummaryStats() {
         const summaryStats = document.getElementById('summary-stats');
         if (!summaryStats) return;
-        const summary = generateSummary(this.experimentData.experiment.data);
+        let summary;
+        try {
+            summary = generateSummary(this.experimentData.experiment.data);
+        } catch (e) {
+            summaryStats.innerHTML = `<div class="info-box"><p>${window.i18n.t('analytics.no_data')}</p></div>`;
+            return;
+        }
         summaryStats.innerHTML = `
             <div class="stat-card">
                 <div class="stat-value">${summary.totalTrials}</div>
@@ -77,8 +92,13 @@ class ResultsPage {
     displayConditionStats() {
         const conditionStats = document.getElementById('condition-stats');
         if (!conditionStats) return;
-        const summary = generateSummary(this.experimentData.experiment.data);
-        // Utilise les labels du dictionnaire
+        let summary;
+        try {
+            summary = generateSummary(this.experimentData.experiment.data);
+        } catch (e) {
+            conditionStats.innerHTML = '';
+            return;
+        }
         const conditionLabels = {
             'simple_non_ambiguous': window.i18n.t('results.conditions.simple_unambiguous'),
             'complex_non_ambiguous': window.i18n.t('results.conditions.complex_unambiguous'),
@@ -110,7 +130,7 @@ class ResultsPage {
 
     downloadData() {
         if (this.experimentData) {
-            const participantId = this.experimentData.participant.id || 'unknown';
+            const participantId = this.experimentData.participant?.id || 'unknown';
             downloadData(this.experimentData, participantId);
         }
     }

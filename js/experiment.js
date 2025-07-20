@@ -138,34 +138,16 @@ class ExperimentPage {
             timestamp: new Date().toISOString()
         };
         this.experimentData.push(trialData);
-        this.showFeedback(response === this.currentSentence.expected);
+        // Ne pas afficher de feedback pendant l'expérience principale
         this.currentTrial++;
         setTimeout(() => {
-            this.hideFeedback();
             this.enableResponseButtons();
             this.nextTrial();
-        }, 1000);
+        }, 500);
     }
 
     showFeedback(isCorrect) {
-        // Affiche un feedback visuel (optionnel, à adapter selon besoin)
-        // Ici, on peut afficher un message temporaire ou une animation
-        // Pour la démo, on affiche un message dans la barre de progression
-        const progressText = document.querySelector('.progress-text');
-        if (progressText) {
-            if (window.i18n && window.i18n.loaded) {
-                if (isCorrect) {
-                    progressText.innerHTML = '✅ ' + window.i18n.t('training.feedback_correct');
-                } else {
-                    let expected = this.currentSentence.expected === 'grammatical'
-                        ? window.i18n.t('experiment.grammatical_button')
-                        : window.i18n.t('experiment.ungrammatical_button');
-                    progressText.innerHTML = `❌ ${window.i18n.t('training.feedback_incorrect')}<br><span style="font-size:0.95em;">${window.i18n.t('training.expected_answer') || 'Réponse attendue'}: <b>${expected}</b></span>`;
-                }
-            } else {
-                progressText.textContent = isCorrect ? '✅ Correct !' : '❌ Incorrect.';
-            }
-        }
+        // Ne rien faire : pas de feedback pendant l'expérience principale
     }
 
     hideFeedback() {
