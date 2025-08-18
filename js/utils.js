@@ -1,19 +1,16 @@
 // Fonction pour formater les temps de réponse
+/**
+ * Formate un temps de réponse en millisecondes avec conversion en secondes
+ * @param {number} ms - Temps en millisecondes
+ * @returns {string} - Format: "10387ms (10.4s)"
+ */
 function formatResponseTime(ms) {
-    if (!ms || ms === 0) return '0ms';
-    
-    const seconds = Math.floor(ms / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    const remainingMs = ms % 1000;
-    
-    if (minutes > 0) {
-        return `${minutes}:${remainingSeconds.toString().padStart(2, '0')} (${ms}ms)`;
-    } else if (seconds > 0) {
-        return `${remainingSeconds}.${remainingMs.toString().padStart(3, '0')}s (${ms}ms)`;
-    } else {
-        return `${ms}ms`;
+    if (ms === null || ms === undefined || isNaN(ms)) {
+        return '0ms (0.0s)';
     }
+    
+    const seconds = ms / 1000;
+    return `${Math.round(ms)}ms (${seconds.toFixed(1)}s)`;
 }
 
 // Fonction pour générer un résumé des données d'expérience
@@ -23,7 +20,7 @@ function generateSummary(data) {
             totalTrials: 0,
             correctResponses: 0,
             accuracy: '0%',
-            avgResponseTime: '0ms',
+            avgResponseTime: '0ms (0.0s)',
             conditionStats: {}
         };
     }

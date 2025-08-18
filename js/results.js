@@ -3,8 +3,19 @@ class ResultsPage {
     constructor() {
         this.experimentData = this.loadExperimentData();
         this.setupEventHandlers();
-        this.setupDynamicTranslation();
-        this.displayResults();
+        this.waitForTranslation();
+    }
+
+    waitForTranslation() {
+        const checkI18n = () => {
+            if (window.i18n && window.i18n.loaded) {
+                this.setupDynamicTranslation();
+                this.displayResults();
+            } else {
+                setTimeout(checkI18n, 100);
+            }
+        };
+        checkI18n();
     }
 
     setupEventHandlers() {
@@ -31,7 +42,7 @@ class ResultsPage {
             const key = el.getAttribute('data-i18n');
             const translation = window.i18n.t(key);
             if (translation) {
-                el.innerHTML = translation;
+                el.textContent = translation;
             }
         });
     }
@@ -51,6 +62,7 @@ class ResultsPage {
     }
 
     displayResults() {
+        console.log('Displaying results...', this.experimentData);
         if (!this.experimentData) {
             this.showNoDataMessage();
             return;

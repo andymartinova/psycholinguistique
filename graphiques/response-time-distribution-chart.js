@@ -1,5 +1,5 @@
-// Graphique de courbe d'apprentissage avec Chart.js
-class LearningCurveChart {
+// Graphique de distribution des temps de réponse avec Chart.js
+class ResponseTimeDistributionChart {
     constructor(containerId, data) {
         this.containerId = containerId;
         this.data = data;
@@ -8,34 +8,71 @@ class LearningCurveChart {
     }
 
     init() {
+        console.log('ResponseTimeDistributionChart init called for container:', this.containerId);
         const container = document.getElementById(this.containerId);
-        if (!container) return;
-
+        if (!container) {
+            console.error('Container not found:', this.containerId);
+            return;
+        }
+        console.log('Container found, preparing data...');
         const chartData = this.prepareData();
+        console.log('Chart data prepared:', chartData);
         this.createChart(container, chartData);
     }
 
     prepareData() {
-        // Grouper les données par participant et calculer la performance par essai individuel
-        const participants = [...new Set(this.data.map(d => d.participantId))];
-        const datasets = [];
+        // Extraire tous les temps de réponse valides
+        const responseTimes = this.data
+            .map(d => d.responseTime)
+            .filter(time => time !== null && time !== undefined && !isNaN(time) && time > 0);
 
-        participants.forEach((participantId, index) => {
-            const participantData = this.data.filter(d => d.participantId === participantId);
-            const trials = [];
+        if (responseTimes.length === 0) {
+            return { labels: [], datasets: [] };
+        }
 
-            // Créer un point pour chaque essai avec la précision cumulative
-            let cumulativeCorrect = 0;
-            participantData.forEach((trial, trialIndex) => {
-                if (trial.correct) cumulativeCorrect++;
-                const accuracy = (cumulativeCorrect / (trialIndex + 1)) * 100;
-                
-                trials.push({
-                    x: trialIndex + 1,
-                    y: accuracy
-                });
+        // Calculer les statistiques pour créer les bins
+        const minTime = Math.min(...responseTimes);
+        const maxTime = Math.max(...responseTimes);
+        const range = maxTime - minTime;
+        
+        // Créer des bins (plages) de 500ms
+        const binSize = 500;
+        const numBins = Math.ceil(range / binSize) + 1;
+        const bins = [];
+        
+        for (let i = 0; i < numBins; i++) {
+            const binStart = minTime + (i * binSize);
+            const binEnd = binStart + binSize;
+            const count = responseTimes.filter(time => time >= binStart && time < binEnd).length;
+            
+            bins.push({
+                start: binStart,
+                end: binEnd,
+                count: count,
+                label: `${Math.round(binStart)}-${Math.round(binEnd)}ms`
             });
+        }
 
+        // Grouper par participant si plusieurs participants
+        const participants = [...new Set(this.data.map(d => d.participantId))];
+        
+        if (participants.length === 1) {
+            // Un seul participant - histogramme simple
+            return {
+                labels: bins.map(bin => bin.label),
+                datasets: [{
+                    label: 'Fréquence',
+                    data: bins.map(bin => bin.count),
+                    backgroundColor: 'rgba(66, 153, 225, 0.8)',
+                    borderColor: 'rgba(66, 153, 225, 1)',
+                    borderWidth: 2,
+                    borderRadius: 4,
+                    borderSkipped: false
+                }]
+            };
+        } else {
+            // Plusieurs participants - histogrammes groupés
+            const datasets = [];
             const colors = [
                 'rgba(66, 153, 225, 0.8)',
                 'rgba(72, 187, 120, 0.8)',
@@ -45,29 +82,39 @@ class LearningCurveChart {
                 'rgba(56, 178, 172, 0.8)'
             ];
 
-            datasets.push({
-                label: participantId,
-                data: trials,
-                borderColor: colors[index % colors.length].replace('0.8', '1'),
-                backgroundColor: colors[index % colors.length].replace('0.8', '0.1'),
-                borderWidth: 3,
-                fill: false,
-                tension: 0.4,
-                pointRadius: 3,
-                pointHoverRadius: 5,
-                pointBackgroundColor: colors[index % colors.length].replace('0.8', '1'),
-                pointBorderColor: 'white',
-                pointBorderWidth: 2
-            });
-        });
+            participants.forEach((participantId, index) => {
+                const participantData = this.data.filter(d => d.participantId === participantId);
+                const participantTimes = participantData
+                    .map(d => d.responseTime)
+                    .filter(time => time !== null && time !== undefined && !isNaN(time) && time > 0);
 
-        return {
-            datasets: datasets
-        };
+                const participantBins = bins.map(bin => {
+                    return participantTimes.filter(time => time >= bin.start && time < bin.end).length;
+                });
+
+                datasets.push({
+                    label: participantId,
+                    data: participantBins,
+                    backgroundColor: colors[index % colors.length],
+                    borderColor: colors[index % colors.length].replace('0.8', '1'),
+                    borderWidth: 2,
+                    borderRadius: 4,
+                    borderSkipped: false
+                });
+            });
+
+            return {
+                labels: bins.map(bin => bin.label),
+                datasets: datasets
+            };
+        }
     }
 
     createChart(container, chartData) {
-        if (chartData.datasets.length === 0) return;
+        if (chartData.datasets.length === 0) {
+            container.innerHTML = '<p>Aucune donnée de temps de réponse disponible.</p>';
+            return;
+        }
 
         // Créer le canvas
         const canvas = document.createElement('canvas');
@@ -77,7 +124,7 @@ class LearningCurveChart {
 
         // Configuration Chart.js
         const config = {
-            type: 'line',
+            type: 'bar',
             data: chartData,
             options: {
                 responsive: true,
@@ -108,10 +155,10 @@ class LearningCurveChart {
                         displayColors: true,
                         callbacks: {
                             title: function(context) {
-                                return `Essai ${context[0].parsed.x}`;
+                                return context[0].label;
                             },
                             label: function(context) {
-                                return `${context.dataset.label}: ${context.parsed.y.toFixed(1)}%`;
+                                return `${context.dataset.label}: ${context.parsed.y} essais`;
                             }
                         }
                     }
@@ -119,11 +166,7 @@ class LearningCurveChart {
                 scales: {
                     y: {
                         beginAtZero: true,
-                        max: 100,
                         ticks: {
-                            callback: function(value) {
-                                return value + '%';
-                            },
                             font: {
                                 size: 11
                             }
@@ -134,7 +177,7 @@ class LearningCurveChart {
                         },
                         title: {
                             display: true,
-                            text: 'Précision cumulative (%)',
+                            text: 'Nombre d\'essais',
                             font: {
                                 size: 12,
                                 weight: 'bold'
@@ -143,20 +186,18 @@ class LearningCurveChart {
                         }
                     },
                     x: {
-                        type: 'linear',
                         ticks: {
-                            stepSize: 6,
                             font: {
-                                size: 11
-                            }
+                                size: 10
+                            },
+                            maxRotation: 45
                         },
                         grid: {
-                            color: 'rgba(0, 0, 0, 0.1)',
-                            drawBorder: false
+                            display: false
                         },
                         title: {
                             display: true,
-                            text: 'Numéro d\'essai',
+                            text: 'Plages de temps de réponse',
                             font: {
                                 size: 12,
                                 weight: 'bold'
@@ -194,4 +235,4 @@ class LearningCurveChart {
             this.chart.destroy();
         }
     }
-} 
+}

@@ -1,8 +1,9 @@
-// Graphique de précision par condition
+// Graphique de précision par condition avec Chart.js
 class AccuracyChart {
     constructor(containerId, data) {
         this.containerId = containerId;
         this.data = data;
+        this.chart = null;
         this.init();
     }
 
@@ -17,129 +18,169 @@ class AccuracyChart {
     prepareData() {
         const conditions = ['simple_non_ambiguous', 'complex_non_ambiguous', 'ambiguous_easy', 'ambiguous_difficult'];
         const conditionLabels = {
-            'simple_non_ambiguous': 'Simple, non ambiguë',
-            'complex_non_ambiguous': 'Complexe, non ambiguë',
-            'ambiguous_easy': 'Ambiguë, résolution facile',
-            'ambiguous_difficult': 'Ambiguë, résolution difficile'
+            'simple_non_ambiguous': 'Simple Non-Ambigu',
+            'complex_non_ambiguous': 'Complexe Non-Ambigu',
+            'ambiguous_easy': 'Ambigu Facile',
+            'ambiguous_difficult': 'Ambigu Difficile'
         };
 
-        return conditions.map(condition => {
-            const conditionData = this.data.filter(d => d.condition === condition);
-            const accuracy = conditionData.length > 0 
-                ? (conditionData.filter(d => d.correct).length / conditionData.length) * 100 
-                : 0;
-            
-            return {
-                condition: conditionLabels[condition] || condition,
-                accuracy: accuracy,
-                trials: conditionData.length
-            };
+        // Grouper par participant et condition
+        const participants = [...new Set(this.data.map(d => d.participantId))];
+        const datasets = [];
+
+        participants.forEach((participantId, index) => {
+            const participantData = conditions.map(condition => {
+                const conditionData = this.data.filter(d => d.condition === condition && d.participantId === participantId);
+                const accuracy = conditionData.length > 0 
+                    ? (conditionData.filter(d => d.correct).length / conditionData.length) * 100 
+                    : 0;
+                return accuracy;
+            });
+
+            const colors = [
+                'rgba(66, 153, 225, 0.8)',
+                'rgba(72, 187, 120, 0.8)',
+                'rgba(237, 137, 54, 0.8)',
+                'rgba(245, 101, 101, 0.8)',
+                'rgba(159, 122, 234, 0.8)',
+                'rgba(56, 178, 172, 0.8)'
+            ];
+
+            datasets.push({
+                label: participantId,
+                data: participantData,
+                backgroundColor: colors[index % colors.length],
+                borderColor: colors[index % colors.length].replace('0.8', '1'),
+                borderWidth: 2,
+                borderRadius: 8,
+                borderSkipped: false,
+            });
         });
+
+        return {
+            labels: Object.values(conditionLabels),
+            datasets: datasets
+        };
     }
 
     createChart(container, chartData) {
-        if (chartData.length === 0) return;
-
         // Créer le canvas
         const canvas = document.createElement('canvas');
-        canvas.width = container.clientWidth;
-        canvas.height = 300;
+        canvas.style.width = '100%';
+        canvas.style.height = '400px';
         container.appendChild(canvas);
 
-        const ctx = canvas.getContext('2d');
+        // Configuration Chart.js
+        const config = {
+            type: 'bar',
+            data: chartData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: false
+                    },
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 10,
+                            font: {
+                                size: 11,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: 'white',
+                        bodyColor: 'white',
+                        borderColor: '#4299e1',
+                        borderWidth: 1,
+                        cornerRadius: 8,
+                        displayColors: true,
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.dataset.label}: ${context.parsed.y.toFixed(1)}%`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            },
+                            font: {
+                                size: 11
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)',
+                            drawBorder: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Précision (%)',
+                            font: {
+                                size: 12,
+                                weight: 'bold'
+                            },
+                            color: '#4a5568'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            font: {
+                                size: 11
+                            }
+                        },
+                        grid: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Conditions expérimentales',
+                            font: {
+                                size: 12,
+                                weight: 'bold'
+                            },
+                            color: '#4a5568',
+                            align: 'start'
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
+                animation: {
+                    duration: 1000,
+                    easing: 'easeInOutQuart'
+                },
+                layout: {
+                    padding: {
+                        top: 10,
+                        bottom: 10,
+                        left: 10,
+                        right: 10
+                    }
+                }
+            }
+        };
 
-        // Configuration du graphique
-        const margin = 60;
-        const chartWidth = canvas.width - 2 * margin;
-        const chartHeight = canvas.height - 2 * margin;
-        const barWidth = chartWidth / chartData.length * 0.8;
-        const barSpacing = chartWidth / chartData.length * 0.2;
+        // Créer le graphique
+        this.chart = new Chart(canvas, config);
+    }
 
-        // Trouver la précision maximale pour l'échelle
-        const maxAccuracy = Math.max(...chartData.map(d => d.accuracy));
-        const yScale = chartHeight / Math.max(maxAccuracy, 100);
-
-        // Couleurs pour les barres
-        const colors = ['#4299e1', '#48bb78', '#ed8936', '#f56565'];
-
-        // Dessiner les barres
-        chartData.forEach((item, index) => {
-            const x = margin + index * (barWidth + barSpacing) + barSpacing / 2;
-            const barHeight = item.accuracy * yScale;
-            const y = canvas.height - margin - barHeight;
-
-            // Barre
-            ctx.fillStyle = colors[index % colors.length];
-            ctx.fillRect(x, y, barWidth, barHeight);
-
-            // Bordure
-            ctx.strokeStyle = '#2d3748';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(x, y, barWidth, barHeight);
-
-            // Valeur de précision
-            ctx.fillStyle = '#2d3748';
-            ctx.font = 'bold 12px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText(`${item.accuracy.toFixed(1)}%`, x + barWidth / 2, y - 10);
-
-            // Nombre d'essais
-            ctx.font = '10px Arial';
-            ctx.fillText(`(${item.trials} essais)`, x + barWidth / 2, y - 25);
-
-            // Label de condition
-            ctx.fillText(item.condition, x + barWidth / 2, canvas.height - margin + 20);
-        });
-
-        // Axe X
-        ctx.strokeStyle = '#e2e8f0';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(margin, canvas.height - margin);
-        ctx.lineTo(canvas.width - margin, canvas.height - margin);
-        ctx.stroke();
-
-        // Axe Y
-        ctx.strokeStyle = '#e2e8f0';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(margin, margin);
-        ctx.lineTo(margin, canvas.height - margin);
-        ctx.stroke();
-
-        // Graduations Y
-        for (let i = 0; i <= 100; i += 20) {
-            const y = canvas.height - margin - i * yScale;
-            
-            ctx.strokeStyle = '#e2e8f0';
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(margin - 5, y);
-            ctx.lineTo(margin + 5, y);
-            ctx.stroke();
-
-            ctx.fillStyle = '#718096';
-            ctx.font = '10px Arial';
-            ctx.textAlign = 'right';
-            ctx.fillText(`${i}%`, margin - 10, y + 3);
+    destroy() {
+        if (this.chart) {
+            this.chart.destroy();
         }
-
-        // Titres des axes
-        ctx.fillStyle = '#2d3748';
-        ctx.font = 'bold 12px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText('Conditions expérimentales', canvas.width / 2, canvas.height - 10);
-        
-        ctx.save();
-        ctx.translate(20, canvas.height / 2);
-        ctx.rotate(-Math.PI / 2);
-        ctx.fillText('Précision (%)', 0, 0);
-        ctx.restore();
-
-        // Titre principal
-        ctx.fillStyle = '#2d3748';
-        ctx.font = 'bold 16px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText('Précision par condition', canvas.width / 2, 20);
     }
 } 

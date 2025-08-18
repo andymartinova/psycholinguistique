@@ -74,6 +74,24 @@
                     <div class="chart-title" data-i18n="analytics.charts.learning_curve">Courbe d'apprentissage</div>
                     <div id="learning-curve-chart" class="chart-container"></div>
                 </div>
+                <div class="chart-card">
+                    <div class="chart-title" data-i18n="analytics.charts.response_time_distribution">Distribution des temps de réponse</div>
+                    <div id="response-time-distribution-chart" class="chart-container"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-title">
+                        <span data-i18n="analytics.charts.confusion_matrix">Matrice de confusion</span>
+                        <span class="info-icon" title="Cette matrice montre les patterns d'erreurs entre conditions. Les cases vertes (diagonale) représentent les réponses correctes, les cases rouges (hors diagonale) représentent les erreurs. Cela aide à identifier quelles conditions sont confondues entre elles.">ⓘ</span>
+                    </div>
+                    <div id="confusion-matrix-chart" class="chart-container"></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-title">
+                        <span data-i18n="analytics.charts.speed_accuracy">Vitesse vs Précision</span>
+                        <span class="info-icon" title="Ce graphique montre la corrélation entre temps de réponse et précision. Chaque point représente un participant. Une corrélation négative indique un speed-accuracy trade-off (plus rapide = moins précis).">ⓘ</span>
+                    </div>
+                    <div id="speed-accuracy-chart" class="chart-container"></div>
+                </div>
             </div>
         </div>
 
@@ -92,11 +110,17 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/i18n.js"></script>
     <script src="js/utils.js"></script>
     <script src="graphiques/accuracy-chart.js"></script>
     <script src="graphiques/response-time-chart.js"></script>
     <script src="graphiques/participant-comparison-chart.js"></script>
     <script src="graphiques/learning-curve-chart.js"></script>
+    <script src="graphiques/response-time-curve-chart.js"></script>
+    <script src="graphiques/response-time-distribution-chart.js"></script>
+    <script src="graphiques/confusion-matrix-chart.js"></script>
+    <script src="graphiques/speed-accuracy-chart.js"></script>
     <script src="js/analytics.js"></script>
 </body>
 </html> 

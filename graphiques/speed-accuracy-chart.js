@@ -1,5 +1,5 @@
-// Graphique de courbe d'apprentissage avec Chart.js
-class LearningCurveChart {
+// Graphique de corrélation temps de réponse vs précision avec Chart.js
+class SpeedAccuracyChart {
     constructor(containerId, data) {
         this.containerId = containerId;
         this.data = data;
@@ -16,25 +16,26 @@ class LearningCurveChart {
     }
 
     prepareData() {
-        // Grouper les données par participant et calculer la performance par essai individuel
+        // Grouper par participant et calculer les moyennes
         const participants = [...new Set(this.data.map(d => d.participantId))];
         const datasets = [];
 
         participants.forEach((participantId, index) => {
             const participantData = this.data.filter(d => d.participantId === participantId);
-            const trials = [];
-
-            // Créer un point pour chaque essai avec la précision cumulative
-            let cumulativeCorrect = 0;
-            participantData.forEach((trial, trialIndex) => {
-                if (trial.correct) cumulativeCorrect++;
-                const accuracy = (cumulativeCorrect / (trialIndex + 1)) * 100;
-                
-                trials.push({
-                    x: trialIndex + 1,
-                    y: accuracy
-                });
-            });
+            
+            // Calculer la précision globale du participant
+            const totalTrials = participantData.length;
+            const correctTrials = participantData.filter(d => d.correct).length;
+            const accuracy = (correctTrials / totalTrials) * 100;
+            
+            // Calculer le temps de réponse moyen
+            const validResponseTimes = participantData
+                .map(d => d.responseTime)
+                .filter(time => time !== null && time !== undefined && !isNaN(time) && time > 0);
+            
+            const avgResponseTime = validResponseTimes.length > 0 
+                ? validResponseTimes.reduce((sum, time) => sum + time, 0) / validResponseTimes.length 
+                : 0;
 
             const colors = [
                 'rgba(66, 153, 225, 0.8)',
@@ -47,14 +48,15 @@ class LearningCurveChart {
 
             datasets.push({
                 label: participantId,
-                data: trials,
+                data: [{
+                    x: avgResponseTime,
+                    y: accuracy
+                }],
+                backgroundColor: colors[index % colors.length],
                 borderColor: colors[index % colors.length].replace('0.8', '1'),
-                backgroundColor: colors[index % colors.length].replace('0.8', '0.1'),
                 borderWidth: 3,
-                fill: false,
-                tension: 0.4,
-                pointRadius: 3,
-                pointHoverRadius: 5,
+                pointRadius: 8,
+                pointHoverRadius: 12,
                 pointBackgroundColor: colors[index % colors.length].replace('0.8', '1'),
                 pointBorderColor: 'white',
                 pointBorderWidth: 2
@@ -67,7 +69,10 @@ class LearningCurveChart {
     }
 
     createChart(container, chartData) {
-        if (chartData.datasets.length === 0) return;
+        if (chartData.datasets.length === 0) {
+            container.innerHTML = '<p>Aucune donnée disponible pour l\'analyse vitesse-précision.</p>';
+            return;
+        }
 
         // Créer le canvas
         const canvas = document.createElement('canvas');
@@ -77,7 +82,7 @@ class LearningCurveChart {
 
         // Configuration Chart.js
         const config = {
-            type: 'line',
+            type: 'scatter',
             data: chartData,
             options: {
                 responsive: true,
@@ -108,16 +113,46 @@ class LearningCurveChart {
                         displayColors: true,
                         callbacks: {
                             title: function(context) {
-                                return `Essai ${context[0].parsed.x}`;
+                                return context[0].dataset.label;
                             },
                             label: function(context) {
-                                return `${context.dataset.label}: ${context.parsed.y.toFixed(1)}%`;
+                                return [
+                                    `Temps moyen: ${formatResponseTime(context.parsed.x)}`,
+                                    `Précision: ${context.parsed.y.toFixed(1)}%`
+                                ];
                             }
                         }
                     }
                 },
                 scales: {
+                    x: {
+                        type: 'linear',
+                        position: 'bottom',
+                        ticks: {
+                            callback: function(value) {
+                                return formatResponseTime(value);
+                            },
+                            font: {
+                                size: 11
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)',
+                            drawBorder: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Temps de réponse moyen',
+                            font: {
+                                size: 12,
+                                weight: 'bold'
+                            },
+                            color: '#4a5568'
+                        }
+                    },
                     y: {
+                        type: 'linear',
+                        position: 'left',
                         beginAtZero: true,
                         max: 100,
                         ticks: {
@@ -134,41 +169,18 @@ class LearningCurveChart {
                         },
                         title: {
                             display: true,
-                            text: 'Précision cumulative (%)',
+                            text: 'Précision (%)',
                             font: {
                                 size: 12,
                                 weight: 'bold'
                             },
                             color: '#4a5568'
                         }
-                    },
-                    x: {
-                        type: 'linear',
-                        ticks: {
-                            stepSize: 6,
-                            font: {
-                                size: 11
-                            }
-                        },
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.1)',
-                            drawBorder: false
-                        },
-                        title: {
-                            display: true,
-                            text: 'Numéro d\'essai',
-                            font: {
-                                size: 12,
-                                weight: 'bold'
-                            },
-                            color: '#4a5568',
-                            align: 'start'
-                        }
                     }
                 },
                 interaction: {
                     intersect: false,
-                    mode: 'index'
+                    mode: 'point'
                 },
                 animation: {
                     duration: 1000,
@@ -194,4 +206,4 @@ class LearningCurveChart {
             this.chart.destroy();
         }
     }
-} 
+}

@@ -2,8 +2,9 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title data-i18n="home.title">Expérience Psycholinguistique</title>
+    <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/responsive.css">
@@ -24,7 +25,7 @@
             <form id="participant-form" class="participant-form" autocomplete="off">
                 <div class="form-group">
                     <label for="participant-id" data-i18n="home.participant_label">Numéro de participant :</label>
-                    <input type="text" id="participant-id" name="participant-id" data-i18n-placeholder="home.participant_placeholder" placeholder="P001" required>
+                    <input type="text" id="participant-id" name="participant-id" data-i18n="home.participant_placeholder" placeholder="P001" required>
                 </div>
                 <div class="form-group">
                     <label for="language-group" data-i18n="home.language_group_label">Groupe linguistique :</label>
@@ -46,16 +47,16 @@
 
             <div class="info-section">
                 <div class="info-card">
-                    <h3>🎯 Objectif</h3>
-                    <p>Juger la grammaticalité de phrases en allemand</p>
+                    <h3 data-i18n="home.info_objective_title">🎯 Objectif</h3>
+                    <p data-i18n="home.info_objective_desc">Juger la grammaticalité de phrases en allemand</p>
                 </div>
                 <div class="info-card">
-                    <h3>⏱️ Durée</h3>
-                    <p>Environ 10-15 minutes</p>
+                    <h3 data-i18n="home.info_duration_title">⏱️ Durée</h3>
+                    <p data-i18n="home.info_duration_desc">Environ 10-15 minutes</p>
                 </div>
                 <div class="info-card">
-                    <h3>📊 Données</h3>
-                    <p>Mesure de précision et temps de réponse</p>
+                    <h3 data-i18n="home.info_data_title">📊 Données</h3>
+                    <p data-i18n="home.info_data_desc">Mesure de précision et temps de réponse</p>
                 </div>
             </div>
         </main>

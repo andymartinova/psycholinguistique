@@ -71,6 +71,20 @@ h4 {
     font-weight: 600;
 }
 
+.participant-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.form-group > button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+}
+
 /* Boutons */
 .btn {
     padding: 0.75rem 1.5rem;
@@ -157,4 +171,304 @@ input:focus-visible,
 select:focus-visible {
     outline: 3px solid #4299e1;
     outline-offset: 2px;
+}
+
+/* Styles pour les analytics */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.stat-card h3 {
+    color: #4a5568;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin: 0;
+}
+
+.condition-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.condition-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.condition-card h4 {
+    color: #2d3748;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.condition-metrics {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.metric {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f7fafc;
+}
+
+.metric:last-child {
+    border-bottom: none;
+}
+
+.metric-label {
+    color: #4a5568;
+    font-weight: 500;
+}
+
+.metric-value {
+    color: #2d3748;
+    font-weight: 600;
+}
+
+.participant-comparison-table {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+}
+
+.participant-comparison-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.participant-comparison-table th,
+.participant-comparison-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.participant-comparison-table th {
+    background: #f7fafc;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.participant-comparison-table tr:hover {
+    background: #f7fafc;
+}
+
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+
+
+.chart-container {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 2.5rem;
+    padding-bottom: 3rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    min-height: 550px;
+}
+
+.chart-container h3 {
+    text-align: center;
+    margin-bottom: 1rem;
+    color: #2d3748;
+}
+
+.chart-container canvas {
+    max-width: 100%;
+    height: auto;
+}
+
+.info-icon {
+    display: inline-block;
+    margin-left: 8px;
+    color: #4299e1;
+    font-size: 14px;
+    cursor: help;
+    font-weight: normal;
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
+}
+
+.info-icon:hover {
+    opacity: 1;
+}
+
+.chart-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.chart-container h3 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.raw-data-table {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.raw-data-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.raw-data-table th,
+.raw-data-table td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 0.9rem;
+}
+
+.raw-data-table th {
+    background: #f7fafc;
+    font-weight: 600;
+    color: #2d3748;
+    position: sticky;
+    top: 0;
+}
+
+.raw-data-table tr:hover {
+    background: #f7fafc;
+}
+
+.imported-files-list {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 2rem;
+}
+
+.imported-file-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    background: #f7fafc;
+}
+
+.imported-file-info {
+    flex: 1;
+}
+
+.imported-file-name {
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 0.25rem;
+}
+
+.imported-file-details {
+    font-size: 0.9rem;
+    color: #4a5568;
+}
+
+.remove-file-btn {
+    background: #f56565;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.remove-file-btn:hover {
+    background: #e53e3e;
+}
+
+.info-box {
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    margin: 2rem 0;
+}
+
+.info-box p {
+    color: #4a5568;
+    margin-bottom: 1rem;
+}
+
+/* Responsive design pour analytics */
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .condition-stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .participant-comparison-table,
+    .raw-data-table {
+        font-size: 0.8rem;
+    }
+    
+    .participant-comparison-table th,
+    .participant-comparison-table td,
+    .raw-data-table th,
+    .raw-data-table td {
+        padding: 0.5rem;
+    }
 } 
