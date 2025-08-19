@@ -1,5 +1,5 @@
-// Graphique de courbe d'apprentissage avec Chart.js
-class LearningCurveChart {
+// Graphique de courbe du temps de réponse avec Chart.js
+class ResponseTimeCurveChart {
     constructor(containerId, data) {
         this.containerId = containerId;
         this.data = data;
@@ -16,7 +16,7 @@ class LearningCurveChart {
     }
 
     prepareData() {
-        // Grouper les données par participant et calculer la performance par essai individuel
+        // Grouper les données par participant et calculer le temps de réponse par essai
         const participants = [...new Set(this.data.map(d => d.participantId))];
         const datasets = [];
 
@@ -24,15 +24,11 @@ class LearningCurveChart {
             const participantData = this.data.filter(d => d.participantId === participantId);
             const trials = [];
 
-            // Créer un point pour chaque essai avec la précision cumulative
-            let cumulativeCorrect = 0;
+            // Créer un point pour chaque essai avec le temps de réponse
             participantData.forEach((trial, trialIndex) => {
-                if (trial.correct) cumulativeCorrect++;
-                const accuracy = (cumulativeCorrect / (trialIndex + 1)) * 100;
-                
                 trials.push({
                     x: trialIndex + 1,
-                    y: accuracy
+                    y: trial.responseTime
                 });
             });
 
@@ -53,8 +49,8 @@ class LearningCurveChart {
                 borderWidth: 3,
                 fill: false,
                 tension: 0.4,
-                pointRadius: 3,
-                pointHoverRadius: 5,
+                pointRadius: 4,
+                pointHoverRadius: 6,
                 pointBackgroundColor: colors[index % colors.length].replace('0.8', '1'),
                 pointBorderColor: 'white',
                 pointBorderWidth: 2
@@ -67,8 +63,6 @@ class LearningCurveChart {
     }
 
     createChart(container, chartData) {
-        if (chartData.datasets.length === 0) return;
-
         // Créer le canvas
         const canvas = document.createElement('canvas');
         canvas.style.width = '100%';
@@ -111,7 +105,7 @@ class LearningCurveChart {
                                 return `Essai ${context[0].parsed.x}`;
                             },
                             label: function(context) {
-                                return `${context.dataset.label}: ${context.parsed.y.toFixed(1)}%`;
+                                return `${context.dataset.label}: ${formatResponseTime(context.parsed.y)}`;
                             }
                         }
                     }
@@ -119,10 +113,9 @@ class LearningCurveChart {
                 scales: {
                     y: {
                         beginAtZero: true,
-                        max: 100,
                         ticks: {
                             callback: function(value) {
-                                return value + '%';
+                                return formatResponseTime(value);
                             },
                             font: {
                                 size: 11
@@ -134,7 +127,7 @@ class LearningCurveChart {
                         },
                         title: {
                             display: true,
-                            text: 'Précision cumulative (%)',
+                            text: 'Temps de réponse',
                             font: {
                                 size: 12,
                                 weight: 'bold'
@@ -194,4 +187,4 @@ class LearningCurveChart {
             this.chart.destroy();
         }
     }
-} 
+}
