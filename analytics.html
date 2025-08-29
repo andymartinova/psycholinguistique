@@ -1,126 +1,127 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-i18n="analytics.title">Analyses - Expérience Psycholinguistique</title>
-    <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="css/components.css">
-    <link rel="stylesheet" href="css/responsive.css">
+  <meta charset="UTF-8" />
+  <title>Analyse des données</title>
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
 </head>
 <body>
-    <a href="index.html" class="home-button" data-i18n="nav.home">🏠 Accueil</a>
-    
-    <div class="container">
-        <h2 data-i18n="analytics.title">📊 Analyses détaillées</h2>
+  <div class="container">
+    <header class="page-header">
+      <h1 data-i18n="analytics.title">Analyse des données</h1>
+      <p data-i18n="analytics.description">Importez et analysez les données d'expérience</p>
+    </header>
+
+    <!-- Section d'import -->
+    <section class="import-section">
+      <div class="import-area">
+        <div class="import-content">
+          <div class="import-icon">📁</div>
+          <h3 data-i18n="analytics.import_title">Importer des données</h3>
+          <p data-i18n="analytics.import_description">Glissez-déposez des fichiers JSON ou cliquez pour sélectionner</p>
+          <button id="upload-btn" class="btn btn-primary" data-i18n="analytics.select_files">Sélectionner des fichiers</button>
+          <input type="file" id="file-input" accept=".json" multiple style="display: none;" />
+          <button id="test-btn" class="btn btn-secondary" style="margin-left: 10px;">Test JavaScript</button>
+        </div>
+      </div>
+      <div id="imported-files" class="imported-files-list"></div>
+    </section>
+
+    <!-- Statistiques globales -->
+    <section class="stats-section">
+      <h2 data-i18n="analytics.global_stats">Statistiques globales</h2>
+      <div id="global-stats" class="stats-grid"></div>
+    </section>
+
+    <!-- Graphiques de performance -->
+    <section class="charts-section">
+      <h2 data-i18n="analytics.performance_charts">Graphiques de performance</h2>
+      
+      <!-- Résumé de performance -->
+      <div class="chart-container">
+        <h3 data-i18n="analytics.performance_summary">Résumé de performance</h3>
+        <div id="performance-summary-chart" class="chart"></div>
+      </div>
+
+      <!-- Performance par condition -->
+      <div class="chart-container">
+        <h3 data-i18n="analytics.performance_by_condition">Performance par condition</h3>
+        <div id="performance-by-condition-chart" class="chart"></div>
         
-        <!-- Section d'import -->
-        <div class="analytics-section">
-            <h3 data-i18n="analytics.import_title">📁 Import de données</h3>
-            <div class="import-area">
-                <div class="file-upload">
-                    <label for="file-input" class="file-upload-label">
-                        <span class="file-upload-icon">📁</span>
-                        <span class="file-upload-text" data-i18n="analytics.import_button">Choisir un ou plusieurs fichiers JSON</span>
-                    </label>
-                    <input type="file" id="file-input" multiple accept=".json" style="display: none;">
-                </div>
-                <div class="import-info">
-                    <p data-i18n="analytics.import_text">Vous pouvez importer des fichiers JSON exportés depuis l'expérience pour analyser plusieurs participants.</p>
-                </div>
-                <div id="imported-files" class="imported-files-list">
-                    <!-- Liste des fichiers importés -->
-                </div>
-            </div>
-        </div>
+      </div>
 
-        <div class="analytics-section">
-            <h3 data-i18n="analytics.stats_title">Statistiques globales</h3>
-            <div id="global-stats" class="stats-grid">
-                <!-- Statistiques globales -->
-            </div>
-        </div>
+      <!-- Graphiques existants -->
+      <div class="chart-container">
+        <h3 data-i18n="analytics.accuracy_by_condition">Précision par condition</h3>
+        <div id="accuracy-chart" class="chart"></div>
+      </div>
 
-        <div class="analytics-section">
-            <h3 data-i18n="analytics.conditions_title">Performance par condition</h3>
-            <div id="condition-stats" class="stats-grid">
-                <!-- Statistiques par condition -->
-            </div>
-        </div>
+      <div class="chart-container">
+        <h3 data-i18n="analytics.response_time_by_condition">Temps de réponse par condition</h3>
+        <div id="response-time-chart" class="chart"></div>
+      </div>
 
-        <div class="analytics-section">
-            <h3 data-i18n="analytics.participant_comparison_title">Comparaison des participants</h3>
-            <div id="participant-comparison" class="stats-grid">
-                <!-- Comparaison des participants -->
-            </div>
-        </div>
+      <div class="chart-container">
+        <h3 data-i18n="analytics.participant_comparison">Comparaison des participants</h3>
+        <div id="participant-chart" class="chart"></div>
+      </div>
 
-        <div class="analytics-section">
-            <h3 data-i18n="analytics.charts_title">📈 Graphiques</h3>
-            <div id="charts-container" class="charts-container">
-                <div class="chart-card">
-                    <div class="chart-title" data-i18n="analytics.charts.accuracy">Précision par condition</div>
-                    <div id="accuracy-chart" class="chart-container"></div>
-                </div>
-                <div class="chart-card">
-                    <div class="chart-title" data-i18n="analytics.charts.response_time">Temps de réponse par condition</div>
-                    <div id="response-time-chart" class="chart-container"></div>
-                </div>
-                <div class="chart-card">
-                    <div class="chart-title" data-i18n="analytics.charts.participant_comparison">Comparaison des participants</div>
-                    <div id="participant-chart" class="chart-container"></div>
-                </div>
-                <div class="chart-card">
-                    <div class="chart-title" data-i18n="analytics.charts.learning_curve">Courbe d'apprentissage</div>
-                    <div id="learning-curve-chart" class="chart-container"></div>
-                </div>
-                <div class="chart-card">
-                    <div class="chart-title" data-i18n="analytics.charts.response_time_distribution">Distribution des temps de réponse</div>
-                    <div id="response-time-distribution-chart" class="chart-container"></div>
-                </div>
-                <div class="chart-card">
-                    <div class="chart-title">
-                        <span data-i18n="analytics.charts.confusion_matrix">Matrice de confusion</span>
-                        <span class="info-icon" title="Cette matrice montre les patterns d'erreurs entre conditions. Les cases vertes (diagonale) représentent les réponses correctes, les cases rouges (hors diagonale) représentent les erreurs. Cela aide à identifier quelles conditions sont confondues entre elles.">ⓘ</span>
-                    </div>
-                    <div id="confusion-matrix-chart" class="chart-container"></div>
-                </div>
-                <div class="chart-card">
-                    <div class="chart-title">
-                        <span data-i18n="analytics.charts.speed_accuracy">Vitesse vs Précision</span>
-                        <span class="info-icon" title="Ce graphique montre la corrélation entre temps de réponse et précision. Chaque point représente un participant. Une corrélation négative indique un speed-accuracy trade-off (plus rapide = moins précis).">ⓘ</span>
-                    </div>
-                    <div id="speed-accuracy-chart" class="chart-container"></div>
-                </div>
-            </div>
-        </div>
+      <div class="chart-container">
+        <h3 data-i18n="analytics.learning_curve">Courbe d'apprentissage</h3>
+        <div id="learning-curve-chart" class="chart"></div>
+      </div>
+    </section>
 
-        <div class="analytics-section">
-            <h3 data-i18n="analytics.raw_data_title">📋 Données brutes</h3>
-            <div id="raw-data" class="data-table-container">
-                <!-- Tableau des données brutes -->
-            </div>
-        </div>
+    <!-- Statistiques par condition -->
+    <section class="stats-section">
+      <h2 data-i18n="analytics.condition_stats">Statistiques par condition</h2>
+      <div id="condition-stats" class="stats-grid"></div>
+    </section>
 
-        <div class="navigation-buttons">
-            <a href="index.html" class="btn btn-secondary" data-i18n="nav.home">🏠 Accueil</a>
-            <a href="results.html" class="btn btn-secondary" data-i18n="results.title">← Retour aux résultats</a>
-            <button id="export-analytics-btn" class="btn btn-primary" data-i18n="analytics.export_button">📥 Exporter les analyses</button>
-            <button id="clear-data-btn" class="btn btn-secondary" data-i18n="analytics.clear_data_button">🗑️ Effacer toutes les données</button>
-        </div>
-    </div>
+    <!-- Comparaison des participants -->
+    <section class="stats-section">
+      <h2 data-i18n="analytics.participant_comparison">Comparaison des participants</h2>
+      <div id="participant-comparison" class="stats-grid"></div>
+    </section>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="js/i18n.js"></script>
-    <script src="js/utils.js"></script>
-    <script src="graphiques/accuracy-chart.js"></script>
-    <script src="graphiques/response-time-chart.js"></script>
-    <script src="graphiques/participant-comparison-chart.js"></script>
-    <script src="graphiques/learning-curve-chart.js"></script>
-    <script src="graphiques/response-time-curve-chart.js"></script>
-    <script src="graphiques/response-time-distribution-chart.js"></script>
-    <script src="graphiques/confusion-matrix-chart.js"></script>
-    <script src="graphiques/speed-accuracy-chart.js"></script>
-    <script src="js/analytics.js"></script>
+    <!-- Données brutes -->
+    <section class="raw-data-section">
+      <h2 data-i18n="analytics.raw_data">Données brutes</h2>
+      <div id="raw-data"></div>
+    </section>
+
+    <!-- Actions -->
+    <section class="actions-section">
+      <button id="export-analytics-btn" class="btn btn-secondary" data-i18n="analytics.export_data">Exporter les données</button>
+      <button id="clear-data-btn" class="btn btn-danger" data-i18n="analytics.clear_data">Effacer toutes les données</button>
+    </section>
+  </div>
+
+  <!-- Chart.js pour les graphiques -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Script du graphique de résumé de performance -->
+  <script src="graphiques/performance-summary-chart.js"></script>
+  <!-- Script du graphique de performance par condition -->
+  <script src="graphiques/performance-by-condition-chart.js"></script>
+  <!-- Script du graphique de précision par condition -->
+  <script src="graphiques/accuracy-chart.js"></script>
+  <!-- Script du graphique de temps de réponse par condition -->
+  <script src="graphiques/response-time-chart.js"></script>
+  <!-- Script du graphique de comparaison des participants -->
+  <script src="graphiques/participant-comparison-chart.js"></script>
+  <!-- Script du graphique de courbe d'apprentissage -->
+  <script src="graphiques/learning-curve-chart.js"></script>
+
+  <!-- Scripts personnalisés -->
+  <script src="js/analytics.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/main.js"></script>
 </body>
-</html> 
+</html>
+

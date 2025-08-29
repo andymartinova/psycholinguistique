@@ -1,0 +1,82 @@
+{
+  "participant": {
+    "id": "P001",
+    "languageGroup": "LF"
+  },
+  "experiment": {
+    "data": [
+      {
+        "trial": 1,
+        "sentence": "Der Hund schläft im Garten.",
+        "condition": "simple_non_ambiguous",
+        "expected": "grammatical",
+        "response": "grammatical",
+        "responseTime": 1200,
+        "correct": true
+      },
+      {
+        "trial": 2,
+        "sentence": "Die Katze schlafen im Haus.",
+        "condition": "simple_non_ambiguous",
+        "expected": "ungrammatical",
+        "response": "ungrammatical",
+        "responseTime": 1500,
+        "correct": true
+      },
+      {
+        "trial": 3,
+        "sentence": "Der Mann liest ein Buch.",
+        "condition": "complex_non_ambiguous",
+        "expected": "grammatical",
+        "response": "grammatical",
+        "responseTime": 1800,
+        "correct": true
+      },
+      {
+        "trial": 4,
+        "sentence": "Die Frau lesen ein Buch.",
+        "condition": "complex_non_ambiguous",
+        "expected": "ungrammatical",
+        "response": "ungrammatical",
+        "responseTime": 2000,
+        "correct": true
+      },
+      {
+        "trial": 5,
+        "sentence": "Der Junge sieht den Ball.",
+        "condition": "ambiguous_easy",
+        "expected": "grammatical",
+        "response": "grammatical",
+        "responseTime": 1600,
+        "correct": true
+      },
+      {
+        "trial": 6,
+        "sentence": "Das Mädchen sehen den Ball.",
+        "condition": "ambiguous_easy",
+        "expected": "ungrammatical",
+        "response": "grammatical",
+        "responseTime": 2200,
+        "correct": false
+      },
+      {
+        "trial": 7,
+        "sentence": "Der Lehrer erklärt die Aufgabe.",
+        "condition": "ambiguous_difficult",
+        "expected": "grammatical",
+        "response": "grammatical",
+        "responseTime": 2500,
+        "correct": true
+      },
+      {
+        "trial": 8,
+        "sentence": "Die Lehrerin erklären die Aufgabe.",
+        "condition": "ambiguous_difficult",
+        "expected": "ungrammatical",
+        "response": "ungrammatical",
+        "responseTime": 2800,
+        "correct": true
+      }
+    ]
+  }
+} 
