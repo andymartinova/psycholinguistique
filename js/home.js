@@ -19,9 +19,11 @@ class HomePage {
     saveParticipantData() {
         const participantId = document.getElementById('participant-id').value.trim();
         const languageGroup = document.getElementById('language-group').value;
+        const germanLevel = document.getElementById('german-level') ? document.getElementById('german-level').value : '';
         const data = {
             id: participantId,
             languageGroup: languageGroup,
+            germanLevel: germanLevel,
             startTime: new Date().toISOString()
         };
         localStorage.setItem('participantData', JSON.stringify(data));

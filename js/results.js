@@ -3,19 +3,8 @@ class ResultsPage {
     constructor() {
         this.experimentData = this.loadExperimentData();
         this.setupEventHandlers();
-        this.waitForTranslation();
-    }
-
-    waitForTranslation() {
-        const checkI18n = () => {
-            if (window.i18n && window.i18n.loaded) {
-                this.setupDynamicTranslation();
-                this.displayResults();
-            } else {
-                setTimeout(checkI18n, 100);
-            }
-        };
-        checkI18n();
+        this.setupDynamicTranslation();
+        this.displayResults();
     }
 
     setupEventHandlers() {
@@ -42,7 +31,7 @@ class ResultsPage {
             const key = el.getAttribute('data-i18n');
             const translation = window.i18n.t(key);
             if (translation) {
-                el.textContent = translation;
+                el.innerHTML = translation;
             }
         });
     }
@@ -62,7 +51,6 @@ class ResultsPage {
     }
 
     displayResults() {
-        console.log('Displaying results...', this.experimentData);
         if (!this.experimentData) {
             this.showNoDataMessage();
             return;
@@ -78,25 +66,31 @@ class ResultsPage {
         try {
             summary = generateSummary(this.experimentData.experiment.data);
         } catch (e) {
-            summaryStats.innerHTML = `<div class="info-box"><p>${window.i18n.t('analytics.no_data')}</p></div>`;
+            summaryStats.innerHTML = `<div class="info-box"><p>Aucune donnée d'expérience trouvée. Complétez une expérience pour voir vos résultats.</p></div>`;
             return;
         }
+        
+        const totalTrialsText = window.i18n && window.i18n.t ? window.i18n.t('results.total_trials') : 'Nombre total d\'essais';
+        const accuracyText = window.i18n && window.i18n.t ? window.i18n.t('results.accuracy') : 'Précision';
+        const avgTimeText = window.i18n && window.i18n.t ? window.i18n.t('results.average_time') : 'Temps de réponse moyen';
+        const correctText = window.i18n && window.i18n.t ? window.i18n.t('results.correct_answers') : 'Réponses correctes';
+        
         summaryStats.innerHTML = `
             <div class="stat-card">
                 <div class="stat-value">${summary.totalTrials}</div>
-                <div class="stat-label">${window.i18n.t('results.total_trials')}</div>
+                <div class="stat-label">${totalTrialsText}</div>
             </div>
             <div class="stat-card">
                 <div class="stat-value">${summary.accuracy}</div>
-                <div class="stat-label">${window.i18n.t('results.accuracy')}</div>
+                <div class="stat-label">${accuracyText}</div>
             </div>
             <div class="stat-card">
                 <div class="stat-value">${summary.avgResponseTime}</div>
-                <div class="stat-label">${window.i18n.t('results.average_time')}</div>
+                <div class="stat-label">${avgTimeText}</div>
             </div>
             <div class="stat-card">
                 <div class="stat-value">${summary.correctResponses}</div>
-                <div class="stat-label">${window.i18n.t('results.correct_answers')}</div>
+                <div class="stat-label">${correctText}</div>
             </div>
         `;
     }
@@ -111,18 +105,24 @@ class ResultsPage {
             conditionStats.innerHTML = '';
             return;
         }
+        
         const conditionLabels = {
-            'simple_non_ambiguous': window.i18n.t('results.conditions.simple_unambiguous'),
-            'complex_non_ambiguous': window.i18n.t('results.conditions.complex_unambiguous'),
-            'ambiguous_easy': window.i18n.t('results.conditions.simple_ambiguous'),
-            'ambiguous_difficult': window.i18n.t('results.conditions.complex_ambiguous')
+            'simple_non_ambiguous': window.i18n && window.i18n.t ? window.i18n.t('results.conditions.simple_unambiguous') : 'Simple, non ambiguë',
+            'complex_non_ambiguous': window.i18n && window.i18n.t ? window.i18n.t('results.conditions.complex_unambiguous') : 'Complexe, non ambiguë',
+            'ambiguous_easy': window.i18n && window.i18n.t ? window.i18n.t('results.conditions.simple_ambiguous') : 'Simple, ambiguë',
+            'ambiguous_difficult': window.i18n && window.i18n.t ? window.i18n.t('results.conditions.complex_ambiguous') : 'Complexe, ambiguë'
         };
+        
+        const accuracyText = window.i18n && window.i18n.t ? window.i18n.t('results.accuracy') : 'Précision';
+        const totalTrialsText = window.i18n && window.i18n.t ? window.i18n.t('results.total_trials') : 'essais';
+        const avgTimeText = window.i18n && window.i18n.t ? window.i18n.t('results.average_time') : 'Temps de réponse moyen';
+        
         conditionStats.innerHTML = Object.entries(summary.conditionStats).map(([condition, stats]) => `
             <div class="stat-card">
                 <div class="stat-label">${conditionLabels[condition] || condition}</div>
                 <div class="stat-value">${stats.accuracy}</div>
-                <div class="stat-label">${window.i18n.t('results.accuracy')} (${stats.trials} ${window.i18n.t('results.total_trials').toLowerCase()})</div>
-                <div class="stat-label">${window.i18n.t('results.average_time')}: ${stats.avgResponseTime}</div>
+                <div class="stat-label">${accuracyText} (${stats.trials} ${totalTrialsText})</div>
+                <div class="stat-label">${avgTimeText}: ${stats.avgResponseTime}</div>
             </div>
         `).join('');
     }
@@ -132,8 +132,8 @@ class ResultsPage {
         const conditionStats = document.getElementById('condition-stats');
         const noDataMessage = `
             <div class="info-box">
-                <p>${window.i18n.t('analytics.no_data')}</p>
-                <a href="experiment.html" class="btn btn-primary" data-i18n="home.start_button">${window.i18n.t('home.start_button')}</a>
+                <p>Aucune donnée d'expérience trouvée. Complétez une expérience pour voir vos résultats.</p>
+                <a href="experiment.html" class="btn btn-primary">Commencer l'expérience</a>
             </div>
         `;
         if (summaryStats) summaryStats.innerHTML = noDataMessage;

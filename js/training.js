@@ -62,17 +62,21 @@ class TrainingPage {
 
     startTraining() {
         this.practiceTrial = 0;
+        console.log('Nombre total de phrases d\'entraînement:', PRACTICE_SENTENCES.length);
+        console.log('Phrases disponibles:', PRACTICE_SENTENCES);
         this.nextPracticeTrial();
     }
 
     nextPracticeTrial() {
+        console.log('nextPracticeTrial appelé avec practiceTrial =', this.practiceTrial);
         if (this.practiceTrial >= PRACTICE_SENTENCES.length) {
+            console.log('Entraînement terminé');
             this.showTrainingComplete();
             return;
         }
         this.currentSentence = PRACTICE_SENTENCES[this.practiceTrial];
+        console.log('Phrase sélectionnée:', this.currentSentence);
         this.displaySentence(this.currentSentence.sentence);
-        this.practiceTrial++;
         this.updateProgress();
     }
 
@@ -94,11 +98,22 @@ class TrainingPage {
         const response = event.target.dataset.response;
         this.responseTime = Date.now() - this.startTime;
         this.disableResponseButtons();
+        
+        // Debug: afficher les valeurs pour comprendre le problème
+        console.log('Debug Training:');
+        console.log('- Phrase:', this.currentSentence.sentence);
+        console.log('- Réponse utilisateur:', response);
+        console.log('- Réponse attendue:', this.currentSentence.expected);
+        console.log('- Index practiceTrial:', this.practiceTrial);
+        
         const isCorrect = response === this.currentSentence.expected;
+        console.log('- Est correct:', isCorrect);
+        
         this.showFeedback(isCorrect);
         setTimeout(() => {
             this.hideFeedback();
             this.enableResponseButtons();
+            this.practiceTrial++; // Incrémenter avant d'aller à la phrase suivante
             this.nextPracticeTrial();
         }, 1500);
     }

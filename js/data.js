@@ -1,173 +1,438 @@
 // Données des phrases expérimentales
 const EXPERIMENTAL_SENTENCES = [
-    // Phrases simples, non ambiguës
+    // Catégorie 1: Verbes séparables (correctes) - simple_non_ambiguous
     {
-        sentence: "Der Hund schläft im Garten.",
+        sentence: "sie steht jeden Tag um sechs Uhr auf",
         condition: "simple_non_ambiguous",
         expected: "grammatical",
-        translation: "Le chien dort dans le jardin."
+        translation: "Elle se lève tous les jours à six heures.",
+        translation_pt: "Ela se levanta todos os dias às seis horas."
     },
     {
-        sentence: "Die Katze trinkt Milch.",
-        condition: "simple_non_ambiguous", 
-        expected: "grammatical",
-        translation: "Le chat boit du lait."
-    },
-    {
-        sentence: "Das Kind spielt mit dem Ball.",
-        condition: "simple_non_ambiguous",
-        expected: "grammatical", 
-        translation: "L'enfant joue avec la balle."
-    },
-    {
-        sentence: "Die Frau liest ein Buch.",
+        sentence: "Sie kommen morgen an",
         condition: "simple_non_ambiguous",
         expected: "grammatical",
-        translation: "La femme lit un livre."
+        translation: "Ils arrivent demain.",
+        translation_pt: "Eles chegam amanhã."
     },
     {
-        sentence: "Der Mann arbeitet im Büro.",
+        sentence: "Mach das Licht an",
         condition: "simple_non_ambiguous",
         expected: "grammatical",
-        translation: "L'homme travaille au bureau."
+        translation: "Allume la lumière.",
+        translation_pt: "Acenda a luz."
     },
     {
-        sentence: "Das Auto fährt schnell.",
+        sentence: "Ich kann nicht einschlafen",
         condition: "simple_non_ambiguous",
         expected: "grammatical",
-        translation: "La voiture roule vite."
+        translation: "Je n'arrive pas à m'endormir.",
+        translation_pt: "Não consigo adormecer."
+    },
+    {
+        sentence: "Wann kommst du in Berlin an?",
+        condition: "simple_non_ambiguous",
+        expected: "grammatical",
+        translation: "Quand arrives-tu à Berlin ?",
+        translation_pt: "Quando você chega em Berlim?"
+    },
+    {
+        sentence: "Er ruft mich jeden Sonntag an",
+        condition: "simple_non_ambiguous",
+        expected: "grammatical",
+        translation: "Il m'appelle chaque dimanche.",
+        translation_pt: "Ele me liga todo domingo."
+    },
+    {
+        sentence: "Du räumst dein Zimmer auf",
+        condition: "simple_non_ambiguous",
+        expected: "grammatical",
+        translation: "Tu ranges ta chambre.",
+        translation_pt: "Você arruma seu quarto."
+    },
+    {
+        sentence: "Sie macht das Fenster auf",
+        condition: "simple_non_ambiguous",
+        expected: "grammatical",
+        translation: "Elle ouvre la fenêtre.",
+        translation_pt: "Ela abre a janela."
     },
 
-    // Phrases complexes, non ambiguës
+    // Catégorie 2: Verbes séparables (incorrectes) - simple_ambiguous
     {
-        sentence: "Der Mann, der gestern gekommen ist, arbeitet hier.",
-        condition: "complex_non_ambiguous",
-        expected: "grammatical",
-        translation: "L'homme qui est venu hier travaille ici."
+        sentence: "Ich aufstehe jeden Tag um sieben Uhr",
+        condition: "simple_ambiguous",
+        expected: "ungrammatical",
+        translation: "Je me lève tous les jours à sept heures.",
+        translation_pt: "Eu me levanto todos os dias às sete horas."
     },
     {
-        sentence: "Das Buch, das ich gelesen habe, war interessant.",
-        condition: "complex_non_ambiguous",
-        expected: "grammatical",
-        translation: "Le livre que j'ai lu était intéressant."
+        sentence: "Sie ankommen morgen",
+        condition: "simple_ambiguous",
+        expected: "ungrammatical",
+        translation: "Ils arrivent demain.",
+        translation_pt: "Eles chegam amanhã."
     },
     {
-        sentence: "Die Frau, die ich gestern gesehen habe, ist meine Schwester.",
-        condition: "complex_non_ambiguous",
-        expected: "grammatical",
-        translation: "La femme que j'ai vue hier est ma sœur."
+        sentence: "Mach an das Licht!",
+        condition: "simple_ambiguous",
+        expected: "ungrammatical",
+        translation: "Allume la lumière !",
+        translation_pt: "Acenda a luz!"
     },
     {
-        sentence: "Der Hund, der im Garten spielt, ist braun.",
-        condition: "complex_non_ambiguous",
-        expected: "grammatical",
-        translation: "Le chien qui joue dans le jardin est marron."
+        sentence: "Ich kann nicht schlafen ein.",
+        condition: "simple_ambiguous",
+        expected: "ungrammatical",
+        translation: "Je ne peux pas m'endormir.",
+        translation_pt: "Não consigo adormecer."
     },
     {
-        sentence: "Das Auto, das ich gekauft habe, ist neu.",
-        condition: "complex_non_ambiguous",
-        expected: "grammatical",
-        translation: "La voiture que j'ai achetée est neuve."
+        sentence: "Wann ankommst du in Berlin?",
+        condition: "simple_ambiguous",
+        expected: "ungrammatical",
+        translation: "Quand arrives-tu à Berlin ?",
+        translation_pt: "Quando você chega em Berlim?"
     },
     {
-        sentence: "Die Kinder, die draußen spielen, sind laut.",
-        condition: "complex_non_ambiguous",
-        expected: "grammatical",
-        translation: "Les enfants qui jouent dehors sont bruyants."
+        sentence: "Er anruft mich jeden Sonntag",
+        condition: "simple_ambiguous",
+        expected: "ungrammatical",
+        translation: "Il m'appelle chaque dimanche.",
+        translation_pt: "Ele me liga todo domingo."
+    },
+    {
+        sentence: "du aufräumst dein Zimmer.",
+        condition: "simple_ambiguous",
+        expected: "ungrammatical",
+        translation: "Tu ranges ta chambre.",
+        translation_pt: "Você arruma seu quarto."
+    },
+    {
+        sentence: "Sie aufmacht das Fenster",
+        condition: "simple_ambiguous",
+        expected: "ungrammatical",
+        translation: "Elle ouvre la fenêtre.",
+        translation_pt: "Ela abre a janela."
     },
 
-    // Phrases ambiguës avec résolution facile
+    // Catégorie 3: Place du verbe (correctes) - complex_non_ambiguous
     {
-        sentence: "Der Hund beißt den Mann mit dem Stock.",
-        condition: "ambiguous_easy",
+        sentence: "Er schläft, da er müde ist.",
+        condition: "complex_non_ambiguous",
         expected: "grammatical",
-        translation: "Le chien mord l'homme avec le bâton."
+        translation: "Il dort car il est fatigué.",
+        translation_pt: "Ele dorme porque está cansado."
     },
     {
-        sentence: "Die Frau sieht den Mann mit dem Fernglas.",
-        condition: "ambiguous_easy",
+        sentence: "Sie lachen, denn sie sind glücklich",
+        condition: "complex_non_ambiguous",
         expected: "grammatical",
-        translation: "La femme voit l'homme avec les jumelles."
+        translation: "Ils rient car ils sont heureux.",
+        translation_pt: "Eles riem porque estão felizes."
     },
     {
-        sentence: "Das Kind isst den Apfel mit dem Messer.",
-        condition: "ambiguous_easy",
+        sentence: "Er trinkt, weil er Durst hat",
+        condition: "complex_non_ambiguous",
         expected: "grammatical",
-        translation: "L'enfant mange la pomme avec le couteau."
+        translation: "Il boit car il a soif.",
+        translation_pt: "Ele bebe porque está com sede."
     },
     {
-        sentence: "Der Lehrer schlägt den Schüler mit dem Lineal.",
-        condition: "ambiguous_easy",
+        sentence: "Ich gehe raus, obwohl das Wetter schlecht ist.",
+        condition: "complex_non_ambiguous",
         expected: "grammatical",
-        translation: "Le professeur frappe l'élève avec la règle."
+        translation: "Je sors bien que le temps soit mauvais.",
+        translation_pt: "Eu saio embora o tempo esteja ruim."
     },
     {
-        sentence: "Die Mutter füttert das Baby mit der Flasche.",
-        condition: "ambiguous_easy",
+        sentence: "Ich erkläre es, damit er es versteht",
+        condition: "complex_non_ambiguous",
         expected: "grammatical",
-        translation: "La mère nourrit le bébé avec le biberon."
+        translation: "Je l'explique pour qu'il le comprenne.",
+        translation_pt: "Eu explico para que ele entenda."
     },
     {
-        sentence: "Der Gärtner gießt die Blumen mit der Gießkanne.",
-        condition: "ambiguous_easy",
+        sentence: "Ich verstehe, dass du mitkommen willst",
+        condition: "complex_non_ambiguous",
         expected: "grammatical",
-        translation: "Le jardinier arrose les fleurs avec l'arrosoir."
+        translation: "Je comprends que tu veux venir.",
+        translation_pt: "Eu entendo que você quer vir."
+    },
+    {
+        sentence: "Wir wissen nicht, ob er bei der Prüfung betrogen hat.",
+        condition: "complex_non_ambiguous",
+        expected: "grammatical",
+        translation: "Nous ne savons pas s'il a triché à l'examen.",
+        translation_pt: "Nós não sabemos se ele colou na prova."
+    },
+    {
+        sentence: "Ihr seid eingeladen, wenn Ihr Zeit habt",
+        condition: "complex_non_ambiguous",
+        expected: "grammatical",
+        translation: "Vous êtes invités si vous avez le temps.",
+        translation_pt: "Vocês estão convidados se tiverem tempo."
     },
 
-    // Phrases ambiguës avec résolution difficile
+    // Catégorie 4: Place du verbe (incorrectes) - complex_ambiguous
     {
-        sentence: "Der Hund beißt den Mann mit dem Stock schlägt.",
-        condition: "ambiguous_difficult",
+        sentence: "Er bleibt zu Hause, während seine arbeitet Frau",
+        condition: "complex_ambiguous",
         expected: "ungrammatical",
-        translation: "Le chien mord l'homme avec le bâton frappe."
+        translation: "Il reste à la maison pendant que sa femme travaille.",
+        translation_pt: "Ele fica em casa enquanto sua esposa trabalha."
     },
     {
-        sentence: "Die Frau sieht den Mann mit dem Fernglas beobachtet.",
-        condition: "ambiguous_difficult",
+        sentence: "Wir fahren in Urlaub, nachdem wir haben gespart",
+        condition: "complex_ambiguous",
         expected: "ungrammatical",
-        translation: "La femme voit l'homme avec les jumelles observe."
+        translation: "Nous partons en vacances après avoir économisé.",
+        translation_pt: "Nós viajamos de férias depois de ter economizado."
     },
     {
-        sentence: "Das Kind isst den Apfel mit dem Messer schneidet.",
-        condition: "ambiguous_difficult",
+        sentence: "Er kauft Blumen, bevor er geht nach Hause",
+        condition: "complex_ambiguous",
         expected: "ungrammatical",
-        translation: "L'enfant mange la pomme avec le couteau coupe."
+        translation: "Il achète des fleurs avant d'aller à la maison.",
+        translation_pt: "Ele compra flores antes de ir para casa."
     },
     {
-        sentence: "Der Lehrer schlägt den Schüler mit dem Lineal bestraft.",
-        condition: "ambiguous_difficult",
+        sentence: "Ich rufe dich an, sobald ich habe Zeit",
+        condition: "complex_ambiguous",
         expected: "ungrammatical",
-        translation: "Le professeur frappe l'élève avec la règle punit."
+        translation: "Je t'appelle dès que j'ai le temps.",
+        translation_pt: "Eu te ligo assim que tenho tempo."
     },
     {
-        sentence: "Die Mutter füttert das Baby mit der Flasche trinkt.",
-        condition: "ambiguous_difficult",
+        sentence: "Sie lernt Deutsch, seit sie wohnt in Berlin",
+        condition: "complex_ambiguous",
         expected: "ungrammatical",
-        translation: "La mère nourrit le bébé avec le biberon boit."
+        translation: "Elle apprend l'allemand depuis qu'elle vit à Berlin.",
+        translation_pt: "Ela aprende alemão desde que mora em Berlim."
     },
     {
-        sentence: "Der Gärtner gießt die Blumen mit der Gießkanne bewässert.",
-        condition: "ambiguous_difficult",
+        sentence: "Wir bleiben drinnen, falls es regnet heute",
+        condition: "complex_non_ambiguous",
         expected: "ungrammatical",
-        translation: "Le jardinier arrose les fleurs avec l'arrosoir irrigue."
+        translation: "Nous restons à l'intérieur au cas où il pleuvrait aujourd'hui.",
+        translation_pt: "Nós ficamos dentro caso chova hoje."
+    },
+    {
+        sentence: "Er ist müde, weil er hat spät ins Bett gegangen",
+        condition: "complex_ambiguous",
+        expected: "ungrammatical",
+        translation: "Il est fatigué car il s'est couché tard.",
+        translation_pt: "Ele está cansado porque foi dormir tarde."
+    },
+    {
+        sentence: "Sie kommt nicht, da sie ist sehr krank",
+        condition: "complex_ambiguous",
+        expected: "ungrammatical",
+        translation: "Elle ne vient pas car elle est très malade.",
+        translation_pt: "Ela não vem porque está muito doente."
+    },
+
+    // Catégorie 5: Topicalisation (correctes)
+    {
+        sentence: "Die Großmutter hat die Schokolade gegessen",
+        condition: "simple_non_ambiguous",
+        expected: "grammatical",
+        translation: "La grand-mère a mangé le chocolat.",
+        translation_pt: "A avó comeu o chocolate."
+    },
+    {
+        sentence: "Den Kater jagt der Hund",
+        condition: "simple_ambiguous",
+        expected: "grammatical",
+        translation: "Le chien poursuit le chat.",
+        translation_pt: "O cachorro persegue o gato."
+    },
+    {
+        sentence: "Den Ball jagt der Hund im Garten",
+        condition: "simple_ambiguous",
+        expected: "grammatical",
+        translation: "Le chien poursuit le ballon dans le jardin.",
+        translation_pt: "O cachorro persegue a bola no jardim."
+    },
+    {
+        sentence: "Den Alien erschreckt das Kind",
+        condition: "simple_ambiguous",
+        expected: "grammatical",
+        translation: "L'enfant fait peur à l'extraterrestre.",
+        translation_pt: "A criança assusta o alienígena."
+    },
+    {
+        sentence: "Der Spielerin gibt das Kind den Ball",
+        condition: "simple_ambiguous",
+        expected: "grammatical",
+        translation: "L'enfant donne le ballon à la joueuse.",
+        translation_pt: "A criança dá a bola para a jogadora."
+    },
+    {
+        sentence: "Mit viel Freude hat die Großmutter die Schokolade gegessen",
+        condition: "simple_non_ambiguous",
+        expected: "grammatical",
+        translation: "La grand-mère a mangé le chocolat avec beaucoup de joie.",
+        translation_pt: "A avó comeu o chocolate com muito prazer."
+    },
+    {
+        sentence: "Im Park spielen die Kinder Fußball",
+        condition: "simple_non_ambiguous",
+        expected: "grammatical",
+        translation: "Les enfants jouent au football dans le parc.",
+        translation_pt: "As crianças jogam futebol no parque."
+    },
+    {
+        sentence: "Langsam fährt das Auto die Straße entlang",
+        condition: "simple_non_ambiguous",
+        expected: "grammatical",
+        translation: "La voiture roule lentement le long de la route.",
+        translation_pt: "O carro dirige devagar ao longo da estrada."
+    },
+
+    // Catégorie 6: Pronoms au datif et à l'accusatif (correctes) - simple_non_ambiguous
+    {
+        sentence: "Ich gebe ihm das Buch",
+        condition: "simple_non_ambiguous",
+        expected: "grammatical",
+        translation: "Je lui donne le livre.",
+        translation_pt: "Eu dou o livro para ele."
+    },
+    {
+        sentence: "Ich höre euch",
+        condition: "simple_non_ambiguous",
+        expected: "grammatical",
+        translation: "Je vous entends.",
+        translation_pt: "Eu os escuto."
+    },
+    {
+        sentence: "Sie liebt ihn",
+        condition: "simple_non_ambiguous",
+        expected: "grammatical",
+        translation: "Elle l'aime.",
+        translation_pt: "Ela o ama."
+    },
+    {
+        sentence: "Ich schenke dir eine Blume",
+        condition: "simple_non_ambiguous",
+        expected: "grammatical",
+        translation: "Je t'offre une fleur.",
+        translation_pt: "Eu te dou uma flor."
+    },
+    {
+        sentence: "Er bringt ihnen die Zeitung",
+        condition: "simple_non_ambiguous",
+        expected: "grammatical",
+        translation: "Il leur apporte le journal.",
+        translation_pt: "Ele lhes traz o jornal."
+    },
+    {
+        sentence: "Sie zeigt mir den Weg",
+        condition: "simple_non_ambiguous",
+        expected: "grammatical",
+        translation: "Elle me montre le chemin.",
+        translation_pt: "Ela me mostra o caminho."
+    },
+    {
+        sentence: "Er sieht mich",
+        condition: "simple_non_ambiguous",
+        expected: "grammatical",
+        translation: "Il me voit.",
+        translation_pt: "Ele me vê."
+    },
+    {
+        sentence: "Wir geben ihr die Schlüssel",
+        condition: "simple_non_ambiguous",
+        expected: "grammatical",
+        translation: "Nous lui donnons les clés.",
+        translation_pt: "Nós lhe damos as chaves."
+    },
+
+    // Catégorie 7: Pronoms au datif et à l'accusatif (incorrectes) - simple_ambiguous
+    {
+        sentence: "Ich gebe er das Buch",
+        condition: "simple_ambiguous",
+        expected: "ungrammatical",
+        translation: "Je lui donne le livre.",
+        translation_pt: "Eu dou o livro para ele."
+    },
+    {
+        sentence: "Ich höre dir",
+        condition: "simple_ambiguous",
+        expected: "ungrammatical",
+        translation: "Je t'entends.",
+        translation_pt: "Eu te escuto."
+    },
+    {
+        sentence: "Sie liebt er",
+        condition: "simple_ambiguous",
+        expected: "ungrammatical",
+        translation: "Elle l'aime.",
+        translation_pt: "Ela o ama."
+    },
+    {
+        sentence: "Ich schenke dich eine Blume",
+        condition: "simple_ambiguous",
+        expected: "ungrammatical",
+        translation: "Je t'offre une fleur.",
+        translation_pt: "Eu te dou uma flor."
+    },
+    {
+        sentence: "Er bringt sie die Zeitung",
+        condition: "simple_ambiguous",
+        expected: "ungrammatical",
+        translation: "Il leur apporte le journal.",
+        translation_pt: "Ele lhes traz o jornal."
+    },
+    {
+        sentence: "Sie zeigt mich den Weg",
+        condition: "simple_ambiguous",
+        expected: "ungrammatical",
+        translation: "Elle me montre le chemin.",
+        translation_pt: "Ela me mostra o caminho."
+    },
+    {
+        sentence: "Er sieht mir",
+        condition: "simple_ambiguous",
+        expected: "ungrammatical",
+        translation: "Il me voit.",
+        translation_pt: "Ele me vê."
+    },
+    {
+        sentence: "Wir geben sie die Schlüssel",
+        condition: "simple_ambiguous",
+        expected: "ungrammatical",
+        translation: "Nous lui donnons les clés.",
+        translation_pt: "Nós lhe damos as chaves."
     }
 ];
 
 // Phrases d'entraînement
 const PRACTICE_SENTENCES = [
+
     {
-        sentence: "Der Ball ist rund.",
+        sentence: "Die Katze sitzt auf dem Stuhl.",
         expected: "grammatical",
-        feedback: "Correct ! Cette phrase est grammaticale."
-    },
-    {
-        sentence: "Die Katze schläft schnell.",
-        expected: "grammatical", 
         feedback: "Correct ! Cette phrase est grammaticale."
     },
     {
         sentence: "Der Hund läuft schnell.",
         expected: "grammatical",
         feedback: "Correct ! Cette phrase est grammaticale."
+    },
+    {
+        sentence: "Ich habe gestern angerufen meinen Freund.",
+        expected: "ungrammatical",
+        feedback: "Incorrect. La réponse attendue était : Non grammaticale."
+    },
+    {
+        sentence: "Der Ball ist rund.",
+        expected: "grammatical",
+        feedback: "Correct ! Cette phrase est grammaticale."
+    },
+    {
+        sentence: "Er spielt den Ball mit.",
+        expected: "ungrammatical",
+        feedback: "Incorrect. La réponse attendue était : Non grammaticale."
     }
 ]; 

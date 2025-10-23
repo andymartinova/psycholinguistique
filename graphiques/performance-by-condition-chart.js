@@ -1,20 +1,15 @@
-// Graphique de précision par condition
-class AccuracyChart {
-    constructor(containerId, data, labels) {
+// Graphique de performance par condition (canvas classique, style harmonisé)
+class PerformanceByConditionChart {
+    constructor(containerId, data) {
         this.containerId = containerId;
         this.data = data;
-        this.labels = labels || {
-            'simple_non_ambiguous': 'Simple, non ambiguë',
-            'complex_non_ambiguous': 'Complexe, non ambiguë',
-            'ambiguous_easy': 'Ambiguë, résolution facile',
-            'ambiguous_difficult': 'Ambiguë, résolution difficile'
-        };
         this.init();
     }
 
     init() {
         const container = document.getElementById(this.containerId);
         if (!container) return;
+        container.innerHTML = '';
 
         const chartData = this.prepareData();
         this.createChart(container, chartData);
@@ -22,13 +17,19 @@ class AccuracyChart {
 
     prepareData() {
         const conditions = ['simple_non_ambiguous', 'complex_non_ambiguous', 'ambiguous_easy', 'ambiguous_difficult'];
+        const labels = {
+            'simple_non_ambiguous': 'Simple',
+            'complex_non_ambiguous': 'Complexe',
+            'ambiguous_easy': 'Amb. facile',
+            'ambiguous_difficult': 'Amb. diff.'
+        };
         return conditions.map(condition => {
             const conditionData = this.data.filter(d => d.condition === condition);
             const accuracy = conditionData.length > 0 
                 ? (conditionData.filter(d => d.correct).length / conditionData.length) * 100 
                 : 0;
             return {
-                condition: this.labels[condition] || condition,
+                condition: labels[condition] || condition,
                 accuracy: accuracy,
                 trials: conditionData.length
             };
@@ -40,7 +41,7 @@ class AccuracyChart {
 
         // Créer le canvas
         const canvas = document.createElement('canvas');
-        canvas.width = container.clientWidth;
+        canvas.width = container.clientWidth || 600;
         canvas.height = 300;
         container.appendChild(canvas);
 
@@ -108,7 +109,6 @@ class AccuracyChart {
         // Graduations Y
         for (let i = 0; i <= 100; i += 20) {
             const y = canvas.height - margin - i * yScale;
-            
             ctx.strokeStyle = '#e2e8f0';
             ctx.lineWidth = 1;
             ctx.beginPath();
@@ -127,7 +127,6 @@ class AccuracyChart {
         ctx.font = 'bold 12px Arial';
         ctx.textAlign = 'center';
         ctx.fillText('Conditions expérimentales', canvas.width / 2, canvas.height - 10);
-        
         ctx.save();
         ctx.translate(20, canvas.height / 2);
         ctx.rotate(-Math.PI / 2);

@@ -1,56 +1,83 @@
-// Gestion de la page d'analyses - Version simplifiée pour debug
-console.log('Analytics.js loaded at:', new Date().toISOString());
-
+// Gestion de la page d'analyses
 class AnalyticsPage {
     constructor() {
-        console.log('AnalyticsPage constructor called');
+        console.log('Constructeur AnalyticsPage appelé');
         this.importedData = [];
         this.charts = {};
         this.setupEventHandlers();
-        this.waitForTranslation();
-    }
-
-    waitForTranslation() {
-        console.log('Waiting for translation system...');
-        let attempts = 0;
-        const maxAttempts = 50; // 5 secondes maximum
-        
-        const checkI18n = () => {
-            attempts++;
-            console.log(`Checking i18n (attempt ${attempts}/${maxAttempts})...`, {
-                windowI18n: window.i18n,
-                loaded: window.i18n?.loaded,
-                currentLanguage: window.i18n?.currentLanguage
-            });
-            
-            if (window.i18n && window.i18n.loaded) {
-                console.log('i18n loaded, setting up page...');
-                this.setupDynamicTranslation();
-                this.loadLocalData();
-                this.displayAnalytics();
-            } else if (attempts >= maxAttempts) {
-                console.error('i18n failed to load after maximum attempts, proceeding anyway...');
-                this.setupDynamicTranslation();
-                this.loadLocalData();
-                this.displayAnalytics();
-            } else {
-                console.log('i18n not ready, retrying...');
-                setTimeout(checkI18n, 100);
-            }
-        };
-        checkI18n();
+        this.setupDynamicTranslation();
+        this.loadLocalData();
+        this.displayAnalytics();
+        console.log('Constructeur AnalyticsPage terminé');
     }
 
     setupEventHandlers() {
-        console.log('Setting up event handlers...');
-        // Import de fichiers
+        console.log('Configuration des gestionnaires d\'événements...');
+        
+        // Import de fichiers - bouton
+        const uploadBtn = document.getElementById('upload-btn');
         const fileInput = document.getElementById('file-input');
-        console.log('File input element:', fileInput);
-        if (fileInput) {
-            fileInput.addEventListener('change', (e) => this.handleFileImport(e));
-            console.log('File input event listener attached');
+        
+        console.log('Élément upload-btn trouvé:', !!uploadBtn);
+        console.log('Élément file-input trouvé:', !!fileInput);
+        console.log('Élément upload-btn:', uploadBtn);
+        console.log('Élément file-input:', fileInput);
+        
+        if (uploadBtn && fileInput) {
+            // Gestionnaire pour le bouton d'upload
+            uploadBtn.addEventListener('click', (e) => {
+                console.log('Bouton d\'upload cliqué', e);
+                e.preventDefault();
+                fileInput.click();
+            });
+            
+            // Gestionnaire pour la sélection de fichiers
+            fileInput.addEventListener('change', (e) => {
+                console.log('Fichier sélectionné:', e.target.files);
+                console.log('Nombre de fichiers:', e.target.files.length);
+                this.handleFileImport(e);
+            });
+            
+            console.log('Événements d\'upload configurés avec succès');
         } else {
-            console.error('File input element not found!');
+            console.error('Éléments d\'upload non trouvés!');
+            console.error('uploadBtn:', uploadBtn);
+            console.error('fileInput:', fileInput);
+        }
+
+        // Support du glisser-déposer
+        const importArea = document.querySelector('.import-area');
+        if (importArea) {
+            importArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                importArea.style.borderColor = '#007bff';
+                importArea.style.backgroundColor = '#f8f9fa';
+            });
+            
+            importArea.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                importArea.style.borderColor = '#ccc';
+                importArea.style.backgroundColor = 'transparent';
+            });
+            
+            importArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                importArea.style.borderColor = '#ccc';
+                importArea.style.backgroundColor = 'transparent';
+                
+                const files = e.dataTransfer.files;
+                console.log('Fichiers glissés-déposés:', files);
+                
+                if (files.length > 0) {
+                    // Créer un événement factice pour utiliser handleFileImport
+                    const fakeEvent = {
+                        target: { files: files }
+                    };
+                    this.handleFileImport(fakeEvent);
+                }
+            });
+            
+            console.log('Support du glisser-déposer configuré');
         }
 
         // Boutons d'action
@@ -63,58 +90,92 @@ class AnalyticsPage {
         if (clearBtn) {
             clearBtn.addEventListener('click', () => this.clearAllData());
         }
+        
+        // Bouton de test
+        const testBtn = document.getElementById('test-btn');
+        if (testBtn) {
+            testBtn.addEventListener('click', () => {
+                console.log('Bouton de test cliqué');
+                alert('JavaScript fonctionne !');
+            });
+        }
+        
+        console.log('Gestionnaires d\'événements configurés');
     }
 
     setupDynamicTranslation() {
-        console.log('Setting up dynamic translation...');
-        // Traduction dynamique des textes statiques
-        const checkI18n = () => {
-            if (window.i18n && window.i18n.loaded) {
-                this.translateStaticTexts();
-            } else {
-                setTimeout(checkI18n, 100);
-            }
-        };
-        checkI18n();
+        // Traduction immédiate si i18n est déjà prêt
+        if (window.i18n && window.i18n.loaded) {
+            console.log('Traduction immédiate des textes...');
+            this.translateStaticTexts();
+        } else {
+            // Sinon, attendre que i18n soit prêt
+            const checkI18n = () => {
+                if (window.i18n && window.i18n.loaded) {
+                    console.log('Système de traduction chargé, traduction des textes...');
+                    this.translateStaticTexts();
+                } else {
+                    setTimeout(checkI18n, 100);
+                }
+            };
+            setTimeout(checkI18n, 100);
+        }
     }
 
     translateStaticTexts() {
-        console.log('Translating static texts...');
         document.querySelectorAll('[data-i18n]').forEach(el => {
             const key = el.getAttribute('data-i18n');
             const translation = window.i18n.t(key);
             if (translation) {
-                el.textContent = translation;
+                el.innerHTML = translation;
+            } else {
+                console.warn(`Traduction manquante pour la clé: ${key}`);
             }
         });
     }
 
     handleFileImport(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        console.log('File import event:', event.target.files);
+        console.log('Fonction handleFileImport appelée');
+        console.log('Event:', event);
+        console.log('Event target:', event.target);
+        console.log('Event target files:', event.target.files);
+        
         const files = event.target.files;
+        console.log('Nombre de fichiers sélectionnés:', files.length);
+        
+        if (!files || files.length === 0) {
+            console.warn('Aucun fichier sélectionné');
+            return;
+        }
+        
         for (let file of files) {
-            console.log('Processing file:', file.name, file.type);
+            console.log('Traitement du fichier:', file.name, 'Type:', file.type);
             if (file.type === 'application/json' || file.name.endsWith('.json')) {
+                console.log('Fichier JSON valide, lecture en cours...');
                 this.readFile(file);
             } else {
-                alert(window.i18n.t('analytics.invalid_file', { name: file.name }) || `Le fichier ${file.name} n'est pas un fichier JSON valide.`);
+                console.warn('Fichier non-JSON rejeté:', file.name);
+                const message = window.i18n && window.i18n.t ? 
+                    window.i18n.t('analytics.invalid_file', { name: file.name }) : 
+                    `Le fichier ${file.name} n'est pas un fichier JSON valide.`;
+                alert(message);
             }
         }
         event.target.value = '';
     }
 
     readFile(file) {
-        console.log('Reading file:', file.name);
+        console.log('Lecture du fichier:', file.name);
         const reader = new FileReader();
         reader.onload = (e) => {
+            console.log('Fichier lu, parsing JSON...');
             try {
-                console.log('File content loaded, parsing JSON...');
                 const data = JSON.parse(e.target.result);
-                console.log('Parsed data:', data);
+                console.log('JSON parsé avec succès, validation de la structure...');
+                console.log('Structure des données:', data);
+                
                 if (this.validateDataStructure(data)) {
-                    console.log('Data structure is valid, adding to imported data');
+                    console.log('Structure valide, ajout aux données importées');
                     const fileInfo = {
                         name: file.name,
                         size: file.size,
@@ -124,91 +185,557 @@ class AnalyticsPage {
                     this.importedData.push(fileInfo);
                     this.updateImportedFilesList();
                     this.displayAnalytics();
+                    console.log('Fichier importé avec succès');
                 } else {
-                    console.log('Invalid data structure');
+                    console.error('Structure de données invalide');
                     alert(window.i18n.t('analytics.invalid_data', { name: file.name }) || `Le fichier ${file.name} ne contient pas des données d'expérience valides.`);
                 }
             } catch (error) {
-                console.error('Error reading file:', error);
+                console.error('Erreur lors du parsing JSON:', error);
                 alert(window.i18n.t('analytics.read_error', { name: file.name, error: error.message }) || `Erreur lors de la lecture du fichier ${file.name}: ${error.message}`);
             }
+        };
+        reader.onerror = (error) => {
+            console.error('Erreur lors de la lecture du fichier:', error);
+            alert(`Erreur lors de la lecture du fichier ${file.name}`);
         };
         reader.readAsText(file);
     }
 
     validateDataStructure(data) {
-        return data && 
+        console.log('Validation de la structure des données...');
+        console.log('data existe:', !!data);
+        console.log('data.participant existe:', !!(data && data.participant));
+        console.log('data.experiment existe:', !!(data && data.experiment));
+        console.log('data.experiment.data existe:', !!(data && data.experiment && data.experiment.data));
+        console.log('data.experiment.data est un tableau:', !!(data && data.experiment && data.experiment.data && Array.isArray(data.experiment.data)));
+        
+        // Structure de base requise
+        const hasBasicStructure = data && 
                data.participant && 
                data.experiment && 
                data.experiment.data && 
                Array.isArray(data.experiment.data);
+        
+        if (hasBasicStructure) {
+            console.log('Structure de base valide');
+            
+            // Vérifier que les données contiennent les champs requis
+            const firstTrial = data.experiment.data[0];
+            if (firstTrial) {
+                console.log('Premier essai:', firstTrial);
+                const hasRequiredFields = firstTrial.hasOwnProperty('trial') && 
+                                        firstTrial.hasOwnProperty('sentence') && 
+                                        firstTrial.hasOwnProperty('condition') && 
+                                        firstTrial.hasOwnProperty('expected') && 
+                                        firstTrial.hasOwnProperty('response') && 
+                                        firstTrial.hasOwnProperty('responseTime') && 
+                                        firstTrial.hasOwnProperty('correct');
+                
+                console.log('Champs requis présents:', hasRequiredFields);
+                return hasRequiredFields;
+            }
+        }
+        
+        console.log('Structure invalide');
+        return false;
     }
 
     updateImportedFilesList() {
-        console.log('Updating imported files list...');
         const filesList = document.getElementById('imported-files');
         if (!filesList) return;
-
+        
+        // Fonction helper pour les traductions sécurisées
+        const t = (key, fallback) => {
+            return window.i18n && window.i18n.t ? window.i18n.t(key) : fallback;
+        };
+        
         if (this.importedData.length === 0) {
-            filesList.innerHTML = `<p>${window.i18n.t('analytics.no_files')}</p>`;
+            filesList.innerHTML = `<p>${t('analytics.no_files', 'No files imported')}</p>`;
             return;
         }
-
-        filesList.innerHTML = this.importedData.map((file, index) => `
+        filesList.innerHTML = this.importedData.map((fileInfo, index) => `
             <div class="imported-file-item">
                 <div class="imported-file-info">
                     <span class="imported-file-icon">📄</span>
                     <div class="imported-file-details">
-                        <div class="imported-file-name">${file.name}</div>
-                        <div class="imported-file-participant">${file.data.participant?.id || 'Unknown'}</div>
+                        <div class="imported-file-name">${fileInfo.name}</div>
+                        <div class="imported-file-participant">
+                            ${t('analytics.participant_label', 'Participant')}: ${fileInfo.data.participant?.id || 'N/A'} 
+                            (${fileInfo.data.experiment?.data?.length || 0} ${t('results.total_trials', 'trials').toLowerCase()})
+                        </div>
                     </div>
                 </div>
                 <div class="imported-file-actions">
-                    <button class="remove-file-btn" onclick="removeFile(${index})">${window.i18n.t('analytics.remove_file')}</button>
+                    <button class="remove-file-btn" data-index="${index}">
+                        🗑️ ${t('analytics.remove_file', 'Remove')}
+                    </button>
                 </div>
             </div>
         `).join('');
+        const removeButtons = filesList.querySelectorAll('.remove-file-btn');
+        removeButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                const index = parseInt(e.target.dataset.index);
+                this.removeFile(index);
+            });
+        });
+    }
+
+    removeFile(index) {
+        this.importedData.splice(index, 1);
+        this.updateImportedFilesList();
+        this.displayAnalytics();
     }
 
     loadLocalData() {
-        console.log('Loading local data...');
-        try {
-            const data = localStorage.getItem('experimentData');
-            if (data) {
-                const parsed = JSON.parse(data);
-                if (this.validateDataStructure(parsed)) {
+        const localData = localStorage.getItem('experimentData');
+        if (localData) {
+            try {
+                const data = JSON.parse(localData);
+                if (this.validateDataStructure(data)) {
+                    // Fonction helper pour les traductions sécurisées
+                    const t = (key, fallback) => {
+                        return window.i18n && window.i18n.t ? window.i18n.t(key) : fallback;
+                    };
+                    
                     this.importedData.push({
-                        name: 'Local Data',
-                        size: data.length,
+                        name: t('analytics.local_data', 'Local data'),
+                        size: localData.length,
                         lastModified: Date.now(),
-                        data: parsed
+                        data: data
                     });
                 }
+            } catch (error) {
+                console.error('Erreur lors du chargement des données locales:', error);
             }
-        } catch (e) {
-            console.error('Error loading local data:', e);
         }
     }
 
     displayAnalytics() {
-        console.log('Displaying analytics...');
+        if (this.importedData.length === 0) {
+            this.loadLocalData();
+        }
         if (this.importedData.length === 0) {
             this.showNoDataMessage();
             return;
         }
-        
-        this.updateImportedFilesList();
         this.displayGlobalStats();
         this.displayConditionStats();
         this.displayParticipantComparison();
         this.displayCharts();
         this.displayRawData();
+    }
+
+    displayGlobalStats() {
+        const globalStats = document.getElementById('global-stats');
+        if (!globalStats) return;
+        const allData = this.getAllExperimentData();
+        const totalTrials = allData.length;
+        const totalParticipants = this.importedData.length;
+        const avgAccuracy = this.calculateAverageAccuracy(allData);
+        const avgResponseTime = this.calculateAverageResponseTime(allData);
         
-        console.log('Analytics displayed successfully');
+        // Fonction helper pour les traductions sécurisées
+        const t = (key, fallback) => {
+            return window.i18n && window.i18n.t ? window.i18n.t(key) : fallback;
+        };
+        
+        globalStats.innerHTML = `
+            <div class="stat-card">
+                <div class="stat-value">${totalParticipants}</div>
+                <div class="stat-label">${t('analytics.stats.total_participants', 'Total participants')}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">${totalTrials}</div>
+                <div class="stat-label">${t('results.total_trials', 'Total trials')}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">${avgAccuracy.toFixed(1)}%</div>
+                <div class="stat-label">${t('analytics.stats.average_accuracy', 'Average accuracy')}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">${avgResponseTime.toFixed(0)}ms</div>
+                <div class="stat-label">${t('analytics.stats.average_response_time', 'Average response time')}</div>
+            </div>
+        `;
+    }
+
+    displayConditionStats() {
+        const conditionStats = document.getElementById('condition-stats');
+        if (!conditionStats) return;
+        const allData = this.getAllExperimentData();
+        
+        // Fonction helper pour les traductions sécurisées
+        const t = (key, fallback) => {
+            return window.i18n && window.i18n.t ? window.i18n.t(key) : fallback;
+        };
+        
+        const conditionLabels = {
+            'simple_non_ambiguous': t('results.conditions.simple_unambiguous', 'Simple, non ambiguous'),
+            'complex_non_ambiguous': t('results.conditions.complex_unambiguous', 'Complex, non ambiguous'),
+            'ambiguous_easy': t('results.conditions.simple_ambiguous', 'Simple, ambiguous'),
+            'ambiguous_difficult': t('results.conditions.complex_ambiguous', 'Complex, ambiguous')
+        };
+        const conditionStatsData = this.calculateConditionStats(allData);
+        conditionStats.innerHTML = Object.entries(conditionStatsData).map(([condition, stats]) => `
+            <div class="stat-card">
+                <div class="stat-label">${conditionLabels[condition] || condition}</div>
+                <div class="stat-value">${stats.accuracy.toFixed(1)}%</div>
+                <div class="stat-label">${t('results.accuracy', 'Accuracy')} (${stats.trials} ${t('results.total_trials', 'trials').toLowerCase()})</div>
+                <div class="stat-label">${t('results.average_time', 'Average time')}: ${stats.avgResponseTime.toFixed(0)}ms</div>
+            </div>
+        `).join('');
+    }
+
+    displayParticipantComparison() {
+        const participantComparison = document.getElementById('participant-comparison');
+        if (!participantComparison) return;
+        
+        // Fonction helper pour les traductions sécurisées
+        const t = (key, fallback) => {
+            return window.i18n && window.i18n.t ? window.i18n.t(key) : fallback;
+        };
+        
+        participantComparison.innerHTML = this.importedData.map(fileInfo => {
+            const data = fileInfo.data.experiment.data;
+            const summary = this.generateSummary(data);
+            const participantId = fileInfo.data.participant?.id || 'N/A';
+            const languageGroup = fileInfo.data.participant?.languageGroup || 'N/A';
+            return `
+                <div class="stat-card">
+                    <div class="stat-label">${participantId}</div>
+                    <div class="stat-value">${summary.accuracy}</div>
+                    <div class="stat-label">${t('results.accuracy', 'Accuracy')}</div>
+                    <div class="stat-label">${t('home.language_group_label', 'Language group')}: ${languageGroup}</div>
+                    <div class="stat-label">${t('results.total_trials', 'Total trials')}: ${summary.totalTrials}</div>
+                    <div class="stat-label">${t('results.average_time', 'Average time')}: ${summary.avgResponseTime}</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // Fonction pour générer un résumé des données d'expérience
+    generateSummary(data) {
+        if (!data || data.length === 0) {
+            return {
+                totalTrials: 0,
+                correctResponses: 0,
+                accuracy: '0%',
+                avgResponseTime: '0ms',
+                conditionStats: {}
+            };
+        }
+
+        const totalTrials = data.length;
+        const correctResponses = data.filter(d => d.correct).length;
+        const accuracy = ((correctResponses / totalTrials) * 100).toFixed(1) + '%';
+        
+        const totalTime = data.reduce((sum, d) => sum + (d.responseTime || 0), 0);
+        const avgResponseTime = this.formatResponseTime(Math.round(totalTime / totalTrials));
+
+        // Statistiques par condition
+        const conditionStats = {};
+        const conditions = [...new Set(data.map(d => d.condition))];
+        
+        conditions.forEach(condition => {
+            const conditionData = data.filter(d => d.condition === condition);
+            const conditionCorrect = conditionData.filter(d => d.correct).length;
+            const conditionAccuracy = ((conditionCorrect / conditionData.length) * 100).toFixed(1) + '%';
+            const conditionAvgTime = this.formatResponseTime(Math.round(
+                conditionData.reduce((sum, d) => sum + (d.responseTime || 0), 0) / conditionData.length
+            ));
+            
+            conditionStats[condition] = {
+                trials: conditionData.length,
+                accuracy: conditionAccuracy,
+                avgResponseTime: conditionAvgTime
+            };
+        });
+
+        return {
+            totalTrials,
+            correctResponses,
+            accuracy,
+            avgResponseTime,
+            conditionStats
+        };
+    }
+
+    // Fonction pour formater les temps de réponse
+    formatResponseTime(ms) {
+        if (!ms || ms === 0) return '0ms';
+        
+        const seconds = Math.floor(ms / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        const remainingMs = ms % 1000;
+        
+        if (minutes > 0) {
+            return `${minutes}:${remainingSeconds.toString().padStart(2, '0')} (${ms}ms)`;
+        } else if (seconds > 0) {
+            return `${remainingSeconds}.${remainingMs.toString().padStart(3, '0')}s (${ms}ms)`;
+        } else {
+            return `${ms}ms`;
+        }
+    }
+
+    displayCharts() {
+        const allData = this.getAllExperimentData();
+        console.log('Données pour les graphiques:', allData);
+        
+        // Vider tous les conteneurs de graphiques
+        ['performance-summary-chart', 'performance-by-condition-chart', 'accuracy-chart', 'response-time-chart', 'participant-chart', 'learning-curve-chart'].forEach(id => {
+            const container = document.getElementById(id);
+            if (container) {
+                container.innerHTML = '';
+            }
+        });
+        
+        if (allData.length > 0) {
+            // Fonction helper pour les traductions sécurisées
+            const t = (key, fallback) => {
+                return window.i18n && window.i18n.t ? window.i18n.t(key) : fallback;
+            };
+            
+            const labels = {
+                'simple_non_ambiguous': t('results.conditions.simple_unambiguous', 'Simple, non ambiguous'),
+                'complex_non_ambiguous': t('results.conditions.complex_unambiguous', 'Complex, non ambiguous'),
+                'ambiguous_easy': t('results.conditions.simple_ambiguous', 'Simple, ambiguous'),
+                'ambiguous_difficult': t('results.conditions.complex_ambiguous', 'Complex, ambiguous')
+            };
+            
+            console.log('Labels des conditions:', labels);
+            
+            // Vérifier que les classes de graphiques sont disponibles
+            console.log('PerformanceSummaryChart disponible:', typeof PerformanceSummaryChart !== 'undefined');
+            console.log('PerformanceByConditionChart disponible:', typeof PerformanceByConditionChart !== 'undefined');
+            console.log('AccuracyChart disponible:', typeof AccuracyChart !== 'undefined');
+            console.log('ResponseTimeChart disponible:', typeof ResponseTimeChart !== 'undefined');
+            console.log('ParticipantComparisonChart disponible:', typeof ParticipantComparisonChart !== 'undefined');
+            console.log('LearningCurveChart disponible:', typeof LearningCurveChart !== 'undefined');
+            
+            // Nouveau graphique de résumé de performance
+            if (typeof PerformanceSummaryChart !== 'undefined') {
+                try {
+                    this.charts.performanceSummary = new PerformanceSummaryChart('performance-summary-chart', allData);
+                    console.log('Graphique de résumé de performance créé avec succès');
+                } catch (error) {
+                    console.error('Erreur lors de la création du graphique de résumé de performance:', error);
+                    document.getElementById('performance-summary-chart').innerHTML = `<p>Erreur: ${error.message}</p>`;
+                }
+            } else {
+                console.error('PerformanceSummaryChart class not found');
+                document.getElementById('performance-summary-chart').innerHTML = '<p>Erreur: Classe PerformanceSummaryChart non trouvée</p>';
+            }
+            
+            // Nouveau graphique de performance par condition
+            if (typeof PerformanceByConditionChart !== 'undefined') {
+                try {
+                    this.charts.performanceByCondition = new PerformanceByConditionChart('performance-by-condition-chart', allData, labels);
+                    console.log('Graphique de performance par condition créé avec succès');
+                } catch (error) {
+                    console.error('Erreur lors de la création du graphique de performance par condition:', error);
+                    document.getElementById('performance-by-condition-chart').innerHTML = `<p>Erreur: ${error.message}</p>`;
+                }
+            } else {
+                console.error('PerformanceByConditionChart class not found');
+                document.getElementById('performance-by-condition-chart').innerHTML = '<p>Erreur: Classe PerformanceByConditionChart non trouvée</p>';
+            }
+            
+            // Graphiques existants
+            if (typeof AccuracyChart !== 'undefined') {
+                try {
+                    this.charts.accuracy = new AccuracyChart('accuracy-chart', allData, labels);
+                    console.log('Graphique de précision créé avec succès');
+                } catch (error) {
+                    console.error('Erreur lors de la création du graphique de précision:', error);
+                    document.getElementById('accuracy-chart').innerHTML = `<p>Erreur: ${error.message}</p>`;
+                }
+            } else {
+                console.error('AccuracyChart class not found');
+                document.getElementById('accuracy-chart').innerHTML = '<p>Erreur: Classe AccuracyChart non trouvée</p>';
+            }
+            
+            if (typeof ResponseTimeChart !== 'undefined') {
+                try {
+                    this.charts.responseTime = new ResponseTimeChart('response-time-chart', allData, labels);
+                    console.log('Graphique de temps de réponse créé avec succès');
+                } catch (error) {
+                    console.error('Erreur lors de la création du graphique de temps de réponse:', error);
+                    document.getElementById('response-time-chart').innerHTML = `<p>Erreur: ${error.message}</p>`;
+                }
+            } else {
+                console.error('ResponseTimeChart class not found');
+                document.getElementById('response-time-chart').innerHTML = '<p>Erreur: Classe ResponseTimeChart non trouvée</p>';
+            }
+            
+            if (typeof ParticipantComparisonChart !== 'undefined') {
+                try {
+                    this.charts.participant = new ParticipantComparisonChart('participant-chart', this.importedData);
+                    console.log('Graphique de comparaison des participants créé avec succès');
+                } catch (error) {
+                    console.error('Erreur lors de la création du graphique de comparaison:', error);
+                    document.getElementById('participant-chart').innerHTML = `<p>Erreur: ${error.message}</p>`;
+                }
+            } else {
+                console.error('ParticipantComparisonChart class not found');
+                document.getElementById('participant-chart').innerHTML = '<p>Erreur: Classe ParticipantComparisonChart non trouvée</p>';
+            }
+            
+            if (typeof LearningCurveChart !== 'undefined') {
+                try {
+                    this.charts.learningCurve = new LearningCurveChart('learning-curve-chart', allData);
+                    console.log('Graphique de courbe d\'apprentissage créé avec succès');
+                } catch (error) {
+                    console.error('Erreur lors de la création du graphique de courbe d\'apprentissage:', error);
+                    document.getElementById('learning-curve-chart').innerHTML = `<p>Erreur: ${error.message}</p>`;
+                }
+            } else {
+                console.error('LearningCurveChart class not found');
+                document.getElementById('learning-curve-chart').innerHTML = '<p>Erreur: Classe LearningCurveChart non trouvée</p>';
+            }
+        } else {
+            console.log('Aucune donnée disponible pour les graphiques');
+            ['performance-summary-chart', 'performance-by-condition-chart', 'accuracy-chart', 'response-time-chart', 'participant-chart', 'learning-curve-chart'].forEach(id => {
+                const container = document.getElementById(id);
+                if (container) {
+                    container.innerHTML = '<p>Aucune donnée disponible</p>';
+                }
+            });
+        }
+    }
+
+    displayRawData() {
+        const rawData = document.getElementById('raw-data');
+        if (!rawData) return;
+        const allData = this.getAllExperimentData();
+        
+        // Fonction helper pour les traductions sécurisées
+        const t = (key, fallback) => {
+            return window.i18n && window.i18n.t ? window.i18n.t(key) : fallback;
+        };
+        
+        if (allData.length === 0) {
+            rawData.innerHTML = `<p>${t('analytics.no_data', 'No data available')}</p>`;
+            return;
+        }
+        const tableHTML = `
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>${t('analytics.participant_label', 'Participant')}</th>
+                        <th>${t('results.trial', 'Trial')}</th>
+                        <th>${t('results.sentence', 'Sentence')}</th>
+                        <th>${t('results.condition', 'Condition')}</th>
+                        <th>${t('results.expected', 'Expected')}</th>
+                        <th>${t('results.response', 'Response')}</th>
+                        <th>${t('results.time', 'Time')}</th>
+                        <th>${t('results.correct', 'Correct')}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${allData.map(trial => {
+                        const participantId = trial.participantId || 'N/A';
+                        const trialNumber = trial.trial || 'N/A';
+                        const sentence = trial.sentence || 'N/A';
+                        const condition = this.getConditionLabel(trial.condition || 'N/A');
+                        const expected = trial.expected || 'N/A';
+                        let response = trial.response;
+                        if (!response) {
+                            response = t('results.missing', 'MISSING');
+                        } else if (response !== 'grammatical' && response !== 'ungrammatical') {
+                            response = t('results.invalid', 'INVALID');
+                        }
+                        const responseTime = this.formatResponseTime(trial.responseTime || 0);
+                        const isCorrect = trial.correct === true;
+                        return `
+                            <tr>
+                                <td>${participantId}</td>
+                                <td>${trialNumber}</td>
+                                <td>${sentence}</td>
+                                <td>${condition}</td>
+                                <td>${expected}</td>
+                                <td>${response}</td>
+                                <td>${responseTime}</td>
+                                <td>${isCorrect ? '✅' : '❌'}</td>
+                            </tr>
+                        `;
+                    }).join('')}
+                </tbody>
+            </table>
+        `;
+        rawData.innerHTML = tableHTML;
+    }
+
+    getAllExperimentData() {
+        const allData = [];
+        this.importedData.forEach(fileInfo => {
+            const participantId = fileInfo.data.participant?.id || 'N/A';
+            const experimentData = fileInfo.data.experiment.data;
+            experimentData.forEach(trial => {
+                allData.push({
+                    ...trial,
+                    participantId: participantId
+                });
+            });
+        });
+        return allData;
+    }
+
+    calculateAverageAccuracy(data) {
+        if (data.length === 0) return 0;
+        const correctResponses = data.filter(d => d.correct).length;
+        return (correctResponses / data.length) * 100;
+    }
+
+    calculateAverageResponseTime(data) {
+        if (data.length === 0) return 0;
+        const totalTime = data.reduce((sum, d) => sum + d.responseTime, 0);
+        return totalTime / data.length;
+    }
+
+    calculateConditionStats(data) {
+        const conditionStats = {};
+        ['simple_non_ambiguous', 'complex_non_ambiguous', 'ambiguous_easy', 'ambiguous_difficult'].forEach(condition => {
+            const conditionData = data.filter(d => d.condition === condition);
+            if (conditionData.length > 0) {
+                conditionStats[condition] = {
+                    trials: conditionData.length,
+                    accuracy: this.calculateAverageAccuracy(conditionData),
+                    avgResponseTime: this.calculateAverageResponseTime(conditionData)
+                };
+            }
+        });
+        return conditionStats;
+    }
+
+    getConditionLabel(condition) {
+        if (!condition || condition === 'N/A') return 'N/A';
+        
+        // Fonction helper pour les traductions sécurisées
+        const t = (key, fallback) => {
+            return window.i18n && window.i18n.t ? window.i18n.t(key) : fallback;
+        };
+        
+        const labels = {
+            'simple_non_ambiguous': t('results.conditions.simple_unambiguous', 'Simple, non ambiguous'),
+            'complex_non_ambiguous': t('results.conditions.complex_unambiguous', 'Complex, non ambiguous'),
+            'ambiguous_easy': t('results.conditions.simple_ambiguous', 'Simple, ambiguous'),
+            'ambiguous_difficult': t('results.conditions.complex_ambiguous', 'Complex, ambiguous'),
+            'simple': t('results.conditions.simple_unambiguous', 'Simple, non ambiguous'),
+            'complex': t('results.conditions.complex_unambiguous', 'Complex, non ambiguous'),
+            'ambiguous': t('results.conditions.simple_ambiguous', 'Simple, ambiguous')
+        };
+        return labels[condition] || condition;
     }
 
     showNoDataMessage() {
-        console.log('Showing no data message...');
+        // Fonction helper pour les traductions sécurisées
+        const t = (key, fallback) => {
+            return window.i18n && window.i18n.t ? window.i18n.t(key) : fallback;
+        };
+        
         const globalStats = document.getElementById('global-stats');
         const conditionStats = document.getElementById('condition-stats');
         const participantComparison = document.getElementById('participant-comparison');
@@ -216,8 +743,8 @@ class AnalyticsPage {
         const rawData = document.getElementById('raw-data');
         const noDataMessage = `
             <div class="info-box">
-                <p>${window.i18n.t('analytics.no_data')}</p>
-                <a href="experiment.html" class="btn btn-primary" data-i18n="home.start_button">${window.i18n.t('home.start_button')}</a>
+                <p>${t('analytics.no_data', 'No experiment data found. Import JSON files or complete an experiment.')}</p>
+                <a href="experiment.html" class="btn btn-primary" data-i18n="home.start_button">${t('home.start_button', 'Start experiment')}</a>
             </div>
         `;
         if (globalStats) globalStats.innerHTML = noDataMessage;
@@ -227,361 +754,44 @@ class AnalyticsPage {
         if (rawData) rawData.innerHTML = '';
     }
 
-    displayGlobalStats() {
-        console.log('Displaying global stats...');
-        const globalStats = document.getElementById('global-stats');
-        if (!globalStats) return;
-
-        const allTrials = this.getAllTrials();
-        const totalTrials = allTrials.length;
-        const correctTrials = allTrials.filter(trial => trial.correct).length;
-        const accuracy = totalTrials > 0 ? (correctTrials / totalTrials * 100).toFixed(1) : 0;
-        const avgResponseTime = totalTrials > 0 ? 
-            (allTrials.reduce((sum, trial) => sum + trial.responseTime, 0) / totalTrials).toFixed(0) : 0;
-
-        globalStats.innerHTML = `
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <h3>${window.i18n.t('analytics.total_trials')}</h3>
-                    <p class="stat-value">${totalTrials}</p>
-                </div>
-                <div class="stat-card">
-                    <h3>${window.i18n.t('analytics.accuracy')}</h3>
-                    <p class="stat-value">${accuracy}%</p>
-                </div>
-                <div class="stat-card">
-                    <h3>${window.i18n.t('analytics.avg_response_time')}</h3>
-                    <p class="stat-value">${formatResponseTime(avgResponseTime)}</p>
-                </div>
-                <div class="stat-card">
-                    <h3>${window.i18n.t('analytics.participants')}</h3>
-                    <p class="stat-value">${this.importedData.length}</p>
-                </div>
-            </div>
-        `;
-    }
-
-    displayConditionStats() {
-        console.log('Displaying condition stats...');
-        const conditionStats = document.getElementById('condition-stats');
-        if (!conditionStats) return;
-
-        const allTrials = this.getAllTrials();
-        const conditions = this.groupByCondition(allTrials);
-        
-        let html = '<div class="condition-stats-grid">';
-        for (const [condition, trials] of Object.entries(conditions)) {
-            const accuracy = (trials.filter(t => t.correct).length / trials.length * 100).toFixed(1);
-            const avgTime = (trials.reduce((sum, t) => sum + t.responseTime, 0) / trials.length).toFixed(0);
-            
-            html += `
-                <div class="condition-card">
-                    <h4>${this.formatConditionName(condition)}</h4>
-                    <div class="condition-metrics">
-                        <div class="metric">
-                            <span class="metric-label">${window.i18n.t('analytics.accuracy')}:</span>
-                            <span class="metric-value">${accuracy}%</span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">${window.i18n.t('analytics.avg_response_time')}:</span>
-                            <span class="metric-value">${avgTime}ms</span>
-                        </div>
-                        <div class="metric">
-                            <span class="metric-label">${window.i18n.t('analytics.trials')}:</span>
-                            <span class="metric-value">${trials.length}</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-        html += '</div>';
-        conditionStats.innerHTML = html;
-    }
-
-    displayParticipantComparison() {
-        console.log('Displaying participant comparison...');
-        const participantComparison = document.getElementById('participant-comparison');
-        if (!participantComparison) return;
-
-        let html = '<div class="participant-comparison-table">';
-        html += `
-            <table>
-                <thead>
-                    <tr>
-                        <th>${window.i18n.t('analytics.participant')}</th>
-                        <th>${window.i18n.t('analytics.accuracy')}</th>
-                        <th>${window.i18n.t('analytics.avg_response_time')}</th>
-                        <th>${window.i18n.t('analytics.trials')}</th>
-                    </tr>
-                </thead>
-                <tbody>
-        `;
-
-        for (const file of this.importedData) {
-            const trials = file.data.experiment.data;
-            const accuracy = (trials.filter(t => t.correct).length / trials.length * 100).toFixed(1);
-            const avgTime = (trials.reduce((sum, t) => sum + t.responseTime, 0) / trials.length).toFixed(0);
-            
-            html += `
-                <tr>
-                    <td>${file.data.participant.id}</td>
-                    <td>${accuracy}%</td>
-                    <td>${avgTime}ms</td>
-                    <td>${trials.length}</td>
-                </tr>
-            `;
-        }
-
-        html += '</tbody></table></div>';
-        participantComparison.innerHTML = html;
-    }
-
-    displayCharts() {
-        console.log('Displaying charts...');
-        const chartsContainer = document.getElementById('charts-container');
-        if (!chartsContainer) return;
-
-        chartsContainer.innerHTML = `
-            <div class="charts-grid">
-                <div class="chart-container">
-                    <h3>${window.i18n.t('analytics.accuracy_by_condition')}</h3>
-                    <div id="accuracy-chart"></div>
-                </div>
-                <div class="chart-container">
-                    <h3>${window.i18n.t('analytics.response_time_by_condition')}</h3>
-                    <div id="response-time-chart"></div>
-                </div>
-                <div class="chart-container">
-                    <h3>${window.i18n.t('analytics.learning_curve')}</h3>
-                    <div id="learning-curve-chart"></div>
-                </div>
-                <div class="chart-container">
-                    <h3>${window.i18n.t('analytics.participant_comparison')}</h3>
-                    <div id="participant-comparison-chart"></div>
-                </div>
-                <div class="chart-container">
-                    <h3>${window.i18n.t('analytics.response_time_curve')}</h3>
-                    <div id="response-time-curve-chart"></div>
-                </div>
-                <div class="chart-container">
-                    <h3>${window.i18n.t('analytics.response_time_distribution')}</h3>
-                    <div id="response-time-distribution-chart"></div>
-                </div>
-                <div class="chart-container">
-                    <h3>${window.i18n.t('analytics.confusion_matrix')} <span class="info-icon" title="Cette matrice montre les patterns d'erreurs entre conditions. Les cases vertes (diagonale) représentent les réponses correctes, les cases rouges (hors diagonale) représentent les erreurs. Cela aide à identifier quelles conditions sont confondues entre elles.">ⓘ</span></h3>
-                    <div id="confusion-matrix-chart"></div>
-                </div>
-                <div class="chart-container">
-                    <h3>${window.i18n.t('analytics.speed_accuracy')} <span class="info-icon" title="Ce graphique montre la corrélation entre temps de réponse et précision. Chaque point représente un participant. Une corrélation négative indique un speed-accuracy trade-off (plus rapide = moins précis).">ⓘ</span></h3>
-                    <div id="speed-accuracy-chart"></div>
-                </div>
-            </div>
-        `;
-
-        // Initialiser les graphiques après un délai pour laisser le DOM se mettre à jour
-        setTimeout(() => {
-            this.initializeCharts();
-        }, 100);
-    }
-
-    displayRawData() {
-        console.log('Displaying raw data...');
-        const rawData = document.getElementById('raw-data');
-        if (!rawData) return;
-
-        const allTrials = this.getAllTrials();
-        let html = '<div class="raw-data-table">';
-        html += `
-            <table>
-                <thead>
-                    <tr>
-                        <th>${window.i18n.t('analytics.participant')}</th>
-                        <th>${window.i18n.t('analytics.trial')}</th>
-                        <th>${window.i18n.t('analytics.condition')}</th>
-                        <th>${window.i18n.t('analytics.sentence')}</th>
-                        <th>${window.i18n.t('analytics.response')}</th>
-                        <th>${window.i18n.t('analytics.response_time')}</th>
-                        <th>${window.i18n.t('analytics.correct')}</th>
-                    </tr>
-                </thead>
-                <tbody>
-        `;
-
-        for (const file of this.importedData) {
-            for (const trial of file.data.experiment.data) {
-                html += `
-                    <tr>
-                        <td>${file.data.participant.id}</td>
-                        <td>${trial.trial}</td>
-                        <td>${this.formatConditionName(trial.condition)}</td>
-                        <td>${trial.sentence}</td>
-                        <td>${trial.response}</td>
-                        <td>${formatResponseTime(trial.responseTime)}</td>
-                        <td>${trial.correct ? '✓' : '✗'}</td>
-                    </tr>
-                `;
-            }
-        }
-
-        html += '</tbody></table></div>';
-        rawData.innerHTML = html;
-    }
-
-    // Méthodes utilitaires
-    getAllTrials() {
-        const allTrials = [];
-        for (const file of this.importedData) {
-            const participantId = file.data.participant.id;
-            const trials = file.data.experiment.data.map(trial => ({
-                ...trial,
-                participantId: participantId
-            }));
-            allTrials.push(...trials);
-        }
-        return allTrials;
-    }
-
-    groupByCondition(trials) {
-        const groups = {};
-        for (const trial of trials) {
-            if (!groups[trial.condition]) {
-                groups[trial.condition] = [];
-            }
-            groups[trial.condition].push(trial);
-        }
-        return groups;
-    }
-
-    formatConditionName(condition) {
-        const conditionNames = {
-            'simple_non_ambiguous': 'Simple Non-Ambigu',
-            'complex_non_ambiguous': 'Complexe Non-Ambigu',
-            'ambiguous_easy': 'Ambigu Facile',
-            'ambiguous_difficult': 'Ambigu Difficile'
-        };
-        return conditionNames[condition] || condition;
-    }
-
-    initializeCharts() {
-        console.log('Initializing charts...');
-        
-        try {
-            // Récupérer toutes les données d'essais pour les graphiques
-            const allTrials = this.getAllTrials();
-            console.log('All trials for charts:', allTrials.length);
-            console.log('Sample trial data:', allTrials[0]);
-            
-            // Vérifier que les conteneurs existent
-            const containers = ['accuracy-chart', 'response-time-chart', 'learning-curve-chart', 'participant-comparison-chart'];
-            containers.forEach(id => {
-                const container = document.getElementById(id);
-                console.log(`Container ${id}:`, container ? 'found' : 'not found');
-            });
-            
-            // Initialiser chaque graphique avec les données brutes
-            if (typeof AccuracyChart === 'function') {
-                console.log('AccuracyChart class found, initializing...');
-                new AccuracyChart('accuracy-chart', allTrials);
-                console.log('Accuracy chart initialized');
-            } else {
-                console.warn('AccuracyChart class not found');
-            }
-            
-            if (typeof ResponseTimeChart === 'function') {
-                console.log('ResponseTimeChart class found, initializing...');
-                new ResponseTimeChart('response-time-chart', allTrials);
-                console.log('Response time chart initialized');
-            } else {
-                console.warn('ResponseTimeChart class not found');
-            }
-            
-            if (typeof ParticipantComparisonChart === 'function') {
-                console.log('ParticipantComparisonChart class found, initializing...');
-                new ParticipantComparisonChart('participant-comparison-chart', this.importedData);
-                console.log('Participant comparison chart initialized');
-            } else {
-                console.warn('ParticipantComparisonChart class not found');
-            }
-            
-            if (typeof LearningCurveChart === 'function') {
-                console.log('LearningCurveChart class found, initializing...');
-                new LearningCurveChart('learning-curve-chart', allTrials);
-                console.log('Learning curve chart initialized');
-            } else {
-                console.warn('LearningCurveChart class not found');
-            }
-            
-            if (typeof ResponseTimeCurveChart === 'function') {
-                console.log('ResponseTimeCurveChart class found, initializing...');
-                new ResponseTimeCurveChart('response-time-curve-chart', allTrials);
-                console.log('Response time curve chart initialized');
-            } else {
-                console.warn('ResponseTimeCurveChart class not found');
-            }
-            
-            if (typeof ResponseTimeDistributionChart === 'function') {
-                console.log('ResponseTimeDistributionChart class found, initializing...');
-                console.log('Container ID: response-time-distribution-chart');
-                console.log('Data length:', allTrials.length);
-                new ResponseTimeDistributionChart('response-time-distribution-chart', allTrials);
-                console.log('Response time distribution chart initialized');
-            } else {
-                console.warn('ResponseTimeDistributionChart class not found');
-                console.log('Available classes:', Object.keys(window).filter(key => key.includes('Chart')));
-            }
-            
-            if (typeof ConfusionMatrixChart === 'function') {
-                console.log('ConfusionMatrixChart class found, initializing...');
-                new ConfusionMatrixChart('confusion-matrix-chart', allTrials);
-                console.log('Confusion matrix chart initialized');
-            } else {
-                console.warn('ConfusionMatrixChart class not found');
-            }
-            
-            if (typeof SpeedAccuracyChart === 'function') {
-                console.log('SpeedAccuracyChart class found, initializing...');
-                new SpeedAccuracyChart('speed-accuracy-chart', allTrials);
-                console.log('Speed accuracy chart initialized');
-            } else {
-                console.warn('SpeedAccuracyChart class not found');
-            }
-            
-            console.log('Charts initialization completed');
-        } catch (error) {
-            console.error('Error initializing charts:', error);
-        }
-    }
-
-    calculateLearningCurve(trials) {
-        // Calculer la courbe d'apprentissage (précision par bloc de 6 essais)
-        const blockSize = 6;
-        const learningCurve = [];
-        
-        for (let i = 0; i < trials.length; i += blockSize) {
-            const block = trials.slice(i, i + blockSize);
-            const accuracy = block.length > 0 ? 
-                (block.filter(t => t.correct).length / block.length * 100).toFixed(1) : 0;
-            learningCurve.push({
-                block: Math.floor(i / blockSize) + 1,
-                accuracy: parseFloat(accuracy)
-            });
-        }
-        
-        return learningCurve;
-    }
-
     exportAnalytics() {
+        // Fonction helper pour les traductions sécurisées
+        const t = (key, fallback) => {
+            return window.i18n && window.i18n.t ? window.i18n.t(key) : fallback;
+        };
+        
         if (this.importedData.length === 0) {
-            alert(window.i18n.t('analytics.no_files'));
+            alert(t('analytics.no_files', 'No files to export'));
             return;
         }
-        console.log('Exporting analytics...');
-        // Pour l'instant, on affiche juste un message
-        alert('Export fonctionnel !');
+        const analyticsData = {
+            importedData: this.importedData,
+            analytics: {
+                globalStats: this.calculateGlobalStats(),
+                conditionStats: this.calculateConditionStats(this.getAllExperimentData()),
+                exportTime: new Date().toISOString()
+            }
+        };
+        downloadData(analyticsData, 'analytics_complete');
+    }
+
+    calculateGlobalStats() {
+        const allData = this.getAllExperimentData();
+        return {
+            totalParticipants: this.importedData.length,
+            totalTrials: allData.length,
+            averageAccuracy: this.calculateAverageAccuracy(allData),
+            averageResponseTime: this.calculateAverageResponseTime(allData)
+        };
     }
 
     clearAllData() {
-        if (confirm(window.i18n.t('analytics.clear_confirm'))) {
+        // Fonction helper pour les traductions sécurisées
+        const t = (key, fallback) => {
+            return window.i18n && window.i18n.t ? window.i18n.t(key) : fallback;
+        };
+        
+        if (confirm(t('analytics.clear_confirm', 'Are you sure you want to clear all imported data?'))) {
             this.importedData = [];
             localStorage.removeItem('experimentData');
             this.updateImportedFilesList();
@@ -590,23 +800,48 @@ class AnalyticsPage {
     }
 }
 
-// Fonction globale pour supprimer un fichier
-window.removeFile = function(index) {
-    console.log('Removing file at index:', index);
-    if (window.analyticsPage) {
-        window.analyticsPage.importedData.splice(index, 1);
-        window.analyticsPage.updateImportedFilesList();
-        window.analyticsPage.displayAnalytics();
-    }
-};
-
 // Initialisation
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM loaded, initializing AnalyticsPage...');
-    try {
-        window.analyticsPage = new AnalyticsPage();
-        console.log('AnalyticsPage initialized successfully');
-    } catch (error) {
-        console.error('Error initializing AnalyticsPage:', error);
-    }
+    console.log('DOM chargé, initialisation de la page analytics...');
+    
+    // Initialisation immédiate avec fallback pour les traductions
+    const initAnalytics = () => {
+        console.log('Initialisation de la page analytics...');
+        const analytics = new AnalyticsPage();
+        window.removeFile = (index) => analytics.removeFile(index);
+        window.analyticsPage = analytics; // Rendre accessible globalement pour debug
+    };
+    
+    // Essayer d'attendre le système de traduction, mais avec timeout
+    let i18nTimeout = setTimeout(() => {
+        console.log('Timeout du système de traduction, initialisation sans traduction...');
+        initAnalytics();
+    }, 3000); // 3 secondes de timeout
+    
+    // Écouter l'événement i18nReady
+    window.addEventListener('i18nReady', () => {
+        console.log('Événement i18nReady reçu, initialisation de la page analytics...');
+        clearTimeout(i18nTimeout);
+        initAnalytics();
+    });
+    
+    // Fallback si l'événement n'est pas émis
+    const waitForI18n = () => {
+        console.log('Vérification du système de traduction...');
+        console.log('window.i18n existe:', !!window.i18n);
+        console.log('window.i18n.loaded:', !!(window.i18n && window.i18n.loaded));
+        console.log('window.i18n.translations existe:', !!(window.i18n && window.i18n.translations));
+        
+        if (window.i18n && window.i18n.loaded && window.i18n.translations) {
+            console.log('Système de traduction prêt (fallback), initialisation de la page analytics...');
+            clearTimeout(i18nTimeout);
+            initAnalytics();
+        } else {
+            console.log('Système de traduction non encore prêt, nouvelle tentative dans 500ms...');
+            setTimeout(waitForI18n, 500);
+        }
+    };
+    
+    // Attendre un peu plus longtemps pour s'assurer que i18n est complètement initialisé
+    setTimeout(waitForI18n, 1000);
 }); 

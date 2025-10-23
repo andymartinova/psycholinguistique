@@ -21,6 +21,11 @@
                 <p data-i18n="home.description">Cette expérience vise à étudier la compréhension des phrases en allemand. Votre participation nous aidera à mieux comprendre les processus cognitifs impliqués dans la compréhension linguistique.</p>
             </div>
 
+            <div class="info-card">
+                <h3>🔎 Pré‑test</h3>
+                <p data-i18n-html="home.pretest_notice_html">Avant de commencer le test, nous vous demandons de réaliser un test de niveau en allemand suivant ce lien : <a href="https://strommeninc.com/language-tests/german-level-test/?utm_source=chatgpt.com" target="_blank" rel="noopener noreferrer">Test Strömmen</a>.</p>
+            </div>
+
             <form id="participant-form" class="participant-form" autocomplete="off">
                 <div class="form-group">
                     <label for="participant-id" data-i18n="home.participant_label">Numéro de participant :</label>
@@ -32,6 +37,18 @@
                         <option value="" data-i18n="home.language_group_select">Sélectionnez votre groupe</option>
                         <option value="fr" data-i18n="home.language_group_fr">Locuteur natif français</option>
                         <option value="pt" data-i18n="home.language_group_pt">Locuteur natif portugais</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="german-level" data-i18n="home.german_level_label">Niveau d'allemand d'après le test :</label>
+                    <select id="german-level" name="german-level" required>
+                        <option value="">—</option>
+                        <option value="A1">A1</option>
+                        <option value="A2">A2</option>
+                        <option value="B1">B1</option>
+                        <option value="B2">B2</option>
+                        <option value="C1">C1</option>
+                        <option value="C2">C2</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -61,7 +78,7 @@
         </main>
     </div>
 
-    <script src="js/i18n.js"></script>
+    <script src="js/i18n.js?v=3"></script>
     <script src="js/home.js"></script>
 </body>
 </html>

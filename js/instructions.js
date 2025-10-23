@@ -14,8 +14,8 @@ class InstructionsPage {
     }
 
     setupDynamicContent() {
-        // Plus besoin de contenu dynamique
-        // Le système data-i18n gère automatiquement les traductions
+        // Plus besoin de remplir les listes manuellement, elles sont maintenant dans le HTML
+        // Le système de traduction s'occupe automatiquement de traduire les éléments data-i18n
     }
 }
 
