@@ -29,7 +29,6 @@ class I18n {
             await this.loadTranslations(this.currentLanguage);
             this.setupLanguageSwitcher();
             this.translatePage();
-            console.log('Initialisation du système de traduction terminée');
         } catch (error) {
             console.error('Erreur lors de l\'initialisation du système de traduction:', error);
         }
@@ -46,8 +45,6 @@ class I18n {
             
             // Sauvegarde la langue dans localStorage
             localStorage.setItem('preferredLanguage', lang);
-            
-            console.log(`Traductions chargées pour: ${lang}`);
         } catch (error) {
             console.error('Erreur lors du chargement des traductions:', error);
             // Fallback vers français
@@ -426,7 +423,6 @@ class I18n {
             if (value && typeof value === 'object' && k in value) {
                 value = value[k];
             } else {
-                console.warn(`Clé de traduction manquante: ${key}`);
                 return null; // manquante => null
             }
         }
@@ -540,15 +536,12 @@ let i18n;
 // Initialise le système quand le DOM est chargé
 document.addEventListener('DOMContentLoaded', async () => {
     i18n = new I18n();
-    console.log('Système de traduction en cours d\'initialisation...');
     
     // Attendre que l'initialisation soit terminée
     await i18n.init();
-    console.log('Système de traduction complètement initialisé');
     
     // Émettre l'événement i18nReady
     window.dispatchEvent(new CustomEvent('i18nReady'));
-    console.log('Événement i18nReady émis');
 });
 
 // Fonction utilitaire pour traduire

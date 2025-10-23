@@ -66,9 +66,6 @@ class ParticipantComparisonChart {
             return;
         }
 
-        // Debug: afficher les données
-        console.log('Données du graphique de comparaison:', chartData);
-
         // Créer le canvas
         const canvas = document.createElement('canvas');
         canvas.width = container.clientWidth;

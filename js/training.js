@@ -62,20 +62,15 @@ class TrainingPage {
 
     startTraining() {
         this.practiceTrial = 0;
-        console.log('Nombre total de phrases d\'entraînement:', PRACTICE_SENTENCES.length);
-        console.log('Phrases disponibles:', PRACTICE_SENTENCES);
         this.nextPracticeTrial();
     }
 
     nextPracticeTrial() {
-        console.log('nextPracticeTrial appelé avec practiceTrial =', this.practiceTrial);
         if (this.practiceTrial >= PRACTICE_SENTENCES.length) {
-            console.log('Entraînement terminé');
             this.showTrainingComplete();
             return;
         }
         this.currentSentence = PRACTICE_SENTENCES[this.practiceTrial];
-        console.log('Phrase sélectionnée:', this.currentSentence);
         this.displaySentence(this.currentSentence.sentence);
         this.updateProgress();
     }
@@ -96,19 +91,12 @@ class TrainingPage {
 
     handleResponse(event) {
         const response = event.target.dataset.response;
+        console.log('111111', event.target);
         this.responseTime = Date.now() - this.startTime;
         this.disableResponseButtons();
-        
-        // Debug: afficher les valeurs pour comprendre le problème
-        console.log('Debug Training:');
-        console.log('- Phrase:', this.currentSentence.sentence);
-        console.log('- Réponse utilisateur:', response);
-        console.log('- Réponse attendue:', this.currentSentence.expected);
-        console.log('- Index practiceTrial:', this.practiceTrial);
-        
+        console.log('handleResponse appelé avec response =', response);
         const isCorrect = response === this.currentSentence.expected;
-        console.log('- Est correct:', isCorrect);
-        
+        console.log('isCorrect =', isCorrect);
         this.showFeedback(isCorrect);
         setTimeout(() => {
             this.hideFeedback();
