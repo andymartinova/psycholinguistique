@@ -1,16 +1,23 @@
-// Graphique de courbe d'apprentissage
+// Graphique de courbe d'apprentissage avec Chart.js
 class LearningCurveChart {
     constructor(containerId, data) {
         this.containerId = containerId;
         this.data = data;
+        this.chart = null;
         this.init();
     }
 
     init() {
         const container = document.getElementById(this.containerId);
         if (!container) return;
+        container.innerHTML = '';
 
         const chartData = this.prepareData();
+        if (Object.keys(chartData).length === 0) {
+            container.innerHTML = '<p class="no-data">Aucune donnée disponible</p>';
+            return;
+        }
+
         this.createChart(container, chartData);
     }
 
@@ -44,160 +51,133 @@ class LearningCurveChart {
     }
 
     createChart(container, chartData) {
-        if (Object.keys(chartData).length === 0) return;
-
-        // Créer le canvas
+        // Créer le canvas pour Chart.js
         const canvas = document.createElement('canvas');
-        canvas.width = container.clientWidth;
-        canvas.height = 300;
+        canvas.id = `${this.containerId}-chart`;
+        canvas.className = 'chart';
         container.appendChild(canvas);
 
-        const ctx = canvas.getContext('2d');
+        // Détruire l'ancien graphique si besoin
+        if (this.chart) {
+            this.chart.destroy();
+        }
 
-        // Configuration du graphique
-        const margin = 60;
-        const chartWidth = canvas.width - 2 * margin;
-        const chartHeight = canvas.height - 2 * margin;
-
-        // Trouver le nombre maximum d'essais
+        // Trouver le nombre maximum d'essais pour l'axe X
         const maxTrials = Math.max(...Object.values(chartData).map(trials => trials.length));
-        const xScale = chartWidth / (maxTrials - 1);
-        const yScale = chartHeight / 100; // Précision de 0 à 100%
+        const xLabels = Array.from({length: maxTrials}, (_, i) => i + 1);
 
         // Couleurs pour les participants
         const colors = ['#4299e1', '#48bb78', '#ed8936', '#f56565', '#9f7aea', '#38b2ac'];
-        let colorIndex = 0;
 
-        // Dessiner les lignes pour chaque participant (AVANT les points)
-        Object.entries(chartData).forEach(([participantId, trials]) => {
-            const color = colors[colorIndex % colors.length];
-            colorIndex++;
+        // Préparer les datasets pour Chart.js
+        const datasets = Object.entries(chartData).map(([participantId, trials], index) => {
+            const color = colors[index % colors.length];
+            
+            // Créer un tableau de données avec des valeurs pour tous les essais
+            const data = new Array(maxTrials).fill(null);
+            trials.forEach(trial => {
+                data[trial.trialNumber - 1] = trial.accuracy;
+            });
 
-            // Dessiner la ligne en premier
-            ctx.strokeStyle = color;
-            ctx.lineWidth = 3;
-            ctx.beginPath();
+            return {
+                label: participantId,
+                data: data,
+                borderColor: color,
+                backgroundColor: color + '20', // 20% d'opacité
+                fill: false,
+                tension: 0.1,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                pointBackgroundColor: color,
+                pointBorderColor: '#ffffff',
+                pointBorderWidth: 2,
+                spanGaps: false // Ne pas connecter les points manquants
+            };
+        });
 
-            trials.forEach((trial, index) => {
-                const x = margin + (trial.trialNumber - 1) * xScale;
-                const y = canvas.height - margin - trial.accuracy * yScale;
-
-                if (index === 0) {
-                    ctx.moveTo(x, y);
-                } else {
-                    ctx.lineTo(x, y);
+        // Créer le graphique Chart.js
+        this.chart = new Chart(canvas.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: xLabels,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                layout: {
+                    padding: {
+                        left: 10,
+                        right: 10,
+                        top: 20,
+                        bottom: 20
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Courbe d\'apprentissage',
+                        font: { size: 18, weight: 'bold' }
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        callbacks: {
+                            title: function(context) {
+                                return `Essai ${context[0].label}`;
+                            },
+                            label: function(context) {
+                                return `${context.dataset.label}: ${context.parsed.y.toFixed(1)}%`;
+                            }
+                        }
+                    },
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            font: { size: 12 }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Numéro d\'essai',
+                            font: { size: 14, weight: 'bold' }
+                        },
+                        ticks: {
+                            font: { size: 12 }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: 'Précision cumulative (%)',
+                            font: { size: 14, weight: 'bold' }
+                        },
+                        ticks: {
+                            font: { size: 12 },
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                },
+                animation: {
+                    duration: 1000,
+                    easing: 'easeInOutQuart'
+                },
+                interaction: {
+                    mode: 'nearest',
+                    axis: 'x',
+                    intersect: false
                 }
-            });
-
-            ctx.stroke();
+            }
         });
-
-        // Maintenant dessiner les points par-dessus les lignes
-        colorIndex = 0;
-        Object.entries(chartData).forEach(([participantId, trials]) => {
-            const color = colors[colorIndex % colors.length];
-            colorIndex++;
-
-            trials.forEach((trial, index) => {
-                const x = margin + (trial.trialNumber - 1) * xScale;
-                const y = canvas.height - margin - trial.accuracy * yScale;
-
-                // Point avec bordure blanche pour le contraste
-                ctx.fillStyle = color;
-                ctx.beginPath();
-                ctx.arc(x, y, 4, 0, 2 * Math.PI);
-                ctx.fill();
-
-                // Bordure blanche pour le contraste
-                ctx.strokeStyle = 'white';
-                ctx.lineWidth = 2;
-                ctx.stroke();
-
-                // Bordure de couleur
-                ctx.strokeStyle = color;
-                ctx.lineWidth = 1;
-                ctx.stroke();
-            });
-
-            // Label du participant
-            const lastTrial = trials[trials.length - 1];
-            const x = margin + (lastTrial.trialNumber - 1) * xScale;
-            const y = canvas.height - margin - lastTrial.accuracy * yScale;
-
-            ctx.fillStyle = '#2d3748';
-            ctx.font = 'bold 11px Arial';
-            ctx.textAlign = 'left';
-            ctx.fillText(participantId, x + 10, y);
-        });
-
-        // Axe X (Numéro d'essai)
-        ctx.strokeStyle = '#e2e8f0';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(margin, canvas.height - margin);
-        ctx.lineTo(canvas.width - margin, canvas.height - margin);
-        ctx.stroke();
-
-        // Graduations X
-        const xSteps = Math.min(10, maxTrials); // Maximum 10 graduations
-        for (let i = 0; i <= xSteps; i++) {
-            const x = margin + (i / xSteps) * chartWidth;
-            const trialNumber = Math.round((i / xSteps) * maxTrials);
-            
-            ctx.strokeStyle = '#e2e8f0';
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(x, canvas.height - margin - 5);
-            ctx.lineTo(x, canvas.height - margin + 5);
-            ctx.stroke();
-
-            ctx.fillStyle = '#718096';
-            ctx.font = '10px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText(trialNumber, x, canvas.height - margin + 20);
-        }
-
-        // Axe Y (Précision)
-        ctx.strokeStyle = '#e2e8f0';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(margin, margin);
-        ctx.lineTo(margin, canvas.height - margin);
-        ctx.stroke();
-
-        // Graduations Y
-        for (let i = 0; i <= 100; i += 20) {
-            const y = canvas.height - margin - i * yScale;
-            
-            ctx.strokeStyle = '#e2e8f0';
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(margin - 5, y);
-            ctx.lineTo(margin + 5, y);
-            ctx.stroke();
-
-            ctx.fillStyle = '#718096';
-            ctx.font = '10px Arial';
-            ctx.textAlign = 'right';
-            ctx.fillText(`${i}%`, margin - 10, y + 3);
-        }
-
-        // Titres des axes
-        ctx.fillStyle = '#2d3748';
-        ctx.font = 'bold 12px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText('Numéro d\'essai', canvas.width / 2, canvas.height - 10);
-        
-        ctx.save();
-        ctx.translate(20, canvas.height / 2);
-        ctx.rotate(-Math.PI / 2);
-        ctx.fillText('Précision cumulative (%)', 0, 0);
-        ctx.restore();
-
-        // Titre principal
-        ctx.fillStyle = '#2d3748';
-        ctx.font = 'bold 16px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText('Courbe d\'apprentissage', canvas.width / 2, 20);
     }
 } 
