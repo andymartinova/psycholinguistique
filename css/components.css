@@ -1117,6 +1117,34 @@
     flex-wrap: wrap;
 }
 
+/* Bouton e-mail spécial */
+#email-data-btn {
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#email-data-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(72, 187, 120, 0.4);
+    background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
+}
+
+#email-data-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(72, 187, 120, 0.3);
+}
+
 .raw-data-section {
     margin: 2rem 0;
 }

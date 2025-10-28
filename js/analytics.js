@@ -67,6 +67,11 @@ class AnalyticsPage {
             exportBtn.addEventListener('click', () => this.exportAnalytics());
         }
 
+        const emailBtn = document.getElementById('email-data-btn');
+        if (emailBtn) {
+            emailBtn.addEventListener('click', () => this.emailData());
+        }
+
         const clearBtn = document.getElementById('clear-data-btn');
         if (clearBtn) {
             clearBtn.addEventListener('click', () => this.clearAllData());
@@ -718,6 +723,69 @@ class AnalyticsPage {
             averageAccuracy: this.calculateAverageAccuracy(allData),
             averageResponseTime: this.calculateAverageResponseTime(allData)
         };
+    }
+
+    emailData() {
+        // Fonction helper pour les traductions sécurisées
+        const t = (key, fallback) => {
+            return window.i18n && window.i18n.t ? window.i18n.t(key) : fallback;
+        };
+
+        if (this.importedData.length === 0) {
+            alert(t('analytics.no_data_to_email', 'Aucune donnée à envoyer. Veuillez d\'abord importer des fichiers JSON.'));
+            return;
+        }
+
+        // Adresse e-mail fixe
+        const recipientEmail = 'andyvmartins@gmail.com';
+
+        // Préparer les données pour l'e-mail
+        const subject = encodeURIComponent(t('analytics.email_subject', 'Données d\'expérience psycholinguistique'));
+        const body = this.prepareEmailBody();
+        const bodyEncoded = encodeURIComponent(body);
+
+        // Créer le lien mailto avec les fichiers en pièces jointes (simulation)
+        const mailtoLink = `mailto:${recipientEmail}?subject=${subject}&body=${bodyEncoded}`;
+        
+        // Ouvrir le client e-mail
+        window.open(mailtoLink);
+        
+        // Afficher un message d'information
+        //alert(t('analytics.email_sent_auto', 'Le client e-mail s\'ouvre automatiquement avec votre adresse e-mail. Exportez et attachez les fichiers JSON, puis envoyez.'));
+    }
+
+    prepareEmailBody() {
+        const t = (key, fallback) => {
+            return window.i18n && window.i18n.t ? window.i18n.t(key) : fallback;
+        };
+
+        const totalParticipants = this.importedData.length;
+        const totalTrials = this.importedData.reduce((sum, file) => sum + (file.data.experiment?.data?.length || 0), 0);
+        const overallAccuracy = this.calculateOverallAccuracy();
+
+        let body = t('analytics.email_greeting', 'Bonjour,\n\n');
+        body += t('analytics.email_intro', 'Veuillez trouver ci-joint les données d\'expérience psycholinguistique :\n\n');
+        
+        body += t('analytics.email_stats', 'Résumé des données :\n');
+        body += `- Nombre de participants : ${totalParticipants}\n`;
+        body += `- Nombre total d'essais : ${totalTrials}\n`;
+        body += `- Précision globale : ${overallAccuracy.toFixed(1)}%\n\n`;
+        
+        body += t('analytics.email_files', 'Fichiers à attacher :\n');
+        this.importedData.forEach((file, index) => {
+            const participantId = file.data.participant?.id || `Participant_${index + 1}`;
+            const trialCount = file.data.experiment?.data?.length || 0;
+            body += `- ${file.name} (${participantId}, ${trialCount} essais)\n`;
+        });
+        
+        body += `\n${t('analytics.email_instructions', 'Instructions :\n')}`;
+        body += t('analytics.email_attach', '1. Exportez les données en cliquant sur "Exporter les données"\n');
+        body += t('analytics.email_attach_files', '2. Attachez les fichiers JSON téléchargés à cet e-mail\n');
+        body += t('analytics.email_send', '3. Envoyez l\'e-mail\n\n');
+        
+        body += t('analytics.email_closing', 'Cordialement,\nL\'équipe de recherche');
+        
+        return body;
     }
 
     clearAllData() {
