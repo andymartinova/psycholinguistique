@@ -761,7 +761,8 @@ class AnalyticsPage {
 
         const totalParticipants = this.importedData.length;
         const totalTrials = this.importedData.reduce((sum, file) => sum + (file.data.experiment?.data?.length || 0), 0);
-        const overallAccuracy = this.calculateOverallAccuracy();
+        const allData = this.importedData.flatMap(file => file.data.experiment?.data || []);
+        const overallAccuracy = this.calculateAverageAccuracy(allData);
 
         let body = t('analytics.email_greeting', 'Bonjour,\n\n');
         body += t('analytics.email_intro', 'Veuillez trouver ci-joint les données d\'expérience psycholinguistique :\n\n');
