@@ -76,14 +76,6 @@ class AnalyticsPage {
         if (clearBtn) {
             clearBtn.addEventListener('click', () => this.clearAllData());
         }
-        
-        // Bouton de test
-        const testBtn = document.getElementById('test-btn');
-        if (testBtn) {
-            testBtn.addEventListener('click', () => {
-                alert('JavaScript fonctionne !');
-            });
-        }
     }
 
     setupDynamicTranslation() {
