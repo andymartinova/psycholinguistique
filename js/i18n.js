@@ -9,6 +9,11 @@ class I18n {
 
     // Détecte la langue du navigateur
     detectLanguage() {
+        const savedLang = localStorage.getItem('preferredLanguage');
+        if (savedLang && (savedLang === 'fr' || savedLang === 'pt')) {
+            return savedLang;
+        }
+
         const browserLang = navigator.language || navigator.userLanguage;
         const langCode = browserLang.split('-')[0].toLowerCase();
         
