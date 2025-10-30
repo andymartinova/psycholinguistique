@@ -91,12 +91,9 @@ class TrainingPage {
 
     handleResponse(event) {
         const response = event.target.dataset.response;
-        console.log('111111', event.target);
         this.responseTime = Date.now() - this.startTime;
         this.disableResponseButtons();
-        console.log('handleResponse appelé avec response =', response);
         const isCorrect = response === this.currentSentence.expected;
-        console.log('isCorrect =', isCorrect);
         this.showFeedback(isCorrect);
         setTimeout(() => {
             this.hideFeedback();
@@ -159,7 +156,7 @@ class TrainingPage {
     }
 
     updateProgress() {
-        const progress = (this.practiceTrial / PRACTICE_SENTENCES.length) * 100;
+        const progress = ((this.practiceTrial + 1) / EXPERIMENT_CONFIG.practiceTrials ) * 100;
         const progressFill = document.querySelector('.progress-fill');
         if (progressFill) {
             progressFill.style.width = progress + '%';

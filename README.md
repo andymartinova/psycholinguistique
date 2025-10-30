@@ -211,3 +211,7 @@ Pour toute question ou problème :
 ## Licence
 
 Cette application est fournie à des fins de recherche et d'enseignement. Vous êtes libre de la modifier et de l'adapter à vos besoins. 
+
+
+## lien bugs
+https://docs.google.com/spreadsheets/d/1MVpRAIouv9qD8R6I3KSqwDZIkVTWI7v6G3FWZUAIl2I/edit?gid=0#gid=0

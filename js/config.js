@@ -1,6 +1,6 @@
 // Configuration de l'expérience
 const EXPERIMENT_CONFIG = {
-    practiceTrials: 3,
+    practiceTrials: 4,
     totalTrials: 42, // Mis à jour pour correspondre au nouveau nombre de phrases
     pauseAfterTrials: 0,
     sentenceDisplayTime: 2000, // 2 secondes avant affichage des boutons
