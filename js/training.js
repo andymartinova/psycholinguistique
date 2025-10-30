@@ -11,9 +11,10 @@ class TrainingPage {
     }
 
     setupEventHandlers() {
-        // Boutons de réponse
         document.querySelectorAll('[data-response]').forEach(btn => {
-            btn.addEventListener('click', (e) => this.handleResponse(e));
+            const newBtn = btn.cloneNode(true);
+            btn.parentNode.replaceChild(newBtn, btn);
+            newBtn.addEventListener('click', (e) => this.handleResponse(e));
         });
 
         // Support des touches clavier
@@ -49,8 +50,8 @@ class TrainingPage {
         if (!responseButtons || responseButtons.style.opacity === '0') {
             return;
         }
-
         const key = event.key.toLowerCase();
+        event?.stopPropagation?.();
         if (key === 'y' || key === 'o') {
             event.preventDefault();
             this.handleResponse({ target: { dataset: { response: 'grammatical' } } });
@@ -66,7 +67,7 @@ class TrainingPage {
     }
 
     nextPracticeTrial() {
-        if (this.practiceTrial >= PRACTICE_SENTENCES.length) {
+        if (this.practiceTrial >= EXPERIMENT_CONFIG.practiceTrials) {
             this.showTrainingComplete();
             return;
         }
@@ -90,18 +91,20 @@ class TrainingPage {
     }
 
     handleResponse(event) {
+        event?.preventDefault?.();
         const response = event.target.dataset.response;
         this.responseTime = Date.now() - this.startTime;
         this.disableResponseButtons();
         const isCorrect = response === this.currentSentence.expected;
+        this.practiceTrial++; // Incrémenter avant d'aller à la phrase suivante
         this.showFeedback(isCorrect);
         setTimeout(() => {
             this.hideFeedback();
             this.enableResponseButtons();
-            this.practiceTrial++; // Incrémenter avant d'aller à la phrase suivante
             this.nextPracticeTrial();
         }, 1500);
     }
+
 
     showFeedback(isCorrect) {
         const feedbackArea = document.querySelector('.feedback-area');
