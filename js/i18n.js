@@ -86,7 +86,13 @@ class I18n {
                     "pretest_notice_html": "Avant de commencer le test, nous vous demandons de réaliser un test de niveau en allemand suivant ce lien : <a href=\"https://strommeninc.com/language-tests/german-level-test/?utm_source=chatgpt.com\" target=\"_blank\" rel=\"noopener noreferrer\">Strømmen German Level Test</a>",  
                     "start_button": "Commencer l'expérience",
                     "instructions_button": "Voir les instructions",
-                    "analytics_button": "Analyses avancées"
+                    "analytics_button": "Analyses avancées",
+                    "objective_title": "🎯 Objectif",
+                    "objective_text": "Juger la grammaticalité de phrases en allemand",
+                    "duration_title": "⏱️ Durée",
+                    "duration_text": "Environ 10-15 minutes",
+                    "data_title": "📊 Données",
+                    "data_text": "Mesure de précision et temps de réponse"
                 },
                 "instructions": {
                     "title": "📋 Instructions",
@@ -259,7 +265,13 @@ class I18n {
                     "pretest_notice_html": "Antes de começar o teste, pedimos que você realize um teste de nível de alemão neste link: <a href=\"https://strommeninc.com/language-tests/german-level-test/?utm_source=chatgpt.com\" target=\"_blank\" rel=\"noopener noreferrer\">Strømmen German Level Test</a>.",
                     "start_button": "Iniciar experimento",
                     "instructions_button": "Ver instruções",
-                    "analytics_button": "Análises avançadas"
+                    "analytics_button": "Análises avançadas",
+                    "objective_title": "🎯 Objetivo",
+                    "objective_text": "Julgar a gramaticalidade de frases em alemão",
+                    "duration_title": "⏱️ Duração",
+                    "duration_text": "Aproximadamente 10-15 minutos",
+                    "data_title": "📊 Dados",
+                    "data_text": "Medição de precisão e tempo de resposta"
                 },
                 "instructions": {
                     "title": "📋 Instruções",
