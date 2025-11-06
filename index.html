@@ -21,23 +21,43 @@
                 <p data-i18n="home.description">Cette expérience vise à étudier la compréhension des phrases en allemand. Votre participation nous aidera à mieux comprendre les processus cognitifs impliqués dans la compréhension linguistique.</p>
             </div>
 
-            <div class="info-card">
-                <h3>🔎 Pré‑test</h3>
-                <p data-i18n-html="home.pretest_notice_html">Avant de commencer le test, nous vous demandons de réaliser un test de niveau en allemand suivant ce lien : <a href="https://strommeninc.com/language-tests/german-level-test/?utm_source=chatgpt.com" target="_blank" rel="noopener noreferrer">Test Strömmen</a>.</p>
-            </div>
-
             <form id="participant-form" class="participant-form" autocomplete="off">
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="data-consent" name="data-consent" checked required>
+                        <span data-i18n="home.data_consent">Je comprends que mes résultats seront sauvegardés automatiquement</span>
+                    </label>
+                </div>
                 <div class="form-group">
                     <label for="participant-id" data-i18n="home.participant_label">Numéro de participant :</label>
                     <input type="text" id="participant-id" name="participant-id" data-i18n-placeholder="home.participant_placeholder" placeholder="P001" required>
                 </div>
                 <div class="form-group">
-                    <label for="language-group" data-i18n="home.language_group_label">Groupe linguistique :</label>
-                    <select id="language-group" name="language-group" required>
-                        <option value="" data-i18n="home.language_group_select">Sélectionnez votre groupe</option>
-                        <option value="fr" data-i18n="home.language_group_fr">Locuteur natif français</option>
-                        <option value="pt" data-i18n="home.language_group_pt">Locuteur natif portugais</option>
-                    </select>
+                    <label class="form-label" data-i18n="home.language_group_label">Groupe linguistique :</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="language-group" value="fr" required>
+                            <div class="radio-content">
+                                <span class="radio-icon">🇫🇷</span>
+                                <span class="radio-text" data-i18n="home.language_group_fr">Locuteur natif français</span>
+                            </div>
+                            <div class="radio-checkmark">✓</div>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="language-group" value="pt" required>
+                            <div class="radio-content">
+                                <span class="radio-icon">🇧🇷</span>
+                                <span class="radio-text" data-i18n="home.language_group_pt">Locuteur natif portugais</span>
+                            </div>
+                            <div class="radio-checkmark">✓</div>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="info-card" style="margin-bottom: 1rem; padding: 1rem; background: #f7fafc; border: 2px solid #e2e8f0; border-radius: 8px;">
+                        <h3 style="margin-bottom: 0.5rem; color: #2b6cb0; font-size: 1.1rem;">🔎 Pré‑test</h3>
+                        <p style="margin: 0; font-size: 0.9rem;" data-i18n-html="home.pretest_notice_html">Avant de commencer le test, nous vous demandons de réaliser un test de niveau en allemand suivant ce lien : <a href="https://strommeninc.com/language-tests/german-level-test/?utm_source=chatgpt.com" target="_blank" rel="noopener noreferrer">Test Strömmen</a>.</p>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="german-level" data-i18n="home.german_level_label">Niveau d'allemand d'après le test :</label>
@@ -57,8 +77,8 @@
             </form>
 
             <div class="action-buttons">
-                <a href="instructions.html" class="btn btn-secondary" data-i18n="home.instructions_button">Voir les instructions</a>
-                <a href="analytics.html" class="btn btn-secondary" data-i18n="home.analytics_button">Analyses avancées</a>
+                <a href="analytics.html" class="btn btn-secondary" data-i18n="home.analytics_button">Analytics</a>
+                <a href="analytics-enhanced.html" class="btn btn-secondary" data-i18n="home.analytics_enhanced_button">Analyses avancées</a>
             </div>
 
             <div class="info-section">

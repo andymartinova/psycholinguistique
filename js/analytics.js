@@ -67,11 +67,6 @@ class AnalyticsPage {
             exportBtn.addEventListener('click', () => this.exportAnalytics());
         }
 
-        const emailBtn = document.getElementById('email-data-btn');
-        if (emailBtn) {
-            emailBtn.addEventListener('click', () => this.emailData());
-        }
-
         const clearBtn = document.getElementById('clear-data-btn');
         if (clearBtn) {
             clearBtn.addEventListener('click', () => this.clearAllData());

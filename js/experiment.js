@@ -7,6 +7,9 @@ class ExperimentPage {
         this.responseTime = 0;
         this.currentSentence = null;
         this.justContinuedFromPause = false;
+        this.isProcessingResponse = false; // Flag pour empêcher les doubles clics
+        this.isSavingData = false; // Flag pour empêcher les envois multiples
+        this.experimentSent = false; // Flag pour éviter d'envoyer l'experiment plusieurs fois
         this.setupEventHandlers();
         this.setupDynamicTranslation();
         this.startExperiment();
@@ -52,7 +55,11 @@ class ExperimentPage {
     }
 
     handleKeyPress(event) {
-        // Ignorer si les boutons sont désactivés ou si on est en pause
+        // Ignorer si les boutons sont désactivés, si on est en pause, ou si une réponse est en cours
+        if (this.isProcessingResponse) {
+            return;
+        }
+        
         const responseButtons = document.querySelector('.response-buttons');
         const pauseArea = document.querySelector('.pause-area');
         if (!responseButtons || responseButtons.style.opacity === '0') {
@@ -77,9 +84,17 @@ class ExperimentPage {
         this.nextTrial();
     }
 
-    nextTrial() {
+    async nextTrial() {
         if (this.currentTrial >= EXPERIMENT_CONFIG.totalTrials) {
-            this.saveExperimentData();
+            // Empêcher les appels multiples
+            if (this.isSavingData) {
+                return;
+            }
+            
+            // Sauvegarder et envoyer les données avant de rediriger
+            await this.saveExperimentData();
+            // Attendre un court délai pour s'assurer que l'envoi est terminé
+            await new Promise(resolve => setTimeout(resolve, 500));
             window.location.href = 'results.html';
             return;
         }
@@ -117,10 +132,20 @@ class ExperimentPage {
     }
 
     handleResponse(event) {
+        // Empêcher les doubles clics
+        if (this.isProcessingResponse) {
+            return;
+        }
+        
+        this.isProcessingResponse = true;
+        
         let response;
         if (event.target && event.target.closest) {
             const button = event.target.closest('[data-response]');
-            if (!button) return;
+            if (!button) {
+                this.isProcessingResponse = false;
+                return;
+            }
             response = button.dataset.response;
         } else {
             response = event.target.dataset.response;
@@ -141,6 +166,7 @@ class ExperimentPage {
         // Ne pas afficher de feedback pendant l'expérience principale
         this.currentTrial++;
         setTimeout(() => {
+            this.isProcessingResponse = false;
             this.enableResponseButtons();
             this.nextTrial();
         }, 500);
@@ -221,17 +247,52 @@ class ExperimentPage {
         }
     }
 
-    saveExperimentData() {
-        const participantData = JSON.parse(localStorage.getItem('participantData') || '{}');
-        const completeData = {
-            participant: participantData,
-            experiment: {
-                config: EXPERIMENT_CONFIG,
-                data: this.experimentData,
-                endTime: new Date().toISOString()
+    async saveExperimentData() {
+        // Empêcher les appels multiples
+        if (this.isSavingData) {
+            return Promise.resolve();
+        }
+        
+        // Empêcher d'envoyer l'experiment plusieurs fois
+        if (this.experimentSent) {
+            return Promise.resolve();
+        }
+        
+        this.isSavingData = true;
+        
+        try {
+            const participantData = JSON.parse(localStorage.getItem('participantData') || '{}');
+            // Note: this.experimentData contient uniquement les trials de l'expérience principale,
+            // pas les trials d'entraînement (training) qui ne sont pas sauvegardés
+            const completeData = {
+                participant: participantData,
+                experiment: {
+                    config: EXPERIMENT_CONFIG,
+                    data: this.experimentData, // Seulement les trials de l'expérience principale
+                    endTime: new Date().toISOString()
+                }
+            };
+            localStorage.setItem('experimentData', JSON.stringify(completeData));
+            
+            // Envoyer automatiquement les résultats à l'API si configuré
+            if (typeof sendResultsToAPI === 'function') {
+                try {
+                    // Attendre que l'envoi soit terminé avant de continuer
+                    const result = await sendResultsToAPI(completeData);
+                    if (result.success) {
+                        this.experimentSent = true; // Marquer l'experiment comme envoyé
+                    }
+                    // Les données restent dans localStorage même en cas d'erreur
+                } catch (error) {
+                    // Les données restent dans localStorage même en cas d'erreur
+                }
             }
-        };
-        localStorage.setItem('experimentData', JSON.stringify(completeData));
+        } finally {
+            // Toujours réinitialiser le flag, même en cas d'erreur
+            this.isSavingData = false;
+        }
+        
+        return Promise.resolve();
     }
 }
 

@@ -5,6 +5,7 @@ class TrainingPage {
         this.startTime = 0;
         this.responseTime = 0;
         this.currentSentence = null;
+        this.isProcessingResponse = false; // Flag pour empêcher les doubles clics
         this.setupEventHandlers();
         this.setupDynamicTranslation();
         this.startTraining();
@@ -45,7 +46,11 @@ class TrainingPage {
     }
 
     handleKeyPress(event) {
-        // Ignorer si les boutons sont désactivés
+        // Ignorer si les boutons sont désactivés ou si une réponse est en cours
+        if (this.isProcessingResponse) {
+            return;
+        }
+        
         const responseButtons = document.querySelector('.response-buttons');
         if (!responseButtons || responseButtons.style.opacity === '0') {
             return;
@@ -91,6 +96,12 @@ class TrainingPage {
     }
 
     handleResponse(event) {
+        // Empêcher les doubles clics
+        if (this.isProcessingResponse) {
+            return;
+        }
+        
+        this.isProcessingResponse = true;
         event?.preventDefault?.();
         const response = event.target.dataset.response;
         this.responseTime = Date.now() - this.startTime;
@@ -99,12 +110,12 @@ class TrainingPage {
         this.practiceTrial++; // Incrémenter avant d'aller à la phrase suivante
         this.showFeedback(isCorrect);
         setTimeout(() => {
+            this.isProcessingResponse = false;
             this.hideFeedback();
             this.enableResponseButtons();
             this.nextPracticeTrial();
         }, 1500);
     }
-
 
     showFeedback(isCorrect) {
         const feedbackArea = document.querySelector('.feedback-area');

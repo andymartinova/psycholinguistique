@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Analyse des données</title>
+  <title>Analyses avancées</title>
   <link rel="stylesheet" href="css/main.css" />
   <link rel="stylesheet" href="css/components.css" />
   <link rel="stylesheet" href="css/responsive.css" />
@@ -10,9 +10,79 @@
 <body>
   <div class="container">
     <header class="page-header">
-      <h1 data-i18n="analytics.title">Analyse des données</h1>
+      <h1 data-i18n="analytics.title">Analyses avancées</h1>
       <p data-i18n="analytics.description">Importez et analysez les données d'expérience</p>
     </header>
+
+    <!-- Section de gestion des participants depuis la base de données -->
+    <section class="database-section">
+      <h2 data-i18n="analytics.participants_database_title">📊 Participants de la base de données</h2>
+      
+      <!-- Filtres -->
+      <div class="filters-panel">
+        <div class="filter-group">
+          <label for="filter-participant-id" data-i18n="analytics.filter_participant_id">ID Participant:</label>
+          <input type="text" id="filter-participant-id" placeholder="P001, P002...">
+        </div>
+        <div class="filter-group">
+          <label for="filter-language" data-i18n="analytics.filter_language">Langue maternelle:</label>
+          <select id="filter-language">
+            <option value="" data-i18n="analytics.all_languages">Toutes</option>
+            <option value="french">Français</option>
+            <option value="portuguese">Portugais</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="filter-german-level" data-i18n="analytics.filter_german_level">Niveau d'allemand:</label>
+          <select id="filter-german-level">
+            <option value="" data-i18n="analytics.all_levels">Tous</option>
+            <option value="A1">A1</option>
+            <option value="A2">A2</option>
+            <option value="B1">B1</option>
+            <option value="B2">B2</option>
+            <option value="C1">C1</option>
+            <option value="C2">C2</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <button id="load-participants-btn" class="btn btn-primary" data-i18n="analytics.load_participants">Charger les participants</button>
+          <button id="clear-filters-btn" class="btn btn-secondary" data-i18n="analytics.reset_filters">Réinitialiser les filtres</button>
+        </div>
+      </div>
+
+      <!-- Tableau des participants -->
+      <div class="participants-table-container">
+        <div class="table-header">
+          <div class="selection-controls">
+            <label>
+              <input type="checkbox" id="select-all-participants">
+              <span data-i18n="analytics.select_all">Sélectionner tout</span>
+            </label>
+            <span id="selected-count">0 <span data-i18n="analytics.selected_count">participant(s) sélectionné(s)</span></span>
+          </div>
+          <button id="process-selected-btn" class="btn btn-primary" disabled data-i18n="analytics.process_selected">Traiter les participants sélectionnés</button>
+        </div>
+        <table id="participants-table" class="participants-table">
+          <thead>
+            <tr>
+              <th><input type="checkbox" id="select-all-checkbox"></th>
+              <th>ID Participant</th>
+              <th>Langue maternelle</th>
+              <th>Niveau d'allemand</th>
+              <th>Date de début</th>
+              <th>IP</th>
+              <th>Nombre d'expériences</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="participants-table-body">
+            <tr>
+              <td colspan="8" class="empty-state" data-i18n="analytics.empty_participants">Cliquez sur "Charger les participants" pour afficher les données</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
 
     <!-- Section d'import -->
     <section class="import-section">
@@ -115,11 +185,12 @@
   <script src="graphiques/learning-curve-chart.js"></script>
 
   <!-- Scripts personnalisés -->
-  <script src="js/analytics.js"></script>
   <script src="js/config.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/database-analytics.js"></script>
+  <script src="js/analytics.js"></script>
   <script src="js/data.js"></script>
   <script src="js/i18n.js?v=3"></script>
-  <script src="js/utils.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

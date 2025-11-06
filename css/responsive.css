@@ -3,6 +3,36 @@
     .container {
         margin: 1rem;
         padding: 1rem;
+        padding-top: 4.5rem; /* Espace pour le bouton Accueil */
+    }
+    
+    .home-button {
+        top: 10px;
+        left: 10px;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.85rem;
+    }
+    
+    .language-switcher {
+        top: 10px;
+        right: 10px;
+    }
+    
+    .language-selector {
+        padding: 0.2rem;
+    }
+    
+    .language-btn {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.8rem;
+    }
+    
+    .progress-bar {
+        margin-top: 0.5rem;
+    }
+    
+    .progress-text {
+        font-size: 0.75rem;
     }
     
     h1 {
@@ -19,8 +49,22 @@
     }
     
     .response-buttons {
-        flex-direction: column;
+        flex-direction: row;
         align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+    }
+    
+    .response-buttons .btn {
+        flex: 1;
+        max-width: 150px;
+        height: 44px;
+        padding: 0.6rem 0.75rem;
+        font-size: 0.85rem;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
     
     .btn {
@@ -33,5 +77,28 @@
         width: 100%;
         margin-right: 0;
         margin-bottom: 1rem;
+    }
+    
+    /* Boutons radio de langue sur mobile */
+    .radio-option {
+        padding: 0.75rem 1rem;
+    }
+    
+    .radio-icon {
+        font-size: 1.5rem;
+    }
+    
+    .radio-text {
+        font-size: 0.9rem;
+    }
+    
+    .radio-checkmark {
+        width: 20px;
+        height: 20px;
+        font-size: 12px;
+    }
+    
+    .radio-content {
+        gap: 0.75rem;
     }
 } 

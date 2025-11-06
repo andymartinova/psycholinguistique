@@ -78,6 +78,139 @@ function downloadData(data, filename) {
     URL.revokeObjectURL(url);
 }
 
+// Fonction pour formater les données selon le format API
+function formatDataForAPI(localStorageData) {
+    const participantData = localStorageData.participant || {};
+    const experimentData = localStorageData.experiment || {};
+    
+    // Mapper languageGroup vers nativeLanguage selon l'API
+    let nativeLanguage = null;
+    if (participantData.languageGroup === 'fr') {
+        nativeLanguage = 'french';
+    } else if (participantData.languageGroup === 'pt') {
+        nativeLanguage = 'portuguese';
+    }
+    
+    // Nettoyer germanLevel : convertir chaîne vide en null
+    let germanLevel = participantData.germanLevel;
+    if (!germanLevel || germanLevel === '' || germanLevel === '—') {
+        germanLevel = null;
+    }
+    
+    // Validation : l'ID du participant est requis
+    if (!participantData.id || participantData.id.trim() === '') {
+        throw new Error('ID du participant requis pour créer le participant');
+    }
+    
+    // Formater les données selon le format attendu par l'API
+    const formattedData = {
+        participant: {
+            id: participantData.id.trim(),
+            germanLevel: germanLevel,
+            nativeLanguage: nativeLanguage,
+            startTime: participantData.startTime || new Date().toISOString()
+        },
+        experiment: {
+            config: experimentData.config || {},
+            endTime: experimentData.endTime || new Date().toISOString(),
+            data: experimentData.data || []
+        }
+    };
+    
+    return formattedData;
+}
+
+// Fonction pour envoyer les résultats à l'API
+async function sendResultsToAPI(localStorageData) {
+    // Vérifier si l'API est configurée et activée
+    if (typeof getApiEndpoint !== 'function') {
+        return { success: false, message: 'getApiEndpoint non définie' };
+    }
+    
+    if (typeof API_CONFIG === 'undefined') {
+        return { success: false, message: 'API_CONFIG non défini' };
+    }
+    
+    const endpoint = getApiEndpoint();
+    
+    if (!endpoint) {
+        return { success: false, message: 'API non configurée' };
+    }
+
+    try {
+        // Formater les données selon le format API
+        const formattedData = formatDataForAPI(localStorageData);
+        
+        // Validation basique
+        if (!formattedData.participant.id) {
+            throw new Error('ID du participant manquant');
+        }
+        
+        if (!formattedData.experiment.data || formattedData.experiment.data.length === 0) {
+            throw new Error('Aucune donnée d\'expérience à envoyer');
+        }
+        
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.timeout || 10000);
+
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formattedData),
+            signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+            let errorData;
+            let errorText = '';
+            try {
+                errorText = await response.text();
+                errorData = JSON.parse(errorText);
+            } catch (e) {
+                errorData = { error: `Erreur HTTP ${response.status}`, message: response.statusText };
+            }
+            
+            // Messages d'erreur plus explicites selon le code de statut
+            let errorMessage = errorData.error || `Erreur HTTP: ${response.status}`;
+            if (errorData.message) {
+                errorMessage += ` - ${errorData.message}`;
+            }
+            
+            if (response.status === 500) {
+                if (errorData.message && errorData.message.includes('DATABASE_URL')) {
+                    errorMessage = 'Erreur serveur - DATABASE_URL non configurée. Vérifiez le fichier .env du backend et redémarrez le serveur.';
+                } else if (errorData.message && errorData.message.includes('Prisma')) {
+                    errorMessage = 'Erreur serveur - Problème avec Prisma. Vérifiez la configuration de la base de données et exécutez: npm run prisma:generate && npm run prisma:migrate';
+                } else {
+                    errorMessage = 'Erreur serveur - Le backend a rencontré un problème. Vérifiez les logs du serveur.';
+                }
+            } else if (response.status === 400) {
+                errorMessage = 'Données invalides - ' + (errorData.error || errorData.message || 'Vérifiez le format des données envoyées.');
+            } else if (response.status === 404) {
+                errorMessage = 'Endpoint non trouvé - Vérifiez l\'URL de l\'API.';
+            }
+            
+            throw new Error(errorMessage);
+        }
+
+        const result = await response.json();
+        return { success: true, data: result };
+
+    } catch (error) {
+        if (error.name === 'AbortError') {
+            return { success: false, message: 'Timeout - l\'envoi a pris trop de temps' };
+        }
+        if (error.name === 'TypeError' && error.message.includes('fetch')) {
+            return { success: false, message: 'Erreur réseau - vérifiez que le serveur est accessible et CORS est configuré' };
+        }
+        return { success: false, message: error.message };
+    }
+}
+
 // Fonction pour configurer la sécurité de l'expérience
 function setupSecurity() {
     // Empêcher la navigation avec les touches du clavier
