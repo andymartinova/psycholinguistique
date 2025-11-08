@@ -20,11 +20,12 @@
     "language_group_pt": "Falante nativo de português",
     "start_button": "Iniciar experimento",
     "instructions_button": "Ver instruções",
-    "analytics_button": "📊 Analytics",
+    "analytics_button": "📊 Análises",
     "analytics_enhanced_button": "📈 Análises avançadas",
     "data_consent": "Entendo que meus resultados serão salvos automaticamente",
     "german_level_label": "Nível de alemão segundo o teste:"
   },
+
   "instructions": {
     "title": "📋 Instruções",
     "objective_title": "🎯 Objetivo do experimento",

@@ -86,7 +86,7 @@ class I18n {
                     "pretest_notice_html": "Avant de commencer le test, nous vous demandons de réaliser un test de niveau en allemand suivant ce lien : <a href=\"https://strommeninc.com/language-tests/german-level-test/?utm_source=chatgpt.com\" target=\"_blank\" rel=\"noopener noreferrer\">Strømmen German Level Test</a>",  
                     "start_button": "Commencer l'expérience",
                     "instructions_button": "Voir les instructions",
-                    "analytics_button": "Analyses avancées",
+                    "analytics_button": "Analyses individuelles",
                     "objective_title": "🎯 Objectif",
                     "objective_text": "Juger la grammaticalité de phrases en allemand",
                     "duration_title": "⏱️ Durée",
