@@ -23,7 +23,11 @@
     "analytics_button": "📊 Analyses individuelles",
     "analytics_enhanced_button": "📈 Analyses avancées",
     "data_consent": "Je comprends que mes résultats seront sauvegardés automatiquement",
-    "german_level_label": "Niveau d'allemand d'après le test :"
+    "not_bilingual": "Je confirme <strong>NE PAS</strong> être bilingue en portugais et français",
+    "pretest_notice_html": "Avant de commencer le test, nous vous demandons de réaliser un test de niveau en allemand suivant ce lien : <a href=\"https://strommeninc.com/language-tests/german-level-test/?utm_source=chatgpt.com\" target=\"_blank\" rel=\"noopener noreferrer\">Test Strömmen</a>.",
+    "german_level_label": "Niveau d'allemand d'après le test :",
+    "duration_title": "⏱️ Durée",
+    "duration_text": "Environ 10-15 minutes"
   },
   "instructions": {
     "title": "📋 Instructions",
@@ -49,6 +53,8 @@
     "ungrammatical_example": "Non grammatical : \"Der Hund schlafen im Garten.\" (Le chien dormir dans le jardin.)",
     "training_title": "🎓 Entraînement",
     "training_text": "Vous ferez d'abord 3 essais d'entraînement avec feedback pour vous familiariser avec la tâche.",
+    "grammaticality_title": "📚 Explication de la notion de grammaticalité",
+    "grammaticality_block": "<p>La <strong>grammaticalité</strong> fait référence à la conformité d'une phrase aux règles grammaticales d'une langue. Une phrase <strong>grammaticale</strong> suit les règles de syntaxe, d'accord et de structure de la langue, tandis qu'une phrase <strong>non grammaticale</strong> viole ces règles.</p><p>Par exemple :</p><ul><li><strong>Grammaticale</strong> : \"Der Hund schläft im Garten.\" (Le chien dort dans le jardin.) - La conjugaison du verbe est correcte.</li><li><strong>Non grammaticale</strong> : \"Der Hund schlafen im Garten.\" (Le chien dormir dans le jardin.) - Le verbe n'est pas conjugué correctement.</li></ul><p>Votre tâche est de juger si chaque phrase vous semble grammaticalement correcte ou incorrecte, en vous basant sur votre intuition linguistique.</p>",
     "back_button": "← Retour à l'accueil",
     "start_training_button": "Commencer l'entraînement"
   },
@@ -62,6 +68,7 @@
     "key_hint_n": "(N)",
     "feedback_correct": "Correct ! Cette phrase est grammaticale.",
     "feedback_incorrect": "Incorrect. Cette phrase n'est pas grammaticale.",
+    "expected_answer": "Réponse attendue",
     "next_button": "Suivant",
     "progress": "Progression de l'entraînement"
   },
@@ -78,11 +85,11 @@
     "pause_text": "Faites une courte pause. Vous pouvez continuer quand vous êtes prêt.",
     "continue_button": "Continuer"
   },
-  "results": {
+    "results": {
     "title": "📊 Résultats",
-    "completion_title": "Expérience terminée !",
-    "completion_text": "Merci pour votre participation ! Voici un résumé de vos résultats :",
-    "summary_title": "Résumé des résultats",
+    "completion_title": "🎉 Expérience terminée !",
+    "completion_text": "Merci d'avoir participé à cette expérience de psycholinguistique.",
+    "summary_title": "📊 Résumé de votre performance",
     "conditions_title": "Performance par condition",
     "total_trials": "Nombre total d'essais",
     "correct_answers": "Réponses correctes",
@@ -127,6 +134,8 @@
     "clear_data": "🗑️ Effacer toutes les données",
     "load_participants": "Charger les participants",
     "reset_filters": "Réinitialiser les filtres",
+    "include_filtered": "✓ Inclure les participants filtrés",
+    "exclude_filtered": "✗ Exclure les participants filtrés",
     "select_all": "Sélectionner tout",
     "selected_count": "participant(s) sélectionné(s)",
     "process_selected": "Traiter les participants sélectionnés",
@@ -138,7 +147,10 @@
     "all_languages": "Toutes",
     "all_levels": "Tous",
     "empty_participants": "Cliquez sur \"Charger les participants\" pour afficher les données",
+    "loading_participants": "Chargement des participants...",
     "no_participants_found": "Aucun participant trouvé",
+    "api_not_configured": "API non configurée",
+    "load_error": "Erreur lors du chargement des participants. Vérifiez que l'API est accessible.",
     "clear_confirm": "Êtes-vous sûr de vouloir effacer toutes les données importées ?",
     "no_data_to_email": "Aucune donnée à envoyer. Veuillez d'abord importer des fichiers JSON.",
     "enter_email": "Entrez l'adresse e-mail du destinataire:",
@@ -180,7 +192,15 @@
     "stats": {
       "total_participants": "Total de participants",
       "average_accuracy": "Précision moyenne",
-      "average_response_time": "Temps moyen de réponse"
+      "average_response_time": "Temps de réponse moyen",
+      "correct_responses": "Réponses correctes",
+      "incorrect_responses": "Réponses incorrectes",
+      "min_response_time": "Temps min",
+      "max_response_time": "Temps max",
+      "median_response_time": "Temps médian",
+      "german_level": "Niveau",
+      "grammatical_responses": "Réponses grammaticales",
+      "non_grammatical_responses": "Réponses non grammaticales"
     },
     "participant_label": "Participant",
     "local_data": "Données locales",

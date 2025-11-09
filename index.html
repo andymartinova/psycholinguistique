@@ -29,10 +29,6 @@
                     </label>
                 </div>
                 <div class="form-group">
-                    <label for="participant-id" data-i18n="home.participant_label">Numéro de participant :</label>
-                    <input type="text" id="participant-id" name="participant-id" data-i18n-placeholder="home.participant_placeholder" placeholder="P001" required>
-                </div>
-                <div class="form-group">
                     <label class="form-label" data-i18n="home.language_group_label">Groupe linguistique :</label>
                     <div class="radio-group">
                         <label class="radio-option">
@@ -52,6 +48,12 @@
                             <div class="radio-checkmark">✓</div>
                         </label>
                     </div>
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="not-bilingual" name="not-bilingual" checked required>
+                        <span data-i18n-html="home.not_bilingual">Je confirme <strong>NE PAS</strong> être bilingue en portugais et français</span>
+                    </label>
                 </div>
                 <div class="form-group">
                     <div class="info-card" style="margin-bottom: 1rem; padding: 1rem; background: #f7fafc; border: 2px solid #e2e8f0; border-radius: 8px;">
@@ -77,14 +79,14 @@
             </form>
 
             <div class="action-buttons">
-                <a href="analytics.html" class="btn btn-secondary" data-i18n="home.analytics_button">Analytics</a>
-                <a href="analytics-enhanced.html" class="btn btn-secondary" data-i18n="home.analytics_enhanced_button">Analyses avancées</a>
+                <a href="analytics.html" class="btn btn-secondary" data-i18n="home.analytics_button">📊 Analyses individuelles</a>
+                <a href="analytics-enhanced.html" class="btn btn-secondary" data-i18n="home.analytics_enhanced_button">📈 Analyses avancées</a>
             </div>
 
             <div class="info-section">
                 <div class="info-card">
-                    <h3>⏱️ Durée</h3>
-                    <p>Environ 10-15 minutes</p>
+                    <h3 data-i18n="home.duration_title">⏱️ Durée</h3>
+                    <p data-i18n="home.duration_text">Environ 10-15 minutes</p>
                 </div>
             </div>
         </main>

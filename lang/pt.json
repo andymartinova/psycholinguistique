@@ -23,7 +23,11 @@
     "analytics_button": "📊 Análises",
     "analytics_enhanced_button": "📈 Análises avançadas",
     "data_consent": "Entendo que meus resultados serão salvos automaticamente",
-    "german_level_label": "Nível de alemão segundo o teste:"
+    "not_bilingual": "Confirmo que <strong>NÃO SOU</strong> bilíngue em português e francês",
+    "pretest_notice_html": "Antes de começar o teste, pedimos que você realize um teste de nível em alemão seguindo este link: <a href=\"https://strommeninc.com/language-tests/german-level-test/?utm_source=chatgpt.com\" target=\"_blank\" rel=\"noopener noreferrer\">Teste Strömmen</a>.",
+    "german_level_label": "Nível de alemão segundo o teste:",
+    "duration_title": "⏱️ Duração",
+    "duration_text": "Aproximadamente 10-15 minutos"
   },
 
   "instructions": {
@@ -50,6 +54,8 @@
     "ungrammatical_example": "Não gramatical: \"Der Hund schlafen im Garten.\" (O cachorro dormir no jardim.)",
     "training_title": "🎓 Treinamento",
     "training_text": "Você fará primeiro 3 tentativas de treinamento com feedback para se familiarizar com a tarefa.",
+    "grammaticality_title": "📚 Explicação da noção de gramaticalidade",
+    "grammaticality_block": "<p>A <strong>gramaticalidade</strong> refere-se à conformidade de uma frase com as regras gramaticais de uma língua. Uma frase <strong>gramatical</strong> segue as regras de sintaxe, concordância e estrutura da língua, enquanto uma frase <strong>não gramatical</strong> viola essas regras.</p><p>Por exemplo:</p><ul><li><strong>Gramatical</strong>: \"Der Hund schläft im Garten.\" (O cachorro dorme no jardim.) - A conjugação do verbo está correta.</li><li><strong>Não gramatical</strong>: \"Der Hund schlafen im Garten.\" (O cachorro dormir no jardim.) - O verbo não está conjugado corretamente.</li></ul><p>Sua tarefa é julgar se cada frase parece gramaticalmente correta ou incorreta, baseando-se em sua intuição linguística.</p>",
     "back_button": "← Voltar ao início",
     "start_training_button": "Iniciar treinamento"
   },
@@ -63,6 +69,7 @@
     "key_hint_n": "(N)",
     "feedback_correct": "Correto! Esta frase é gramatical.",
     "feedback_incorrect": "Incorreto. Esta frase não é gramatical.",
+    "expected_answer": "Resposta esperada",
     "next_button": "Próximo",
     "progress": "Progresso do treinamento"
   },
@@ -81,9 +88,9 @@
   },
   "results": {
     "title": "📊 Resultados",
-    "completion_title": "Experimento concluído!",
-    "completion_text": "Obrigado pela sua participação! Aqui está um resumo dos seus resultados:",
-    "summary_title": "Resumo dos resultados",
+    "completion_title": "🎉 Experimento concluído!",
+    "completion_text": "Obrigado por participar deste experimento psicolinguístico.",
+    "summary_title": "📊 Resumo do seu desempenho",
     "conditions_title": "Performance por condição",
     "total_trials": "Número total de tentativas",
     "correct_answers": "Respostas corretas",
@@ -128,6 +135,8 @@
     "clear_data": "🗑️ Limpar todos os dados",
     "load_participants": "Carregar participantes",
     "reset_filters": "Redefinir filtros",
+    "include_filtered": "✓ Incluir participantes filtrados",
+    "exclude_filtered": "✗ Excluir participantes filtrados",
     "select_all": "Selecionar tudo",
     "selected_count": "participante(s) selecionado(s)",
     "process_selected": "Processar participantes selecionados",
@@ -139,7 +148,10 @@
     "all_languages": "Todos",
     "all_levels": "Todos",
     "empty_participants": "Clique em \"Carregar participantes\" para exibir os dados",
+    "loading_participants": "Carregando participantes...",
     "no_participants_found": "Nenhum participante encontrado",
+    "api_not_configured": "API não configurada",
+    "load_error": "Erro ao carregar participantes. Verifique se a API está acessível.",
     "clear_confirm": "Tem certeza de que deseja limpar todos os dados importados?",
     "no_data_to_email": "Nenhum dado para enviar. Por favor, importe primeiro arquivos JSON.",
     "enter_email": "Digite o endereço de e-mail do destinatário:",
@@ -181,7 +193,15 @@
     "stats": {
       "total_participants": "Total de participantes",
       "average_accuracy": "Precisão média",
-      "average_response_time": "Tempo médio de resposta"
+      "average_response_time": "Tempo médio de resposta",
+      "correct_responses": "Respostas corretas",
+      "incorrect_responses": "Respostas incorretas",
+      "min_response_time": "Tempo mínimo",
+      "max_response_time": "Tempo máximo",
+      "median_response_time": "Tempo mediano",
+      "german_level": "Nível",
+      "grammatical_responses": "Respostas gramaticais",
+      "non_grammatical_responses": "Respostas não gramaticais"
     },
     "participant_label": "Participante",
     "local_data": "Dados locais",

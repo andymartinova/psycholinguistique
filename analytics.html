@@ -8,6 +8,8 @@
   <link rel="stylesheet" href="css/responsive.css" />
 </head>
 <body>
+  <a href="index.html" class="home-button" data-i18n="nav.home">🏠 Accueil</a>
+  
   <div class="container">
     <header class="page-header">
       <h1 data-i18n="analytics.title">Analyse des données</h1>
@@ -38,12 +40,6 @@
     <section class="charts-section">
       <h2 data-i18n="analytics.performance_charts">Graphiques de performance</h2>
       
-      <!-- Résumé de performance -->
-      <div class="chart-container">
-        <h3 data-i18n="analytics.performance_summary">Résumé de performance</h3>
-        <div id="performance-summary-chart" class="chart"></div>
-      </div>
-
       <!-- Performance par condition -->
       <div class="chart-container">
         <h3 data-i18n="analytics.performance_by_condition">Performance par condition</h3>
@@ -67,10 +63,6 @@
         <div id="participant-chart" class="chart"></div>
       </div>
 
-      <div class="chart-container">
-        <h3 data-i18n="analytics.learning_curve">Courbe d'apprentissage</h3>
-        <div id="learning-curve-chart" class="chart"></div>
-      </div>
     </section>
 
     <!-- Statistiques par condition -->
@@ -111,8 +103,6 @@
   <script src="graphiques/response-time-chart.js"></script>
   <!-- Script du graphique de comparaison des participants -->
   <script src="graphiques/participant-comparison-chart.js"></script>
-  <!-- Script du graphique de courbe d'apprentissage -->
-  <script src="graphiques/learning-curve-chart.js"></script>
 
   <!-- Scripts personnalisés -->
   <script src="js/analytics.js"></script>

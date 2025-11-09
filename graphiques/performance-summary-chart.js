@@ -101,10 +101,7 @@ class PerformanceSummaryChart {
                 scales: {
                     x: {
                         title: {
-                            display: true,
-                            text: 'Condition',
-                            font: { size: 15 },
-                            padding: { top: 30 }
+                            display: false
                         },
                         ticks: {
                             maxRotation: 60,
@@ -146,8 +143,10 @@ class PerformanceSummaryChart {
         const labelMap = {
             'simple_non_ambiguous': { short: 'Simple', long: 'Simple, non ambiguë' },
             'complex_non_ambiguous': { short: 'Complexe', long: 'Complexe, non ambiguë' },
-            'ambiguous_easy': { short: 'Amb. facile', long: 'Ambiguë, résolution facile' },
-            'ambiguous_difficult': { short: 'Amb. diff.', long: 'Ambiguë, résolution difficile' }
+            'simple_ambiguous': { short: 'Amb. simple', long: 'Simple, ambiguë' },
+            'complex_ambiguous': { short: 'Amb. complexe', long: 'Complexe, ambiguë' },
+            'ambiguous_easy': { short: 'Amb. facile', long: 'Ambiguë, résolution facile' }, // Ancien nom (compatibilité)
+            'ambiguous_difficult': { short: 'Amb. diff.', long: 'Ambiguë, résolution difficile' } // Ancien nom (compatibilité)
         };
 
         // Calculer les statistiques globales
@@ -159,7 +158,7 @@ class PerformanceSummaryChart {
         const averageResponseTime = totalResponseTime / totalTrials;
 
         // Statistiques par condition
-        const conditions = ['simple_non_ambiguous', 'complex_non_ambiguous', 'ambiguous_easy', 'ambiguous_difficult'];
+        const conditions = ['simple_non_ambiguous', 'complex_non_ambiguous', 'simple_ambiguous', 'complex_ambiguous'];
         const conditionStats = conditions.map(condition => {
             const conditionData = this.data.filter(d => d.condition === condition);
             if (conditionData.length === 0) return null;

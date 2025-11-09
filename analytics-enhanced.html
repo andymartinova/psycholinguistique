@@ -8,6 +8,8 @@
   <link rel="stylesheet" href="css/responsive.css" />
 </head>
 <body>
+  <a href="index.html" class="home-button" data-i18n="nav.home">🏠 Accueil</a>
+  
   <div class="container">
     <header class="page-header">
       <h1 data-i18n="analytics.title">Analyses avancées</h1>
@@ -18,38 +20,6 @@
     <section class="database-section">
       <h2 data-i18n="analytics.participants_database_title">📊 Participants de la base de données</h2>
       
-      <!-- Filtres -->
-      <div class="filters-panel">
-        <div class="filter-group">
-          <label for="filter-participant-id" data-i18n="analytics.filter_participant_id">ID Participant:</label>
-          <input type="text" id="filter-participant-id" placeholder="P001, P002...">
-        </div>
-        <div class="filter-group">
-          <label for="filter-language" data-i18n="analytics.filter_language">Langue maternelle:</label>
-          <select id="filter-language">
-            <option value="" data-i18n="analytics.all_languages">Toutes</option>
-            <option value="french">Français</option>
-            <option value="portuguese">Portugais</option>
-          </select>
-        </div>
-        <div class="filter-group">
-          <label for="filter-german-level" data-i18n="analytics.filter_german_level">Niveau d'allemand:</label>
-          <select id="filter-german-level">
-            <option value="" data-i18n="analytics.all_levels">Tous</option>
-            <option value="A1">A1</option>
-            <option value="A2">A2</option>
-            <option value="B1">B1</option>
-            <option value="B2">B2</option>
-            <option value="C1">C1</option>
-            <option value="C2">C2</option>
-          </select>
-        </div>
-        <div class="filter-group">
-          <button id="load-participants-btn" class="btn btn-primary" data-i18n="analytics.load_participants">Charger les participants</button>
-          <button id="clear-filters-btn" class="btn btn-secondary" data-i18n="analytics.reset_filters">Réinitialiser les filtres</button>
-        </div>
-      </div>
-
       <!-- Tableau des participants -->
       <div class="participants-table-container">
         <div class="table-header">
@@ -62,40 +32,58 @@
           </div>
           <button id="process-selected-btn" class="btn btn-primary" disabled data-i18n="analytics.process_selected">Traiter les participants sélectionnés</button>
         </div>
-        <table id="participants-table" class="participants-table">
-          <thead>
-            <tr>
-              <th><input type="checkbox" id="select-all-checkbox"></th>
-              <th>ID Participant</th>
-              <th>Langue maternelle</th>
-              <th>Niveau d'allemand</th>
-              <th>Date de début</th>
-              <th>IP</th>
-              <th>Nombre d'expériences</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
+        
+        <!-- Filtres intégrés au tableau -->
+        <div class="table-filters">
+          <div class="filter-group">
+            <label for="filter-participant-id" data-i18n="analytics.filter_participant_id">ID Participant:</label>
+            <input type="text" id="filter-participant-id" placeholder="P001, P002...">
+          </div>
+          <div class="filter-group">
+            <label for="filter-language" data-i18n="analytics.filter_language">Langue maternelle:</label>
+            <select id="filter-language">
+              <option value="" data-i18n="analytics.all_languages">Toutes</option>
+              <option value="french">Français</option>
+              <option value="portuguese">Portugais</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="filter-german-level" data-i18n="analytics.filter_german_level">Niveau d'allemand:</label>
+            <select id="filter-german-level">
+              <option value="" data-i18n="analytics.all_levels">Tous</option>
+              <option value="A1">A1</option>
+              <option value="A2">A2</option>
+              <option value="B1">B1</option>
+              <option value="B2">B2</option>
+              <option value="C1">C1</option>
+              <option value="C2">C2</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <button id="include-filtered-btn" class="btn btn-success" data-i18n="analytics.include_filtered">✓ Inclure les participants filtrés</button>
+            <button id="exclude-filtered-btn" class="btn btn-warning" data-i18n="analytics.exclude_filtered">✗ Exclure les participants filtrés</button>
+            <button id="clear-filters-btn" class="btn btn-secondary" data-i18n="analytics.reset_filters">Réinitialiser les filtres</button>
+          </div>
+        </div>
+        
+          <table id="participants-table" class="participants-table">
+            <thead>
+              <tr>
+                <th><input type="checkbox" id="select-all-checkbox"></th>
+                <th>ID Participant</th>
+                <th>Langue maternelle</th>
+                <th>Niveau d'allemand</th>
+                <th>Bilingue</th>
+                <th>Date de début</th>
+              </tr>
+            </thead>
           <tbody id="participants-table-body">
             <tr>
-              <td colspan="8" class="empty-state" data-i18n="analytics.empty_participants">Cliquez sur "Charger les participants" pour afficher les données</td>
+              <td colspan="6" class="empty-state" data-i18n="analytics.loading_participants">Chargement des participants...</td>
             </tr>
           </tbody>
         </table>
       </div>
-    </section>
-
-    <!-- Section d'import -->
-    <section class="import-section">
-      <div class="import-area">
-        <div class="import-content">
-          <div class="import-icon">📁</div>
-          <h3 data-i18n="analytics.import_title">Importer des données</h3>
-          <p data-i18n="analytics.import_description">Glissez-déposez des fichiers JSON ou cliquez pour sélectionner</p>
-          <button id="upload-btn" class="btn btn-primary" data-i18n="analytics.select_files">Sélectionner des fichiers</button>
-          <input type="file" id="file-input" accept=".json" multiple style="display: none;" />
-        </div>
-      </div>
-      <div id="imported-files" class="imported-files-list"></div>
     </section>
 
     <!-- Statistiques globales -->
@@ -106,40 +94,28 @@
 
     <!-- Graphiques de performance -->
     <section class="charts-section">
-      <h2 data-i18n="analytics.performance_charts">Graphiques de performance</h2>
-      
-      <!-- Résumé de performance -->
-      <div class="chart-container">
-        <h3 data-i18n="analytics.performance_summary">Résumé de performance</h3>
-        <div id="performance-summary-chart" class="chart"></div>
-      </div>
-
       <!-- Performance par condition -->
       <div class="chart-container">
         <h3 data-i18n="analytics.performance_by_condition">Performance par condition</h3>
         <div id="performance-by-condition-chart" class="chart"></div>
-        
       </div>
 
-      <!-- Graphiques existants -->
+      <!-- Précision par condition -->
       <div class="chart-container">
         <h3 data-i18n="analytics.accuracy_by_condition">Précision par condition</h3>
         <div id="accuracy-chart" class="chart"></div>
       </div>
 
+      <!-- Temps de réponse par condition -->
       <div class="chart-container">
         <h3 data-i18n="analytics.response_time_by_condition">Temps de réponse par condition</h3>
         <div id="response-time-chart" class="chart"></div>
       </div>
 
+      <!-- Comparaison des participants -->
       <div class="chart-container">
         <h3 data-i18n="analytics.participant_comparison">Comparaison des participants</h3>
         <div id="participant-chart" class="chart"></div>
-      </div>
-
-      <div class="chart-container">
-        <h3 data-i18n="analytics.learning_curve">Courbe d'apprentissage</h3>
-        <div id="learning-curve-chart" class="chart"></div>
       </div>
     </section>
 
@@ -181,8 +157,6 @@
   <script src="graphiques/response-time-chart.js"></script>
   <!-- Script du graphique de comparaison des participants -->
   <script src="graphiques/participant-comparison-chart.js"></script>
-  <!-- Script du graphique de courbe d'apprentissage -->
-  <script src="graphiques/learning-curve-chart.js"></script>
 
   <!-- Scripts personnalisés -->
   <script src="js/config.js"></script>

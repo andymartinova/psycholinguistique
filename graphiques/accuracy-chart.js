@@ -6,8 +6,8 @@ class AccuracyChart {
         this.labels = labels || {
             'simple_non_ambiguous': 'Simple, non ambiguë',
             'complex_non_ambiguous': 'Complexe, non ambiguë',
-            'ambiguous_easy': 'Ambiguë, résolution facile',
-            'ambiguous_difficult': 'Ambiguë, résolution difficile'
+            'simple_ambiguous': 'Simple, ambiguë',
+            'complex_ambiguous': 'Complexe, ambiguë'
         };
         this.chart = null;
         this.init();
@@ -28,17 +28,28 @@ class AccuracyChart {
     }
 
     prepareData() {
-        const conditions = ['simple_non_ambiguous', 'complex_non_ambiguous', 'ambiguous_easy', 'ambiguous_difficult'];
+        // Log pour voir quelles conditions sont présentes dans les données
+        const uniqueConditions = [...new Set(this.data.map(d => d.condition))];
+        console.log('📊 Conditions trouvées dans les données:', uniqueConditions);
+        console.log('📊 Nombre total de trials:', this.data.length);
+        
+        const conditions = ['simple_non_ambiguous', 'complex_non_ambiguous', 'simple_ambiguous', 'complex_ambiguous'];
         return conditions.map(condition => {
             const conditionData = this.data.filter(d => d.condition === condition);
+            console.log(`📊 Condition "${condition}": ${conditionData.length} trials`);
+            
             const accuracy = conditionData.length > 0 
                 ? (conditionData.filter(d => d.correct).length / conditionData.length) * 100 
                 : 0;
-            return {
+            
+            const result = {
                 condition: this.labels[condition] || condition,
                 accuracy: accuracy,
                 trials: conditionData.length
             };
+            
+            console.log(`📊 Résultat pour "${condition}":`, result);
+            return result;
         });
     }
 

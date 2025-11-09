@@ -8,16 +8,22 @@ class DatabaseAnalytics {
     }
 
     setupEventHandlers() {
-        // Bouton pour charger les participants
-        const loadBtn = document.getElementById('load-participants-btn');
-        if (loadBtn) {
-            loadBtn.addEventListener('click', () => this.loadParticipants());
-        }
-
         // Bouton pour réinitialiser les filtres
         const clearFiltersBtn = document.getElementById('clear-filters-btn');
         if (clearFiltersBtn) {
             clearFiltersBtn.addEventListener('click', () => this.clearFilters());
+        }
+
+        // Bouton pour inclure les participants filtrés
+        const includeFilteredBtn = document.getElementById('include-filtered-btn');
+        if (includeFilteredBtn) {
+            includeFilteredBtn.addEventListener('click', () => this.includeFiltered());
+        }
+
+        // Bouton pour exclure les participants filtrés
+        const excludeFilteredBtn = document.getElementById('exclude-filtered-btn');
+        if (excludeFilteredBtn) {
+            excludeFilteredBtn.addEventListener('click', () => this.excludeFiltered());
         }
 
         // Filtres
@@ -51,14 +57,21 @@ class DatabaseAnalytics {
     async loadParticipants() {
         const baseUrl = getApiBaseUrl();
         if (!baseUrl) {
-            alert('API non configurée');
+            const tbody = document.getElementById('participants-table-body');
+            if (tbody) {
+                const errorText = window.i18n && window.i18n.loaded ? 
+                    window.i18n.t('analytics.api_not_configured') : 'API non configurée';
+                tbody.innerHTML = `<tr><td colspan="6" class="empty-state">${errorText}</td></tr>`;
+            }
             return;
         }
 
-        const loadBtn = document.getElementById('load-participants-btn');
-        if (loadBtn) {
-            loadBtn.disabled = true;
-            loadBtn.textContent = 'Chargement...';
+            // Afficher un message de chargement
+        const tbody = document.getElementById('participants-table-body');
+        if (tbody) {
+            const loadingText = window.i18n && window.i18n.loaded ? 
+                window.i18n.t('analytics.loading_participants') : 'Chargement des participants...';
+            tbody.innerHTML = `<tr><td colspan="6" class="empty-state">${loadingText}</td></tr>`;
         }
 
         try {
@@ -85,17 +98,36 @@ class DatabaseAnalytics {
                 this.participants = [];
             }
 
+            // Sélectionner tous les participants par défaut, sauf A1 et bilingues
+            this.selectedParticipants.clear();
+            this.participants.forEach(participant => {
+                const participantId = participant.participantId || participant.id;
+                if (participantId) {
+                    // Exclure les participants A1 OU bilingues (notBilingual = false signifie isBilingual = true)
+                    const germanLevel = participant.germanLevel;
+                    const notBilingual = participant.notBilingual === true || participant.notBilingual === 'true';
+                    const isBilingual = !notBilingual;
+                    
+                    // Ne pas sélectionner si A1 OU bilingue
+                    if (germanLevel === 'A1' || isBilingual) {
+                        // Exclure de la sélection par défaut
+                        return;
+                    }
+                    
+                    this.selectedParticipants.add(participantId);
+                }
+            });
+
             this.applyFilters();
         } catch (error) {
             console.error('Erreur lors du chargement des participants:', error);
-            alert('Erreur lors du chargement des participants. Vérifiez que l\'API est accessible et qu\'un endpoint GET /api/participants existe.');
+            const errorText = window.i18n && window.i18n.loaded ? 
+                window.i18n.t('analytics.load_error') : 'Erreur lors du chargement des participants. Vérifiez que l\'API est accessible.';
+            if (tbody) {
+                tbody.innerHTML = `<tr><td colspan="6" class="empty-state">${errorText}</td></tr>`;
+            }
             this.participants = [];
             this.displayParticipants([]);
-        } finally {
-            if (loadBtn) {
-                loadBtn.disabled = false;
-                loadBtn.textContent = 'Charger les participants';
-            }
         }
     }
 
@@ -141,9 +173,14 @@ class DatabaseAnalytics {
     }
 
     clearFilters() {
-        document.getElementById('filter-participant-id').value = '';
-        document.getElementById('filter-language').value = '';
-        document.getElementById('filter-german-level').value = '';
+        const participantIdFilter = document.getElementById('filter-participant-id');
+        const languageFilter = document.getElementById('filter-language');
+        const germanLevelFilter = document.getElementById('filter-german-level');
+        
+        if (participantIdFilter) participantIdFilter.value = '';
+        if (languageFilter) languageFilter.value = '';
+        if (germanLevelFilter) germanLevelFilter.value = '';
+        
         this.applyFilters();
     }
 
@@ -154,7 +191,7 @@ class DatabaseAnalytics {
         if (participants.length === 0) {
             const emptyText = window.i18n && window.i18n.loaded ? 
                 window.i18n.t('analytics.no_participants_found') : 'Aucun participant trouvé';
-            tbody.innerHTML = `<tr><td colspan="8" class="empty-state">${emptyText}</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" class="empty-state">${emptyText}</td></tr>`;
             this.updateSelectedCount();
             return;
         }
@@ -176,8 +213,13 @@ class DatabaseAnalytics {
                 languageDisplay = '🇧🇷 Portugais';
             }
 
+            // Déterminer si bilingue (notBilingual = false signifie isBilingual = true)
+            const notBilingual = participant.notBilingual === true || participant.notBilingual === 'true';
+            const isBilingual = !notBilingual;
+            const bilingualDisplay = isBilingual ? 'Oui' : 'Non';
+
             return `
-                <tr data-participant-id="${participantId}">
+                <tr data-participant-id="${participantId}" class="${isSelected ? 'participant-selected' : 'participant-excluded'}">
                     <td>
                         <input type="checkbox" class="participant-checkbox" 
                                data-participant-id="${participantId}" 
@@ -186,16 +228,8 @@ class DatabaseAnalytics {
                     <td>${participantId}</td>
                     <td>${languageDisplay}</td>
                     <td>${germanLevel}</td>
+                    <td>${bilingualDisplay}</td>
                     <td>${startTime}</td>
-                    <td>${ipAddress}</td>
-                    <td>${experimentsCount}</td>
-                    <td>
-                        <button class="btn btn-sm btn-secondary view-participant-btn" 
-                                data-participant-id="${participantId}"
-                                data-i18n="analytics.view_details">
-                            Voir détails
-                        </button>
-                    </td>
                 </tr>
             `;
         }).join('');
@@ -204,24 +238,28 @@ class DatabaseAnalytics {
         tbody.querySelectorAll('.participant-checkbox').forEach(checkbox => {
             checkbox.addEventListener('change', (e) => {
                 const participantId = e.target.dataset.participantId;
+                const row = e.target.closest('tr');
+                
                 if (e.target.checked) {
                     this.selectedParticipants.add(participantId);
+                    if (row) {
+                        row.classList.remove('participant-excluded');
+                        row.classList.add('participant-selected');
+                    }
                 } else {
                     this.selectedParticipants.delete(participantId);
+                    if (row) {
+                        row.classList.remove('participant-selected');
+                        row.classList.add('participant-excluded');
+                    }
                 }
                 this.updateSelectedCount();
-            });
-        });
-
-        // Ajouter les event listeners pour les boutons "Voir détails"
-        tbody.querySelectorAll('.view-participant-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const participantId = e.target.dataset.participantId;
-                this.viewParticipantDetails(participantId);
+                this.updateSelectAllCheckboxes();
             });
         });
 
         this.updateSelectedCount();
+        this.updateSelectAllCheckboxes();
     }
 
     toggleSelectAll(checked) {
@@ -234,15 +272,92 @@ class DatabaseAnalytics {
             }
         });
 
-        // Mettre à jour toutes les checkboxes
+        // Mettre à jour toutes les checkboxes et les styles
         document.querySelectorAll('.participant-checkbox').forEach(checkbox => {
             checkbox.checked = checked;
+            const row = checkbox.closest('tr');
+            if (row) {
+                if (checked) {
+                    row.classList.remove('participant-excluded');
+                    row.classList.add('participant-selected');
+                } else {
+                    row.classList.remove('participant-selected');
+                    row.classList.add('participant-excluded');
+                }
+            }
         });
 
-        document.getElementById('select-all-checkbox').checked = checked;
-        document.getElementById('select-all-participants').checked = checked;
+        this.updateSelectedCount();
+        this.updateSelectAllCheckboxes();
+    }
+
+    includeFiltered() {
+        // Sélectionner tous les participants filtrés
+        this.filteredParticipants.forEach(participant => {
+            const participantId = participant.participantId || participant.id;
+            this.selectedParticipants.add(participantId);
+        });
+
+        // Mettre à jour les checkboxes et les styles visibles
+        document.querySelectorAll('.participant-checkbox').forEach(checkbox => {
+            const participantId = checkbox.dataset.participantId;
+            const row = checkbox.closest('tr');
+            
+            if (this.selectedParticipants.has(participantId)) {
+                checkbox.checked = true;
+                if (row) {
+                    row.classList.remove('participant-excluded');
+                    row.classList.add('participant-selected');
+                }
+            }
+        });
 
         this.updateSelectedCount();
+        this.updateSelectAllCheckboxes();
+    }
+
+    excludeFiltered() {
+        // Désélectionner tous les participants filtrés
+        this.filteredParticipants.forEach(participant => {
+            const participantId = participant.participantId || participant.id;
+            this.selectedParticipants.delete(participantId);
+        });
+
+        // Mettre à jour les checkboxes et les styles visibles
+        document.querySelectorAll('.participant-checkbox').forEach(checkbox => {
+            const participantId = checkbox.dataset.participantId;
+            const row = checkbox.closest('tr');
+            
+            if (!this.selectedParticipants.has(participantId)) {
+                checkbox.checked = false;
+                if (row) {
+                    row.classList.remove('participant-selected');
+                    row.classList.add('participant-excluded');
+                }
+            }
+        });
+
+        this.updateSelectedCount();
+        this.updateSelectAllCheckboxes();
+    }
+
+    updateSelectAllCheckboxes() {
+        // Mettre à jour les checkboxes "Sélectionner tout" selon l'état actuel
+        const allFilteredSelected = this.filteredParticipants.length > 0 && 
+            this.filteredParticipants.every(participant => {
+                const participantId = participant.participantId || participant.id;
+                return this.selectedParticipants.has(participantId);
+            });
+
+        const selectAllCheckbox = document.getElementById('select-all-checkbox');
+        const selectAllParticipants = document.getElementById('select-all-participants');
+        
+        if (selectAllCheckbox) {
+            selectAllCheckbox.checked = allFilteredSelected;
+        }
+        if (selectAllParticipants) {
+            selectAllParticipants.checked = allFilteredSelected;
+        }
     }
 
     updateSelectedCount() {
@@ -312,20 +427,32 @@ class DatabaseAnalytics {
 
         try {
             const selectedIds = Array.from(this.selectedParticipants);
-            const participantsData = [];
+            console.log('📊 Traitement de', selectedIds.length, 'participants:', selectedIds);
 
-            // Récupérer les données complètes pour chaque participant sélectionné
-            for (const participantId of selectedIds) {
-                try {
-                    const response = await fetch(`${baseUrl}/api/participants/${participantId}`);
-                    if (response.ok) {
-                        const participant = await response.json();
-                        participantsData.push(participant);
-                    }
-                } catch (error) {
-                    console.error(`Erreur pour le participant ${participantId}:`, error);
-                }
+            // Utiliser le nouvel endpoint POST /api/participants/process pour récupérer tous les participants en une seule requête
+            const response = await fetch(`${baseUrl}/api/participants/process`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ participantIds: selectedIds })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Erreur HTTP: ${response.status}`);
             }
+
+            const result = await response.json();
+            console.log('📊 Réponse du backend:', result);
+
+            // Le backend retourne { data: [...] } ou directement un tableau
+            const participantsData = result.data || result;
+            
+            if (!Array.isArray(participantsData)) {
+                throw new Error('Format de réponse invalide : attendu un tableau');
+            }
+
+            console.log('📊 Participants reçus:', participantsData.length);
 
             // Traiter les données (par exemple, les ajouter à la section d'analyse)
             this.importParticipantsData(participantsData);
@@ -333,7 +460,7 @@ class DatabaseAnalytics {
             alert(`${participantsData.length} participant(s) traité(s) avec succès`);
         } catch (error) {
             console.error('Erreur lors du traitement:', error);
-            alert('Erreur lors du traitement des participants');
+            alert(`Erreur lors du traitement des participants: ${error.message}`);
         } finally {
             if (processBtn) {
                 processBtn.disabled = false;
@@ -343,13 +470,19 @@ class DatabaseAnalytics {
     }
 
     importParticipantsData(participantsData) {
+        console.log('📊 importParticipantsData - Données reçues:', participantsData);
+        console.log('📊 Nombre de participants:', participantsData.length);
+        
         // Convertir les données des participants au format attendu par analytics.js
         const formattedData = participantsData.map(participant => {
+            console.log('📊 Participant:', participant.participantId || participant.id);
+            console.log('📊 Expériences:', participant.experiments);
+            
             // Récupérer toutes les expériences du participant
             const experiments = participant.experiments || [];
             
             return experiments.map(experiment => {
-                return {
+                const formatted = {
                     participant: {
                         id: participant.participantId || participant.id,
                         languageGroup: participant.nativeLanguage === 'french' ? 'fr' : 
@@ -360,14 +493,23 @@ class DatabaseAnalytics {
                     experiment: {
                         config: experiment.config || {},
                         endTime: experiment.endTime,
-                        data: experiment.trials || []
+                        data: experiment.trials || experiment.data || []
                     }
                 };
+                
+                console.log('📊 Expérience formatée:', formatted);
+                console.log('📊 Nombre de trials:', formatted.experiment.data.length);
+                
+                return formatted;
             });
         }).flat();
 
+        console.log('📊 Données formatées totales:', formattedData);
+        console.log('📊 Nombre d\'expériences formatées:', formattedData.length);
+
         // Déclencher un événement personnalisé pour que analytics.js puisse traiter ces données
         const event = new CustomEvent('participantsDataLoaded', { detail: formattedData });
+        console.log('📊 Événement participantsDataLoaded déclenché');
         document.dispatchEvent(event);
     }
 }
@@ -376,8 +518,10 @@ class DatabaseAnalytics {
 let databaseAnalytics;
 document.addEventListener('DOMContentLoaded', () => {
     // Vérifier si on est sur la page analytics-enhanced
-    if (document.getElementById('load-participants-btn')) {
+    if (document.getElementById('participants-table')) {
         databaseAnalytics = new DatabaseAnalytics();
+        // Charger automatiquement les participants au chargement de la page
+        databaseAnalytics.loadParticipants();
     }
 });
 

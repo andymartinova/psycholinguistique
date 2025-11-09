@@ -71,6 +71,11 @@ class AnalyticsPage {
         if (clearBtn) {
             clearBtn.addEventListener('click', () => this.clearAllData());
         }
+
+        // Écouter l'événement de chargement des participants depuis la base de données
+        document.addEventListener('participantsDataLoaded', (e) => {
+            this.handleParticipantsDataLoaded(e.detail);
+        });
     }
 
     setupDynamicTranslation() {
@@ -157,6 +162,7 @@ class AnalyticsPage {
     }
 
     validateDataStructure(data) {
+        console.log('🔍 validateDataStructure - Vérification de:', data);
         
         // Structure de base requise
         const hasBasicStructure = data && 
@@ -165,9 +171,18 @@ class AnalyticsPage {
                data.experiment.data && 
                Array.isArray(data.experiment.data);
         
+        console.log('🔍 Structure de base valide?', hasBasicStructure);
+        console.log('🔍 data:', !!data);
+        console.log('🔍 data.participant:', !!data?.participant);
+        console.log('🔍 data.experiment:', !!data?.experiment);
+        console.log('🔍 data.experiment.data:', data?.experiment?.data);
+        console.log('🔍 Array.isArray(data.experiment.data):', Array.isArray(data?.experiment?.data));
+        
         if (hasBasicStructure) {
             // Vérifier que les données contiennent les champs requis
             const firstTrial = data.experiment.data[0];
+            console.log('🔍 Premier trial:', firstTrial);
+            
             if (firstTrial) {
                 const hasRequiredFields = firstTrial.hasOwnProperty('trial') && 
                                         firstTrial.hasOwnProperty('sentence') && 
@@ -177,10 +192,24 @@ class AnalyticsPage {
                                         firstTrial.hasOwnProperty('responseTime') && 
                                         firstTrial.hasOwnProperty('correct');
                 
+                console.log('🔍 Champs requis présents?', hasRequiredFields);
+                console.log('🔍 trial:', firstTrial.hasOwnProperty('trial'));
+                console.log('🔍 sentence:', firstTrial.hasOwnProperty('sentence'));
+                console.log('🔍 condition:', firstTrial.hasOwnProperty('condition'));
+                console.log('🔍 expected:', firstTrial.hasOwnProperty('expected'));
+                console.log('🔍 response:', firstTrial.hasOwnProperty('response'));
+                console.log('🔍 responseTime:', firstTrial.hasOwnProperty('responseTime'));
+                console.log('🔍 correct:', firstTrial.hasOwnProperty('correct'));
+                
                 return hasRequiredFields;
+            } else {
+                console.warn('⚠️ Aucun trial dans experiment.data');
+                // Si le tableau est vide, on accepte quand même la structure
+                return data.experiment.data.length === 0;
             }
         }
         
+        console.warn('❌ Structure de données invalide');
         return false;
     }
 
@@ -231,6 +260,55 @@ class AnalyticsPage {
         this.displayAnalytics();
     }
 
+    handleParticipantsDataLoaded(formattedData) {
+        console.log('📈 handleParticipantsDataLoaded - Données reçues:', formattedData);
+        console.log('📈 Nombre d\'expériences reçues:', formattedData?.length || 0);
+        
+        // formattedData est un tableau d'objets, chacun représentant une expérience
+        // Chaque objet a la structure: { participant: {...}, experiment: {...} }
+        
+        if (!formattedData || !Array.isArray(formattedData) || formattedData.length === 0) {
+            console.warn('❌ Aucune donnée de participants à traiter');
+            return;
+        }
+
+        // Vérifier si on doit remplacer les données existantes ou les ajouter
+        // Pour l'instant, on remplace les données existantes pour éviter les doublons
+        this.importedData = [];
+
+        // Convertir chaque expérience au format attendu par analytics.js
+        formattedData.forEach((experimentData, index) => {
+            console.log(`📈 Traitement de l'expérience ${index}:`, experimentData);
+            console.log(`📈 Structure valide?`, this.validateDataStructure(experimentData));
+            
+            if (this.validateDataStructure(experimentData)) {
+                const participantId = experimentData.participant?.id || `P${index + 1}`;
+                const fileInfo = {
+                    name: `Participant ${participantId} - Database`,
+                    size: JSON.stringify(experimentData).length,
+                    lastModified: Date.now(),
+                    data: experimentData
+                };
+                this.importedData.push(fileInfo);
+                console.log(`✅ Expérience ${index} ajoutée pour participant ${participantId}`);
+            } else {
+                console.warn(`❌ Structure de données invalide pour l'expérience ${index}:`, experimentData);
+                console.warn(`❌ Structure attendue:`, {
+                    participant: 'object',
+                    experiment: 'object',
+                    'experiment.data': 'array'
+                });
+            }
+        });
+
+        console.log('📈 Données importées finales:', this.importedData);
+        console.log('📈 Nombre d\'entrées importées:', this.importedData.length);
+
+        // Mettre à jour l'affichage
+        this.updateImportedFilesList();
+        this.displayAnalytics();
+    }
+
     loadLocalData() {
         const localData = localStorage.getItem('experimentData');
         if (localData) {
@@ -256,13 +334,19 @@ class AnalyticsPage {
     }
 
     displayAnalytics() {
+        console.log('📊 displayAnalytics - importedData.length:', this.importedData.length);
+        console.log('📊 displayAnalytics - importedData:', this.importedData);
+        
         if (this.importedData.length === 0) {
+            console.log('📊 Aucune donnée importée, chargement des données locales...');
             this.loadLocalData();
         }
         if (this.importedData.length === 0) {
+            console.warn('❌ Aucune donnée disponible, affichage du message "No data"');
             this.showNoDataMessage();
             return;
         }
+        console.log('✅ Affichage des analyses avec', this.importedData.length, 'entrées');
         this.displayGlobalStats();
         this.displayConditionStats();
         this.displayParticipantComparison();
@@ -275,33 +359,174 @@ class AnalyticsPage {
         if (!globalStats) return;
         const allData = this.getAllExperimentData();
         const totalTrials = allData.length;
-        const totalParticipants = this.importedData.length;
+        
+        if (totalTrials === 0) {
+            globalStats.innerHTML = '<p class="no-data">Aucune donnée disponible</p>';
+            return;
+        }
+        
+        // Compter les participants uniques au lieu du nombre d'entrées
+        const uniqueParticipants = new Set(this.importedData.map(fileInfo => fileInfo.data.participant?.id || 'unknown'));
+        const totalParticipants = uniqueParticipants.size;
+        
+        // Statistiques de base
         const avgAccuracy = this.calculateAverageAccuracy(allData);
-        const avgResponseTime = this.calculateAverageResponseTime(allData);
+        const avgResponseTimeRaw = this.calculateAverageResponseTime(allData);
+        const avgResponseTime = Math.round(avgResponseTimeRaw);
+        
+        // Statistiques de précision
+        const correctResponses = allData.filter(d => d.correct).length;
+        const incorrectResponses = totalTrials - correctResponses;
+        const correctPercentage = (correctResponses / totalTrials) * 100;
+        const incorrectPercentage = (incorrectResponses / totalTrials) * 100;
+        
+        // Statistiques de temps de réponse
+        const responseTimes = allData.map(d => d.responseTime || 0).filter(rt => rt > 0);
+        const minResponseTime = responseTimes.length > 0 ? Math.round(Math.min(...responseTimes)) : 0;
+        const maxResponseTime = responseTimes.length > 0 ? Math.round(Math.max(...responseTimes)) : 0;
+        const medianResponseTime = Math.round(this.calculateMedian(responseTimes));
+        
+        // Statistiques par langue maternelle
+        const participantsByLanguage = {};
+        this.importedData.forEach(fileInfo => {
+            const participantId = fileInfo.data.participant?.id || 'unknown';
+            const languageGroup = fileInfo.data.participant?.languageGroup || 'unknown';
+            if (!participantsByLanguage[languageGroup]) {
+                participantsByLanguage[languageGroup] = new Set();
+            }
+            participantsByLanguage[languageGroup].add(participantId);
+        });
+        
+        // Statistiques par niveau d'allemand
+        const participantsByLevel = {};
+        this.importedData.forEach(fileInfo => {
+            const participantId = fileInfo.data.participant?.id || 'unknown';
+            const germanLevel = fileInfo.data.participant?.germanLevel || 'N/A';
+            if (!participantsByLevel[germanLevel]) {
+                participantsByLevel[germanLevel] = new Set();
+            }
+            participantsByLevel[germanLevel].add(participantId);
+        });
+        
+        // Statistiques de réponses grammaticales/non grammaticales
+        const grammaticalResponses = allData.filter(d => d.response === 'grammatical').length;
+        const nonGrammaticalResponses = allData.filter(d => d.response === 'non_grammatical').length;
         
         // Fonction helper pour les traductions sécurisées
         const t = (key, fallback) => {
             return window.i18n && window.i18n.t ? window.i18n.t(key) : fallback;
         };
         
+        // Formater les langues pour l'affichage
+        const formatLanguage = (lang) => {
+            if (lang === 'fr') return '🇫🇷 Français';
+            if (lang === 'pt') return '🇧🇷 Portugais';
+            return lang;
+        };
+        
         globalStats.innerHTML = `
-            <div class="stat-card">
-                <div class="stat-value">${totalParticipants}</div>
-                <div class="stat-label">${t('analytics.stats.total_participants', 'Total participants')}</div>
+            <!-- Section principale - Statistiques globales -->
+            <div class="stats-section-main">
+                <div class="stat-card-compact stat-card-primary">
+                    <div class="stat-value-compact">${totalParticipants}</div>
+                    <div class="stat-label-compact">${t('analytics.stats.total_participants', 'Participants')}</div>
+                </div>
+                <div class="stat-card-compact stat-card-primary">
+                    <div class="stat-value-compact">${totalTrials}</div>
+                    <div class="stat-label-compact">${t('results.total_trials', 'Essais')}</div>
+                </div>
+                <div class="stat-card-compact stat-card-primary">
+                    <div class="stat-value-compact">${avgAccuracy.toFixed(1)}%</div>
+                    <div class="stat-label-compact">${t('analytics.stats.average_accuracy', 'Précision')}</div>
+                </div>
+                <div class="stat-card-compact stat-card-primary">
+                    <div class="stat-value-compact">${this.formatResponseTime(avgResponseTime)}</div>
+                    <div class="stat-label-compact">${t('analytics.stats.average_response_time', 'Temps moyen')}</div>
+                </div>
             </div>
-            <div class="stat-card">
-                <div class="stat-value">${totalTrials}</div>
-                <div class="stat-label">${t('results.total_trials', 'Total trials')}</div>
+            
+            <!-- Section précision - Réponses correctes/incorrectes -->
+            <div class="stats-section-grouped">
+                <div class="stat-card-compact stat-card-success">
+                    <div class="stat-value-compact">${correctResponses}</div>
+                    <div class="stat-label-compact">${t('analytics.stats.correct_responses', 'Correctes')}</div>
+                    <div class="stat-subvalue-compact">${correctPercentage.toFixed(1)}%</div>
+                </div>
+                <div class="stat-card-compact stat-card-danger">
+                    <div class="stat-value-compact">${incorrectResponses}</div>
+                    <div class="stat-label-compact">${t('analytics.stats.incorrect_responses', 'Incorrectes')}</div>
+                    <div class="stat-subvalue-compact">${incorrectPercentage.toFixed(1)}%</div>
+                </div>
             </div>
-            <div class="stat-card">
-                <div class="stat-value">${avgAccuracy.toFixed(1)}%</div>
-                <div class="stat-label">${t('analytics.stats.average_accuracy', 'Average accuracy')}</div>
+            
+            <!-- Section temps - Min/Max/Médian -->
+            <div class="stats-section-grouped">
+                <div class="stat-card-compact stat-card-info">
+                    <div class="stat-value-compact">${this.formatResponseTime(minResponseTime)}</div>
+                    <div class="stat-label-compact">${t('analytics.stats.min_response_time', 'Min')}</div>
+                </div>
+                <div class="stat-card-compact stat-card-info">
+                    <div class="stat-value-compact">${this.formatResponseTime(maxResponseTime)}</div>
+                    <div class="stat-label-compact">${t('analytics.stats.max_response_time', 'Max')}</div>
+                </div>
+                <div class="stat-card-compact stat-card-info">
+                    <div class="stat-value-compact">${this.formatResponseTime(medianResponseTime)}</div>
+                    <div class="stat-label-compact">${t('analytics.stats.median_response_time', 'Médian')}</div>
+                </div>
             </div>
-            <div class="stat-card">
-                <div class="stat-value">${avgResponseTime.toFixed(0)}ms</div>
-                <div class="stat-label">${t('analytics.stats.average_response_time', 'Average response time')}</div>
+            
+            <!-- Section langues - Regroupées -->
+            ${Object.entries(participantsByLanguage).length > 0 ? `
+            <div class="stats-section-grouped">
+                ${Object.entries(participantsByLanguage).map(([lang, participants]) => `
+                    <div class="stat-card-compact stat-card-language">
+                        <div class="stat-value-compact">${participants.size}</div>
+                        <div class="stat-label-compact">${formatLanguage(lang)}</div>
+                    </div>
+                `).join('')}
             </div>
+            ` : ''}
+            
+            <!-- Section niveaux - Regroupés -->
+            ${Object.entries(participantsByLevel).filter(([level]) => level !== 'N/A' && level !== null && level !== '').length > 0 ? `
+            <div class="stats-section-grouped">
+                ${Object.entries(participantsByLevel)
+                    .filter(([level]) => level !== 'N/A' && level !== null && level !== '')
+                    .map(([level, participants]) => `
+                    <div class="stat-card-compact stat-card-level">
+                        <div class="stat-value-compact">${participants.size}</div>
+                        <div class="stat-label-compact">${level}</div>
+                    </div>
+                `).join('')}
+            </div>
+            ` : ''}
+            
         `;
+    }
+    
+    calculateMedian(values) {
+        if (values.length === 0) return 0;
+        const sorted = [...values].sort((a, b) => a - b);
+        const mid = Math.floor(sorted.length / 2);
+        return sorted.length % 2 === 0 
+            ? (sorted[mid - 1] + sorted[mid]) / 2 
+            : sorted[mid];
+    }
+    
+    formatResponseTime(ms) {
+        if (!ms || ms === 0 || isNaN(ms)) return '0s (0ms)';
+        // Arrondir d'abord les millisecondes
+        const roundedMs = Math.round(Number(ms));
+        // Toujours afficher en secondes et millisecondes
+        const seconds = roundedMs / 1000;
+        if (seconds < 10) {
+            // Arrondir à 3 décimales pour les secondes < 10
+            const roundedSeconds = Math.round(seconds * 1000) / 1000;
+            return `${roundedSeconds.toFixed(3)}s (${roundedMs}ms)`;
+        }
+        // Arrondir à 1 décimale pour les secondes >= 10
+        const roundedSeconds = Math.round(seconds * 10) / 10;
+        return `${roundedSeconds.toFixed(1)}s (${roundedMs}ms)`;
     }
 
     displayConditionStats() {
@@ -317,8 +542,10 @@ class AnalyticsPage {
         const conditionLabels = {
             'simple_non_ambiguous': t('results.conditions.simple_unambiguous', 'Simple, non ambiguous'),
             'complex_non_ambiguous': t('results.conditions.complex_unambiguous', 'Complex, non ambiguous'),
-            'ambiguous_easy': t('results.conditions.simple_ambiguous', 'Simple, ambiguous'),
-            'ambiguous_difficult': t('results.conditions.complex_ambiguous', 'Complex, ambiguous')
+            'simple_ambiguous': t('results.conditions.simple_ambiguous', 'Simple, ambiguous'),
+            'complex_ambiguous': t('results.conditions.complex_ambiguous', 'Complex, ambiguous'),
+            'ambiguous_easy': t('results.conditions.simple_ambiguous', 'Simple, ambiguous'), // Ancien nom (compatibilité)
+            'ambiguous_difficult': t('results.conditions.complex_ambiguous', 'Complex, ambiguous') // Ancien nom (compatibilité)
         };
         const conditionStatsData = this.calculateConditionStats(allData);
         conditionStats.innerHTML = Object.entries(conditionStatsData).map(([condition, stats]) => `
@@ -443,24 +670,13 @@ class AnalyticsPage {
             const labels = {
                 'simple_non_ambiguous': t('results.conditions.simple_unambiguous', 'Simple, non ambiguous'),
                 'complex_non_ambiguous': t('results.conditions.complex_unambiguous', 'Complex, non ambiguous'),
-                'ambiguous_easy': t('results.conditions.simple_ambiguous', 'Simple, ambiguous'),
-                'ambiguous_difficult': t('results.conditions.complex_ambiguous', 'Complex, ambiguous')
+                'simple_ambiguous': t('results.conditions.simple_ambiguous', 'Simple, ambiguous'),
+                'complex_ambiguous': t('results.conditions.complex_ambiguous', 'Complex, ambiguous'),
+                'ambiguous_easy': t('results.conditions.simple_ambiguous', 'Simple, ambiguous'), // Ancien nom (compatibilité)
+                'ambiguous_difficult': t('results.conditions.complex_ambiguous', 'Complex, ambiguous') // Ancien nom (compatibilité)
             };
             
             // Vérifier que les classes de graphiques sont disponibles
-            
-            // Nouveau graphique de résumé de performance
-            if (typeof PerformanceSummaryChart !== 'undefined') {
-                try {
-                    this.charts.performanceSummary = new PerformanceSummaryChart('performance-summary-chart', allData);
-                } catch (error) {
-                    console.error('Erreur lors de la création du graphique de résumé de performance:', error);
-                    document.getElementById('performance-summary-chart').innerHTML = `<p>Erreur: ${error.message}</p>`;
-                }
-            } else {
-                console.error('PerformanceSummaryChart class not found');
-                document.getElementById('performance-summary-chart').innerHTML = '<p>Erreur: Classe PerformanceSummaryChart non trouvée</p>';
-            }
             
             // Nouveau graphique de performance par condition
             if (typeof PerformanceByConditionChart !== 'undefined') {
@@ -557,8 +773,8 @@ class AnalyticsPage {
                         <th>${t('results.condition', 'Condition')}</th>
                         <th>${t('results.expected', 'Expected')}</th>
                         <th>${t('results.response', 'Response')}</th>
-                        <th>${t('results.time', 'Time')}</th>
                         <th>${t('results.correct', 'Correct')}</th>
+                        <th>${t('results.time', 'Time')}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -584,8 +800,8 @@ class AnalyticsPage {
                                 <td>${condition}</td>
                                 <td>${expected}</td>
                                 <td>${response}</td>
-                                <td>${responseTime}</td>
                                 <td>${isCorrect ? '✅' : '❌'}</td>
+                                <td>${responseTime}</td>
                             </tr>
                         `;
                     }).join('')}
@@ -624,7 +840,8 @@ class AnalyticsPage {
 
     calculateConditionStats(data) {
         const conditionStats = {};
-        ['simple_non_ambiguous', 'complex_non_ambiguous', 'ambiguous_easy', 'ambiguous_difficult'].forEach(condition => {
+        // Utiliser les noms de conditions réels utilisés dans les données
+        ['simple_non_ambiguous', 'complex_non_ambiguous', 'simple_ambiguous', 'complex_ambiguous'].forEach(condition => {
             const conditionData = data.filter(d => d.condition === condition);
             if (conditionData.length > 0) {
                 conditionStats[condition] = {
@@ -648,8 +865,10 @@ class AnalyticsPage {
         const labels = {
             'simple_non_ambiguous': t('results.conditions.simple_unambiguous', 'Simple, non ambiguous'),
             'complex_non_ambiguous': t('results.conditions.complex_unambiguous', 'Complex, non ambiguous'),
-            'ambiguous_easy': t('results.conditions.simple_ambiguous', 'Simple, ambiguous'),
-            'ambiguous_difficult': t('results.conditions.complex_ambiguous', 'Complex, ambiguous'),
+            'simple_ambiguous': t('results.conditions.simple_ambiguous', 'Simple, ambiguous'),
+            'complex_ambiguous': t('results.conditions.complex_ambiguous', 'Complex, ambiguous'),
+            'ambiguous_easy': t('results.conditions.simple_ambiguous', 'Simple, ambiguous'), // Ancien nom (compatibilité)
+            'ambiguous_difficult': t('results.conditions.complex_ambiguous', 'Complex, ambiguous'), // Ancien nom (compatibilité)
             'simple': t('results.conditions.simple_unambiguous', 'Simple, non ambiguous'),
             'complex': t('results.conditions.complex_unambiguous', 'Complex, non ambiguous'),
             'ambiguous': t('results.conditions.simple_ambiguous', 'Simple, ambiguous')
@@ -668,16 +887,11 @@ class AnalyticsPage {
         const participantComparison = document.getElementById('participant-comparison');
         const chartsContainer = document.getElementById('charts-container');
         const rawData = document.getElementById('raw-data');
-        const noDataMessage = `
-            <div class="info-box">
-                <p>${t('analytics.no_data', 'No experiment data found. Import JSON files or complete an experiment.')}</p>
-                <a href="experiment.html" class="btn btn-primary" data-i18n="home.start_button">${t('home.start_button', 'Start experiment')}</a>
-            </div>
-        `;
-        if (globalStats) globalStats.innerHTML = noDataMessage;
+
+        if (globalStats) globalStats.innerHTML = '';
         if (conditionStats) conditionStats.innerHTML = '';
         if (participantComparison) participantComparison.innerHTML = '';
-        if (chartsContainer) chartsContainer.innerHTML = noDataMessage;
+        if (chartsContainer) chartsContainer.innerHTML = '';
         if (rawData) rawData.innerHTML = '';
     }
 
@@ -704,8 +918,10 @@ class AnalyticsPage {
 
     calculateGlobalStats() {
         const allData = this.getAllExperimentData();
+        // Compter les participants uniques au lieu du nombre d'entrées
+        const uniqueParticipants = new Set(this.importedData.map(fileInfo => fileInfo.data.participant?.id || 'unknown'));
         return {
-            totalParticipants: this.importedData.length,
+            totalParticipants: uniqueParticipants.size,
             totalTrials: allData.length,
             averageAccuracy: this.calculateAverageAccuracy(allData),
             averageResponseTime: this.calculateAverageResponseTime(allData)
@@ -746,7 +962,9 @@ class AnalyticsPage {
             return window.i18n && window.i18n.t ? window.i18n.t(key) : fallback;
         };
 
-        const totalParticipants = this.importedData.length;
+        // Compter les participants uniques au lieu du nombre d'entrées
+        const uniqueParticipants = new Set(this.importedData.map(fileInfo => fileInfo.data.participant?.id || 'unknown'));
+        const totalParticipants = uniqueParticipants.size;
         const totalTrials = this.importedData.reduce((sum, file) => sum + (file.data.experiment?.data?.length || 0), 0);
         const allData = this.importedData.flatMap(file => file.data.experiment?.data || []);
         const overallAccuracy = this.calculateAverageAccuracy(allData);

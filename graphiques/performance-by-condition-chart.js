@@ -22,12 +22,12 @@ class PerformanceByConditionChart {
     }
 
     prepareData() {
-        const conditions = ['simple_non_ambiguous', 'complex_non_ambiguous', 'ambiguous_easy', 'ambiguous_difficult'];
+        const conditions = ['simple_non_ambiguous', 'complex_non_ambiguous', 'simple_ambiguous', 'complex_ambiguous'];
         const labels = {
             'simple_non_ambiguous': 'Simple',
             'complex_non_ambiguous': 'Complexe',
-            'ambiguous_easy': 'Amb. facile',
-            'ambiguous_difficult': 'Amb. diff.'
+            'simple_ambiguous': 'Amb. simple',
+            'complex_ambiguous': 'Amb. complexe'
         };
         return conditions.map(condition => {
             const conditionData = this.data.filter(d => d.condition === condition);

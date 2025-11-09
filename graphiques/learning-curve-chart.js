@@ -66,11 +66,16 @@ class LearningCurveChart {
         const maxTrials = Math.max(...Object.values(chartData).map(trials => trials.length));
         const xLabels = Array.from({length: maxTrials}, (_, i) => i + 1);
 
-        // Couleurs pour les participants
-        const colors = ['#4299e1', '#48bb78', '#ed8936', '#f56565', '#9f7aea', '#38b2ac'];
+        // Couleurs pour les participants - palette étendue
+        const colors = [
+            '#4299e1', '#48bb78', '#ed8936', '#f56565', '#9f7aea', '#38b2ac',
+            '#718096', '#ed64a6', '#805ad5', '#d69e2e', '#319795', '#2c7a7b',
+            '#c53030', '#9c4221', '#744210', '#7c2d12', '#78350f', '#713f12'
+        ];
 
-        // Préparer les datasets pour Chart.js
-        const datasets = Object.entries(chartData).map(([participantId, trials], index) => {
+        // Préparer les datasets pour Chart.js - trier pour un ordre cohérent
+        const sortedEntries = Object.entries(chartData).sort(([a], [b]) => a.localeCompare(b));
+        const datasets = sortedEntries.map(([participantId, trials], index) => {
             const color = colors[index % colors.length];
             
             // Créer un tableau de données avec des valeurs pour tous les essais
@@ -109,7 +114,7 @@ class LearningCurveChart {
                     padding: {
                         left: 10,
                         right: 10,
-                        top: 20,
+                        top: 40,
                         bottom: 20
                     }
                 },
@@ -137,8 +142,13 @@ class LearningCurveChart {
                         labels: {
                             usePointStyle: true,
                             pointStyle: 'circle',
-                            font: { size: 12 }
-                        }
+                            font: { size: 11 },
+                            padding: 10,
+                            boxWidth: 12,
+                            boxHeight: 12
+                        },
+                        // Si beaucoup de participants, mettre la légende en colonnes
+                        maxWidth: sortedEntries.length > 6 ? 400 : undefined
                     }
                 },
                 scales: {
@@ -154,7 +164,7 @@ class LearningCurveChart {
                     },
                     y: {
                         beginAtZero: true,
-                        max: 100,
+                        max: 105,
                         title: {
                             display: true,
                             text: 'Précision cumulative (%)',
@@ -162,9 +172,19 @@ class LearningCurveChart {
                         },
                         ticks: {
                             font: { size: 12 },
+                            stepSize: 10,
                             callback: function(value) {
                                 return value + '%';
-                            }
+                            },
+                            max: 100
+                        },
+                        afterBuildTicks: function(scale) {
+                            scale.ticks = scale.ticks.filter(function(tick) {
+                                return tick.value <= 100;
+                            });
+                        },
+                        grid: {
+                            drawBorder: false
                         }
                     }
                 },

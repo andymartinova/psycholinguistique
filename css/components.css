@@ -66,6 +66,12 @@
     min-width: 150px;
 }
 
+.filter-group .btn {
+    white-space: nowrap;
+    font-size: 0.85rem;
+    padding: 0.5rem 0.75rem;
+}
+
 .filter-group label {
     font-weight: 600;
     color: #4a5568;
@@ -102,6 +108,17 @@
     padding: 1rem;
     background: #f7fafc;
     border-bottom: 1px solid #e2e8f0;
+}
+
+/* Filtres intégrés au tableau */
+.table-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 1rem;
+    background: #f7fafc;
+    border-bottom: 1px solid #e2e8f0;
+    align-items: flex-end;
 }
 
 .selection-controls {
@@ -156,6 +173,29 @@
 
 .participants-table tbody tr:last-child td {
     border-bottom: none;
+}
+
+/* Style pour les participants désélectionnés (exclus) */
+.participants-table tbody tr.participant-excluded {
+    opacity: 0.5;
+    background-color: #f7fafc;
+    color: #a0aec0;
+}
+
+.participants-table tbody tr.participant-selected {
+    opacity: 1;
+    background-color: #edf2f7;
+    border-left: 3px solid #48bb78;
+    font-weight: 500;
+}
+
+.participants-table tbody tr.participant-selected:hover {
+    background-color: #e6fffa;
+}
+
+.participants-table tbody tr.participant-excluded:hover {
+    opacity: 0.7;
+    background-color: #edf2f7;
 }
 
 .empty-state {
@@ -397,7 +437,7 @@
     width: 100%;
     height: 300px;
     position: relative;
-    min-height: 500px;
+    min-height: 600px;
     overflow: visible !important;
 }
 
@@ -421,29 +461,365 @@
 
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+    margin: 1.5rem 0;
+    padding: 0;
+}
+
+/* Section principale - Statistiques globales */
+.stats-section-main {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 1rem;
-    margin: 1rem 0;
+}
+
+/* Sections groupées - Statistiques similaires */
+.stats-section-grouped {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1rem;
 }
 
 .stat-card {
     background: white;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    padding: 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1.25rem;
     text-align: center;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    min-height: 140px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    position: relative;
+    overflow: hidden;
 }
 
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #e2e8f0 0%, #cbd5e0 100%);
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    border-color: #cbd5e0;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+.stat-card:hover::before {
+    height: 4px;
+    background: linear-gradient(90deg, #4299e1 0%, #667eea 100%);
+}
+
+/* Cartes compactes */
+.stat-card-compact {
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    min-height: 120px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card-compact::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #e2e8f0 0%, #cbd5e0 100%);
+    transition: all 0.3s ease;
+}
+
+.stat-card-compact:hover {
+    border-color: #cbd5e0;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+.stat-card-compact:hover::before {
+    height: 4px;
+    background: linear-gradient(90deg, #4299e1 0%, #667eea 100%);
+}
+
+/* Cartes principales - Mise en avant */
+.stat-card-primary {
+    background: linear-gradient(135deg, #667eea08 0%, #764ba208 100%);
+    border-color: #667eea;
+    border-width: 2px;
+    box-shadow: 0 2px 12px rgba(102, 126, 234, 0.12);
+}
+
+.stat-card-primary::before {
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+}
+
+.stat-card-primary:hover {
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.25);
+    transform: translateY(-3px);
+    border-color: #667eea;
+}
+
+.stat-card-primary .stat-value-compact {
+    color: #667eea;
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    line-height: 1.2;
+}
+
+.stat-card-primary .stat-label-compact {
+    color: #667eea;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Cartes de succès (correctes) */
+.stat-card-success {
+    background: linear-gradient(135deg, #48bb7808 0%, #38a16908 100%);
+    border-color: #48bb78;
+    border-width: 2px;
+    box-shadow: 0 2px 12px rgba(72, 187, 120, 0.12);
+}
+
+.stat-card-success::before {
+    background: linear-gradient(90deg, #48bb78 0%, #38a169 100%);
+}
+
+.stat-card-success:hover {
+    box-shadow: 0 6px 20px rgba(72, 187, 120, 0.25);
+    transform: translateY(-3px);
+    border-color: #48bb78;
+}
+
+.stat-card-success .stat-value-compact {
+    color: #48bb78;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    line-height: 1.2;
+}
+
+.stat-card-success .stat-label-compact {
+    color: #48bb78;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.stat-card-success .stat-subvalue-compact {
+    color: #38a169;
+    font-size: 0.65rem;
+    margin-top: 0.15rem;
+    font-weight: 500;
+}
+
+/* Cartes de danger (incorrectes) */
+.stat-card-danger {
+    background: linear-gradient(135deg, #f5656508 0%, #e53e3e08 100%);
+    border-color: #f56565;
+    border-width: 2px;
+    box-shadow: 0 2px 12px rgba(245, 101, 101, 0.12);
+}
+
+.stat-card-danger::before {
+    background: linear-gradient(90deg, #f56565 0%, #e53e3e 100%);
+}
+
+.stat-card-danger:hover {
+    box-shadow: 0 6px 20px rgba(245, 101, 101, 0.25);
+    transform: translateY(-3px);
+    border-color: #f56565;
+}
+
+.stat-card-danger .stat-value-compact {
+    color: #f56565;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    line-height: 1.2;
+}
+
+.stat-card-danger .stat-label-compact {
+    color: #f56565;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.stat-card-danger .stat-subvalue-compact {
+    color: #e53e3e;
+    font-size: 0.65rem;
+    margin-top: 0.15rem;
+    font-weight: 500;
+}
+
+/* Cartes d'information (temps) */
+.stat-card-info {
+    background: linear-gradient(135deg, #4299e108 0%, #3182ce08 100%);
+    border-color: #4299e1;
+    border-width: 2px;
+    box-shadow: 0 2px 12px rgba(66, 153, 225, 0.12);
+}
+
+.stat-card-info::before {
+    background: linear-gradient(90deg, #4299e1 0%, #3182ce 100%);
+}
+
+.stat-card-info:hover {
+    box-shadow: 0 6px 20px rgba(66, 153, 225, 0.25);
+    transform: translateY(-3px);
+    border-color: #4299e1;
+}
+
+.stat-card-info .stat-value-compact {
+    color: #4299e1;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    line-height: 1.2;
+}
+
+.stat-card-info .stat-label-compact {
+    color: #4299e1;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+/* Cartes de langue */
+.stat-card-language {
+    background: linear-gradient(135deg, #ed893608 0%, #dd6b2008 100%);
+    border-color: #ed8936;
+    border-width: 2px;
+    box-shadow: 0 2px 12px rgba(237, 137, 54, 0.12);
+}
+
+.stat-card-language::before {
+    background: linear-gradient(90deg, #ed8936 0%, #dd6b20 100%);
+}
+
+.stat-card-language:hover {
+    box-shadow: 0 6px 20px rgba(237, 137, 54, 0.25);
+    transform: translateY(-3px);
+    border-color: #ed8936;
+}
+
+.stat-card-language .stat-value-compact {
+    color: #ed8936;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    line-height: 1.2;
+}
+
+.stat-card-language .stat-label-compact {
+    color: #ed8936;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+/* Cartes de niveau */
+.stat-card-level {
+    background: linear-gradient(135deg, #9f7aea08 0%, #805ad508 100%);
+    border-color: #9f7aea;
+    border-width: 2px;
+    box-shadow: 0 2px 12px rgba(159, 122, 234, 0.12);
+}
+
+.stat-card-level::before {
+    background: linear-gradient(90deg, #9f7aea 0%, #805ad5 100%);
+}
+
+.stat-card-level:hover {
+    box-shadow: 0 6px 20px rgba(159, 122, 234, 0.25);
+    transform: translateY(-3px);
+    border-color: #9f7aea;
+}
+
+.stat-card-level .stat-value-compact {
+    color: #9f7aea;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    line-height: 1.2;
+}
+
+.stat-card-level .stat-label-compact {
+    color: #9f7aea;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+/* Cartes neutres */
+.stat-card-neutral {
+    border-color: #718096;
+    border-width: 2px;
+}
+
+.stat-card-neutral .stat-value-compact {
+    color: #718096;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    line-height: 1.2;
+}
+
+.stat-card-neutral .stat-label-compact {
+    color: #4a5568;
+    font-size: 0.7rem;
+    font-weight: 400;
+}
+
+/* Valeurs et labels standards (pour compatibilité) */
 .stat-value {
-    font-size: 2rem;
-    font-weight: bold;
+    font-size: 2.25rem;
+    font-weight: 700;
     color: #4299e1;
     margin-bottom: 0.5rem;
+    line-height: 1.2;
 }
 
 .stat-label {
     color: #4a5568;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: 0;
+    margin-top: 0.25rem;
+}
+
+.stat-label:first-of-type {
+    margin-top: 0;
+    font-weight: 600;
+    color: #2d3748;
     font-size: 0.9rem;
+}
+
+.stat-subvalue {
+    color: #718096;
+    font-size: 0.75rem;
+    margin-top: 0.5rem;
+    font-weight: 500;
+}
+
+.stat-icon {
+    display: none;
 }
 
 /* Analyses */
@@ -569,11 +945,14 @@
     align-items: center;
     gap: 0.75rem;
     cursor: pointer;
-    font-weight: 500;
+    font-weight: normal;
     color: #4a5568;
     padding: 0.5rem;
     border-radius: 8px;
     transition: background-color 0.2s ease;
+    text-align: left;
+    align-self: flex-start;
+    width: 100%;
 }
 
 .checkbox-label:hover {
@@ -594,6 +973,8 @@
 .checkbox-label span {
     flex: 1;
     line-height: 1.5;
+    font-weight: normal;
+    text-align: left;
 }
 
 /* Style pour les boutons radio modernes */
@@ -1072,7 +1453,7 @@ body:has(.stimulus-area) .container {
 }
 
 .main-content {
-    max-width: 800px;
+    max-width: 100%;
     margin: 0 auto;
 }
 
@@ -1095,15 +1476,17 @@ body:has(.stimulus-area) .container {
 
 .action-buttons {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: 1rem;
     margin-bottom: 3rem;
+    justify-content: space-between;
     align-items: center;
 }
 
 .action-buttons .btn {
     min-width: 250px;
     text-align: center;
+    flex: 1;
 }
 
 .info-section {
@@ -1195,7 +1578,7 @@ body:has(.stimulus-area) .container {
 /* Styles pour les nouveaux graphiques Chart.js */
 .chart-container {
     width: 100%;
-    max-width: 800px;
+    max-width: 100%;
     margin: 0 auto 2rem auto;
     background: #fff;
     border-radius: 12px;
@@ -1205,7 +1588,7 @@ body:has(.stimulus-area) .container {
     flex-direction: column;
     align-items: center;
     position: relative;
-    min-height: 500px;
+    min-height: 600px;
     border: 1px solid #e2e8f0;
 }
 
@@ -1223,8 +1606,8 @@ body:has(.stimulus-area) .container {
 
 .chart {
     width: 100% !important;
-    min-height: 400px;
-    height: 400px !important;
+    min-height: 500px;
+    height: 500px !important;
     max-width: 100%;
     margin: 0 auto;
     position: relative;

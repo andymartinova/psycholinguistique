@@ -6,8 +6,10 @@ class ResponseTimeChart {
         this.labels = labels || {
             'simple_non_ambiguous': 'Simple, non ambiguë',
             'complex_non_ambiguous': 'Complexe, non ambiguë',
-            'ambiguous_easy': 'Ambiguë, résolution facile',
-            'ambiguous_difficult': 'Ambiguë, résolution difficile'
+            'simple_ambiguous': 'Simple, ambiguë',
+            'complex_ambiguous': 'Complexe, ambiguë',
+            'ambiguous_easy': 'Ambiguë, résolution facile', // Ancien nom (compatibilité)
+            'ambiguous_difficult': 'Ambiguë, résolution difficile' // Ancien nom (compatibilité)
         };
         this.chart = null;
         this.init();
@@ -28,7 +30,7 @@ class ResponseTimeChart {
     }
 
     prepareData() {
-        const conditions = ['simple_non_ambiguous', 'complex_non_ambiguous', 'ambiguous_easy', 'ambiguous_difficult'];
+        const conditions = ['simple_non_ambiguous', 'complex_non_ambiguous', 'simple_ambiguous', 'complex_ambiguous'];
         return conditions.map(condition => {
             const conditionData = this.data.filter(d => d.condition === condition);
             const avgResponseTime = conditionData.length > 0 

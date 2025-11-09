@@ -16,15 +16,25 @@ class HomePage {
         }
     }
 
+    generateParticipantId() {
+        // Générer un ID unique : P + timestamp + 4 caractères aléatoires
+        const timestamp = Date.now().toString(36).toUpperCase();
+        const randomChars = Math.random().toString(36).substring(2, 6).toUpperCase();
+        return `P${timestamp}${randomChars}`;
+    }
+
     saveParticipantData() {
-        const participantId = document.getElementById('participant-id').value.trim();
+        // Générer automatiquement un ID participant unique
+        const participantId = this.generateParticipantId();
         const languageGroupRadio = document.querySelector('input[name="language-group"]:checked');
         const languageGroup = languageGroupRadio ? languageGroupRadio.value : '';
         const germanLevel = document.getElementById('german-level') ? document.getElementById('german-level').value : '';
+        const notBilingual = document.getElementById('not-bilingual') ? document.getElementById('not-bilingual').checked : false;
         const data = {
             id: participantId,
             languageGroup: languageGroup,
             germanLevel: germanLevel,
+            notBilingual: notBilingual,
             startTime: new Date().toISOString()
         };
         localStorage.setItem('participantData', JSON.stringify(data));

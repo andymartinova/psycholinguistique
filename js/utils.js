@@ -102,12 +102,16 @@ function formatDataForAPI(localStorageData) {
         throw new Error('ID du participant requis pour créer le participant');
     }
     
+    // Récupérer notBilingual (booléen)
+    const notBilingual = participantData.notBilingual === true || participantData.notBilingual === 'true';
+    
     // Formater les données selon le format attendu par l'API
     const formattedData = {
         participant: {
             id: participantData.id.trim(),
             germanLevel: germanLevel,
             nativeLanguage: nativeLanguage,
+            notBilingual: notBilingual,
             startTime: participantData.startTime || new Date().toISOString()
         },
         experiment: {
