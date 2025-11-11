@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="questionnaire.title">Questionnaire optionnel</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+    <div class="container">
+        <header class="page-header">
+            <h1 data-i18n="questionnaire.title">📝 Questionnaire optionnel</h1>
+            <p data-i18n="questionnaire.subtitle">Aidez-nous à mieux comprendre votre profil en répondant à quelques questions optionnelles</p>
+        </header>
+
+        <main class="main-content">
+            <form id="questionnaire-form" class="participant-form">
+                <!-- Âge -->
+                <div class="form-group form-group-inline">
+                    <label for="age" class="form-label" data-i18n="questionnaire.age_label">Âge :</label>
+                    <input type="number" id="age" name="age" min="18" max="100" class="form-input form-input-inline" placeholder="25">
+                    <span class="form-suffix" data-i18n="questionnaire.age_suffix">ans</span>
+                </div>
+
+                <!-- Sexe -->
+                <div class="form-group">
+                    <label class="form-label" data-i18n="questionnaire.gender_label">Sexe :</label>
+                    <div class="radio-group radio-group-row">
+                        <label class="radio-option">
+                            <input type="radio" name="gender" value="male">
+                            <div class="radio-content">
+                                <span class="radio-text" data-i18n="questionnaire.gender_male">Homme</span>
+                            </div>
+                            <div class="radio-checkmark">✓</div>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="gender" value="female">
+                            <div class="radio-content">
+                                <span class="radio-text" data-i18n="questionnaire.gender_female">Femme</span>
+                            </div>
+                            <div class="radio-checkmark">✓</div>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="gender" value="other">
+                            <div class="radio-content">
+                                <span class="radio-text" data-i18n="questionnaire.gender_other">Autre</span>
+                            </div>
+                            <div class="radio-checkmark">✓</div>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="gender" value="prefer_not_to_say">
+                            <div class="radio-content">
+                                <span class="radio-text" data-i18n="questionnaire.gender_prefer_not_to_say">Je préfère ne pas répondre</span>
+                            </div>
+                            <div class="radio-checkmark">✓</div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Temps d'apprentissage de l'allemand -->
+                <div class="form-group">
+                    <label for="learning-duration" class="form-label" data-i18n="questionnaire.learning_duration_label">Temps d'apprentissage de l'allemand :</label>
+                    <select id="learning-duration" name="learning-duration" class="form-input">
+                        <option value="" data-i18n="questionnaire.select_option">—</option>
+                        <option value="less_than_1_year" data-i18n="questionnaire.learning_duration_less_than_1">Moins d'un an</option>
+                        <option value="1_to_2_years" data-i18n="questionnaire.learning_duration_1_to_2">1 à 2 ans</option>
+                        <option value="2_to_5_years" data-i18n="questionnaire.learning_duration_2_to_5">2 à 5 ans</option>
+                        <option value="5_to_10_years" data-i18n="questionnaire.learning_duration_5_to_10">5 à 10 ans</option>
+                        <option value="more_than_10_years" data-i18n="questionnaire.learning_duration_more_than_10">Plus de 10 ans</option>
+                    </select>
+                </div>
+
+                <!-- Ressenti vis-à-vis de la langue -->
+                <div class="form-group">
+                    <label class="form-label" data-i18n="questionnaire.feeling_label">Ressenti vis-à-vis de la langue allemande :</label>
+                    <div class="radio-group radio-group-row">
+                        <label class="radio-option">
+                            <input type="radio" name="feeling" value="like">
+                            <div class="radio-content">
+                                <span class="radio-text" data-i18n="questionnaire.feeling_like">J'aime bien cette langue</span>
+                            </div>
+                            <div class="radio-checkmark">✓</div>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="feeling" value="fear">
+                            <div class="radio-content">
+                                <span class="radio-text" data-i18n="questionnaire.feeling_fear">J'ai peur de cette langue</span>
+                            </div>
+                            <div class="radio-checkmark">✓</div>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="feeling" value="dislike">
+                            <div class="radio-content">
+                                <span class="radio-text" data-i18n="questionnaire.feeling_dislike">Je n'aime pas cette langue</span>
+                            </div>
+                            <div class="radio-checkmark">✓</div>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="feeling" value="indifferent">
+                            <div class="radio-content">
+                                <span class="radio-text" data-i18n="questionnaire.feeling_indifferent">Je suis indifférent.e à cette langue</span>
+                            </div>
+                            <div class="radio-checkmark">✓</div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Niveau d'études -->
+                <div class="form-group">
+                    <label for="education-level" class="form-label" data-i18n="questionnaire.education_level_label">Quel est votre niveau d'études le plus élevé validé ?</label>
+                    <select id="education-level" name="education-level" class="form-input">
+                        <option value="" data-i18n="questionnaire.select_option">—</option>
+                        <option value="lycee" data-i18n="questionnaire.education_lycee">Lycée</option>
+                        <option value="bac" data-i18n="questionnaire.education_bac">Bac</option>
+                        <option value="bac_plus_2" data-i18n="questionnaire.education_bac_plus_2">Bac+2</option>
+                        <option value="licence" data-i18n="questionnaire.education_licence">Licence (Bac+3)</option>
+                        <option value="master" data-i18n="questionnaire.education_master">Master</option>
+                        <option value="doctorat" data-i18n="questionnaire.education_doctorat">Doctorat</option>
+                    </select>
+                </div>
+
+                <!-- Fréquence d'utilisation de l'allemand -->
+                <div class="form-group">
+                    <label class="form-label" data-i18n="questionnaire.german_usage_frequency_label">À quelle fréquence utilisez-vous l'allemand ?</label>
+                    <div class="radio-group radio-group-row">
+                        <label class="radio-option">
+                            <input type="radio" name="german-usage-frequency" value="everyday">
+                            <div class="radio-content">
+                                <span class="radio-text" data-i18n="questionnaire.usage_everyday">Tous les jours</span>
+                            </div>
+                            <div class="radio-checkmark">✓</div>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="german-usage-frequency" value="several_times_week">
+                            <div class="radio-content">
+                                <span class="radio-text" data-i18n="questionnaire.usage_several_times_week">Plusieurs fois par semaine</span>
+                            </div>
+                            <div class="radio-checkmark">✓</div>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="german-usage-frequency" value="rarely">
+                            <div class="radio-content">
+                                <span class="radio-text" data-i18n="questionnaire.usage_rarely">Rarement</span>
+                            </div>
+                            <div class="radio-checkmark">✓</div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Bouton de soumission -->
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary" data-i18n="questionnaire.submit_button">Voir les résultats de mon expérience</button>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/i18n.js?v=3"></script>
+    <script src="js/questionnaire.js"></script>
+</body>
+</html>
+

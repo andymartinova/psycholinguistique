@@ -95,7 +95,7 @@ class ExperimentPage {
             await this.saveExperimentData();
             // Attendre un court délai pour s'assurer que l'envoi est terminé
             await new Promise(resolve => setTimeout(resolve, 500));
-            window.location.href = 'results.html';
+            window.location.href = 'questionnaire.html';
             return;
         }
         if (this.currentTrial > 0 && this.currentTrial % EXPERIMENT_CONFIG.pauseAfterTrials === 0 && !this.justContinuedFromPause) {
