@@ -27,7 +27,7 @@ class DatabaseAnalytics {
         }
 
         // Filtres
-        const filterInputs = ['filter-participant-id', 'filter-language', 'filter-german-level'];
+        const filterInputs = ['filter-participant-id', 'filter-language', 'filter-german-level', 'filter-bilingual'];
         filterInputs.forEach(id => {
             const element = document.getElementById(id);
             if (element) {
@@ -61,7 +61,7 @@ class DatabaseAnalytics {
             if (tbody) {
                 const errorText = window.i18n && window.i18n.loaded ? 
                     window.i18n.t('analytics.api_not_configured') : 'API non configurée';
-                tbody.innerHTML = `<tr><td colspan="6" class="empty-state">${errorText}</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="empty-state">${errorText}</td></tr>`;
             }
             return;
         }
@@ -71,7 +71,7 @@ class DatabaseAnalytics {
         if (tbody) {
             const loadingText = window.i18n && window.i18n.loaded ? 
                 window.i18n.t('analytics.loading_participants') : 'Chargement des participants...';
-            tbody.innerHTML = `<tr><td colspan="6" class="empty-state">${loadingText}</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" class="empty-state">${loadingText}</td></tr>`;
         }
 
         try {
@@ -119,12 +119,21 @@ class DatabaseAnalytics {
             });
 
             this.applyFilters();
+            
+            // Précharger automatiquement les participants présélectionnés
+            if (this.selectedParticipants.size > 0) {
+                console.log('🔄 Préchargement automatique de', this.selectedParticipants.size, 'participants présélectionnés...');
+                // Attendre un peu pour que l'interface soit mise à jour
+                setTimeout(() => {
+                    this.processSelectedParticipants(true); // Mode silencieux pour le préchargement
+                }, 500);
+            }
         } catch (error) {
             console.error('Erreur lors du chargement des participants:', error);
             const errorText = window.i18n && window.i18n.loaded ? 
                 window.i18n.t('analytics.load_error') : 'Erreur lors du chargement des participants. Vérifiez que l\'API est accessible.';
             if (tbody) {
-                tbody.innerHTML = `<tr><td colspan="6" class="empty-state">${errorText}</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="empty-state">${errorText}</td></tr>`;
             }
             this.participants = [];
             this.displayParticipants([]);
@@ -135,6 +144,7 @@ class DatabaseAnalytics {
         const participantIdFilter = document.getElementById('filter-participant-id')?.value.toLowerCase() || '';
         const languageFilter = document.getElementById('filter-language')?.value || '';
         const germanLevelFilter = document.getElementById('filter-german-level')?.value || '';
+        const bilingualFilter = document.getElementById('filter-bilingual')?.value || '';
 
         this.filteredParticipants = this.participants.filter(participant => {
             // Filtre par ID
@@ -166,6 +176,19 @@ class DatabaseAnalytics {
                 }
             }
 
+            // Filtre par bilingue
+            if (bilingualFilter) {
+                const notBilingual = participant.notBilingual === true || participant.notBilingual === 'true';
+                const isBilingual = !notBilingual;
+                
+                if (bilingualFilter === 'yes' && !isBilingual) {
+                    return false;
+                }
+                if (bilingualFilter === 'no' && isBilingual) {
+                    return false;
+                }
+            }
+
             return true;
         });
 
@@ -176,10 +199,12 @@ class DatabaseAnalytics {
         const participantIdFilter = document.getElementById('filter-participant-id');
         const languageFilter = document.getElementById('filter-language');
         const germanLevelFilter = document.getElementById('filter-german-level');
+        const bilingualFilter = document.getElementById('filter-bilingual');
         
         if (participantIdFilter) participantIdFilter.value = '';
         if (languageFilter) languageFilter.value = '';
         if (germanLevelFilter) germanLevelFilter.value = '';
+        if (bilingualFilter) bilingualFilter.value = '';
         
         this.applyFilters();
     }
@@ -191,7 +216,7 @@ class DatabaseAnalytics {
         if (participants.length === 0) {
             const emptyText = window.i18n && window.i18n.loaded ? 
                 window.i18n.t('analytics.no_participants_found') : 'Aucun participant trouvé';
-            tbody.innerHTML = `<tr><td colspan="6" class="empty-state">${emptyText}</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" class="empty-state">${emptyText}</td></tr>`;
             this.updateSelectedCount();
             return;
         }
@@ -230,9 +255,25 @@ class DatabaseAnalytics {
                     <td>${germanLevel}</td>
                     <td>${bilingualDisplay}</td>
                     <td>${startTime}</td>
+                    <td>
+                        <button class="btn btn-sm download-csv-btn" data-participant-id="${participantId}" title="Télécharger CSV">
+                            📥 CSV
+                        </button>
+                    </td>
                 </tr>
             `;
         }).join('');
+
+        // Ajouter les event listeners pour les boutons de téléchargement CSV
+        tbody.querySelectorAll('.download-csv-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const participantId = e.target.closest('.download-csv-btn')?.dataset.participantId || 
+                                     e.target.dataset.participantId;
+                if (participantId) {
+                    this.downloadParticipantCSV(participantId);
+                }
+            });
+        });
 
         // Ajouter les event listeners pour les checkboxes
         tbody.querySelectorAll('.participant-checkbox').forEach(checkbox => {
@@ -379,6 +420,137 @@ class DatabaseAnalytics {
         }
     }
 
+    async downloadParticipantCSV(participantId) {
+        const baseUrl = getApiBaseUrl();
+        if (!baseUrl) {
+            alert('API non configurée');
+            return;
+        }
+
+        try {
+            // Utiliser l'endpoint /api/participants/process qui fonctionne
+            const response = await fetch(`${baseUrl}/api/participants/process`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ participantIds: [participantId] })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Erreur HTTP: ${response.status}`);
+            }
+
+            const result = await response.json();
+            const participantsData = result.data || result;
+            
+            if (!Array.isArray(participantsData) || participantsData.length === 0) {
+                throw new Error('Aucune donnée trouvée pour ce participant');
+            }
+
+            let participant = participantsData[0];
+            
+            // S'assurer qu'on utilise le bon participantId
+            const actualParticipantId = participant.participantId || participant.id || participantId;
+            
+            // Si les métadonnées complètes ne sont pas disponibles, essayer de les récupérer depuis la liste des participants
+            // (qui contient parfois plus de métadonnées que /api/participants/process)
+            if (!participant.age && !participant.gender && !participant.learningDuration) {
+                const fullParticipant = this.participants.find(p => 
+                    (p.participantId || p.id) === actualParticipantId
+                );
+                if (fullParticipant) {
+                    // Fusionner les métadonnées complètes avec les données d'expérience
+                    participant = {
+                        ...fullParticipant,
+                        experiments: participant.experiments || fullParticipant.experiments || []
+                    };
+                }
+            }
+            
+            console.log('📊 Données participant pour CSV:', participant);
+            
+            // Préparer les données pour le CSV
+            const csvRows = [];
+            
+            // En-têtes avec toutes les colonnes (trials + métadonnées)
+            csvRows.push('participant_id,languageGroup,germanLevel,trial,sentence,condition,expected,response,responseTime,correct,startTime,createdAt,updatedAt,nativeLanguage,notBilingual,age,gender,learningDuration,feeling,questionnaireSubmittedAt,educationLevel,germanUsageFrequency');
+            
+            // Mapper languageGroup
+            const languageGroup = participant.nativeLanguage === 'french' ? 'fr' : 
+                                 participant.nativeLanguage === 'portuguese' ? 'pt' : 
+                                 participant.nativeLanguage || '';
+            
+            // Préparer les métadonnées une seule fois
+            const metadata = [
+                participant.startTime || '',
+                participant.createdAt || '',
+                participant.updatedAt || '',
+                participant.nativeLanguage || '',
+                participant.notBilingual === true ? 'true' : (participant.notBilingual === false ? 'false' : ''),
+                participant.age || '',
+                participant.gender || '',
+                participant.learningDuration || '',
+                participant.feeling || '',
+                participant.questionnaireSubmittedAt || '',
+                participant.educationLevel || '',
+                participant.germanUsageFrequency || ''
+            ];
+            
+            // Récupérer tous les trials de toutes les expériences
+            const experiments = participant.experiments || [];
+            experiments.forEach(experiment => {
+                const trials = experiment.trials || experiment.data || [];
+                trials.forEach((trial, index) => {
+                    const trialNumber = trial.trial || (index + 1);
+                    const row = [
+                        this.escapeCSV(actualParticipantId),
+                        this.escapeCSV(languageGroup),
+                        this.escapeCSV(participant.germanLevel || ''),
+                        trialNumber,
+                        this.escapeCSV(trial.sentence || ''),
+                        this.escapeCSV(trial.condition || ''),
+                        this.escapeCSV(trial.expected || ''),
+                        this.escapeCSV(trial.response || ''),
+                        trial.responseTime || 0,
+                        trial.correct === true ? 'True' : 'False',
+                        // Ajouter les métadonnées à chaque ligne
+                        ...metadata.map(v => this.escapeCSV(v))
+                    ].join(',');
+                    
+                    csvRows.push(row);
+                });
+            });
+            
+            // Créer le CSV
+            const csvContent = csvRows.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${actualParticipantId}_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+        } catch (error) {
+            console.error('Erreur lors du téléchargement CSV:', error);
+            alert(`Erreur lors du téléchargement CSV: ${error.message}`);
+        }
+    }
+
+    escapeCSV(value) {
+        if (value === null || value === undefined) return '';
+        const stringValue = String(value);
+        // Si la valeur contient une virgule, des guillemets ou un saut de ligne, l'entourer de guillemets et échapper les guillemets
+        if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+            return `"${stringValue.replace(/"/g, '""')}"`;
+        }
+        return stringValue;
+    }
+
     async viewParticipantDetails(participantId) {
         const baseUrl = getApiBaseUrl();
         if (!baseUrl) {
@@ -407,15 +579,19 @@ class DatabaseAnalytics {
         }
     }
 
-    async processSelectedParticipants() {
+    async processSelectedParticipants(silent = false) {
         if (this.selectedParticipants.size === 0) {
-            alert('Aucun participant sélectionné');
+            if (!silent) {
+                alert('Aucun participant sélectionné');
+            }
             return;
         }
 
         const baseUrl = getApiBaseUrl();
         if (!baseUrl) {
-            alert('API non configurée');
+            if (!silent) {
+                alert('API non configurée');
+            }
             return;
         }
 
@@ -457,14 +633,24 @@ class DatabaseAnalytics {
             // Traiter les données (par exemple, les ajouter à la section d'analyse)
             this.importParticipantsData(participantsData);
 
-            alert(`${participantsData.length} participant(s) traité(s) avec succès`);
+            if (!silent) {
+                alert(`${participantsData.length} participant(s) traité(s) avec succès`);
+            } else {
+                console.log(`✅ ${participantsData.length} participant(s) préchargé(s) avec succès`);
+            }
         } catch (error) {
             console.error('Erreur lors du traitement:', error);
-            alert(`Erreur lors du traitement des participants: ${error.message}`);
+            if (!silent) {
+                alert(`Erreur lors du traitement des participants: ${error.message}`);
+            } else {
+                console.error('❌ Erreur lors du préchargement:', error.message);
+            }
         } finally {
             if (processBtn) {
                 processBtn.disabled = false;
-                processBtn.textContent = 'Traiter les participants sélectionnés';
+                const processBtnText = window.i18n && window.i18n.loaded ? 
+                    window.i18n.t('analytics.process_selected') : 'Traiter les participants sélectionnés';
+                processBtn.textContent = processBtnText;
             }
         }
     }
@@ -488,6 +674,7 @@ class DatabaseAnalytics {
                         languageGroup: participant.nativeLanguage === 'french' ? 'fr' : 
                                       participant.nativeLanguage === 'portuguese' ? 'pt' : null,
                         germanLevel: participant.germanLevel,
+                        learningDuration: participant.learningDuration,
                         startTime: participant.startTime
                     },
                     experiment: {

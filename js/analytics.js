@@ -307,6 +307,8 @@ class AnalyticsPage {
         // Mettre à jour l'affichage
         this.updateImportedFilesList();
         this.displayAnalytics();
+        // S'assurer que les données brutes sont affichées
+        this.displayRawData();
     }
 
     loadLocalData() {
@@ -349,6 +351,7 @@ class AnalyticsPage {
         console.log('✅ Affichage des analyses avec', this.importedData.length, 'entrées');
         this.displayGlobalStats();
         this.displayConditionStats();
+        this.displayParticipantComparisonByQuestion();
         this.displayParticipantComparison();
         this.displayCharts();
         this.displayRawData();
@@ -567,22 +570,257 @@ class AnalyticsPage {
             return window.i18n && window.i18n.t ? window.i18n.t(key) : fallback;
         };
         
-        participantComparison.innerHTML = this.importedData.map(fileInfo => {
+        // Fonction pour traduire la durée d'apprentissage
+        const translateLearningDuration = (duration) => {
+            if (!duration) return 'N/A';
+            const translations = {
+                'less_than_1_year': 'Moins de 1 an',
+                '1_to_2_years': '1 à 2 ans',
+                '2_to_5_years': '2 à 5 ans',
+                '5_to_10_years': '5 à 10 ans',
+                'more_than_10_years': 'Plus de 10 ans'
+            };
+            return translations[duration] || duration;
+        };
+        
+        // Créer un tableau avec les données et les scores pour trier
+        const participantsWithScores = this.importedData.map(fileInfo => {
             const data = fileInfo.data.experiment.data;
             const summary = this.generateSummary(data);
+            // Extraire le nombre de la chaîne "XX.X%"
+            const accuracyValue = parseFloat(summary.accuracy.replace('%', '')) || 0;
+            return {
+                fileInfo,
+                summary,
+                accuracy: accuracyValue
+            };
+        });
+        
+        // Trier par score (accuracy) décroissant
+        participantsWithScores.sort((a, b) => b.accuracy - a.accuracy);
+        
+        participantComparison.innerHTML = participantsWithScores.map(({ fileInfo, summary }) => {
             const participantId = fileInfo.data.participant?.id || 'N/A';
             const languageGroup = fileInfo.data.participant?.languageGroup || 'N/A';
+            const germanLevel = fileInfo.data.participant?.germanLevel || 'N/A';
+            const learningDuration = fileInfo.data.participant?.learningDuration || null;
+            
+            // Mapper la langue pour l'affichage
+            let languageDisplay = languageGroup;
+            if (languageGroup === 'fr' || languageGroup === 'french') {
+                languageDisplay = '🇫🇷 Français';
+            } else if (languageGroup === 'pt' || languageGroup === 'portuguese') {
+                languageDisplay = '🇧🇷 Portugais';
+            }
+            
+            // Extraire la valeur numérique de l'accuracy (enlève le %)
+            const accuracyValue = summary.accuracy.replace('%', '');
+            
             return `
-                <div class="stat-card">
-                    <div class="stat-label">${participantId}</div>
-                    <div class="stat-value">${summary.accuracy}</div>
-                    <div class="stat-label">${t('results.accuracy', 'Accuracy')}</div>
-                    <div class="stat-label">${t('home.language_group_label', 'Language group')}: ${languageGroup}</div>
-                    <div class="stat-label">${t('results.total_trials', 'Total trials')}: ${summary.totalTrials}</div>
-                    <div class="stat-label">${t('results.average_time', 'Average time')}: ${summary.avgResponseTime}</div>
+                <div class="participant-card">
+                    <div class="participant-header">
+                        <div class="participant-id">${participantId}</div>
+                        <div class="participant-score-badge">${accuracyValue}<span class="percent">%</span></div>
+                    </div>
+                    <div class="participant-info">
+                        <div class="info-row">
+                            <span class="info-label">${languageDisplay}</span>
+                            <span class="info-value">${germanLevel}</span>
+                        </div>
+                        ${learningDuration ? `
+                        <div class="info-row">
+                            <span class="info-label">Durée</span>
+                            <span class="info-value">${translateLearningDuration(learningDuration)}</span>
+                        </div>
+                        ` : ''}
+                        <div class="info-row">
+                            <span class="info-label">Temps moyen</span>
+                            <span class="info-value">${summary.avgResponseTime}</span>
+                        </div>
+                    </div>
                 </div>
             `;
         }).join('');
+    }
+
+    displayParticipantComparisonByQuestion() {
+        const chartContainer = document.getElementById('questions-chart');
+        if (!chartContainer) return;
+        
+        // Vérifier si EXPERIMENTAL_SENTENCES est disponible
+        if (typeof EXPERIMENTAL_SENTENCES === 'undefined' || !EXPERIMENTAL_SENTENCES || EXPERIMENTAL_SENTENCES.length === 0) {
+            chartContainer.innerHTML = '<p>Aucune phrase expérimentale disponible</p>';
+            return;
+        }
+        
+        // Vérifier si Chart.js est disponible
+        if (typeof Chart === 'undefined') {
+            chartContainer.innerHTML = '<p>Chart.js n\'est pas chargé</p>';
+            return;
+        }
+        
+        // Préparer les données pour chaque question
+        const allData = this.getAllExperimentData();
+        const questionStats = [];
+        
+        EXPERIMENTAL_SENTENCES.forEach((sentenceData, index) => {
+            const sentenceText = sentenceData.sentence;
+            const matchingTrials = allData.filter(trial => 
+                trial.sentence === sentenceText || 
+                trial.sentence?.toLowerCase() === sentenceText.toLowerCase()
+            );
+            
+            // Inclure toutes les questions, même celles sans données
+            let accuracy = 0;
+            let avgResponseTime = 0;
+            let totalResponses = 0;
+            let correctCount = 0;
+            
+            if (matchingTrials.length > 0) {
+                correctCount = matchingTrials.filter(t => t.correct).length;
+                accuracy = (correctCount / matchingTrials.length) * 100;
+                avgResponseTime = matchingTrials.reduce((sum, t) => sum + (t.responseTime || 0), 0) / matchingTrials.length;
+                totalResponses = matchingTrials.length;
+            }
+            
+            questionStats.push({
+                questionIndex: index + 1,
+                sentence: sentenceText,
+                condition: sentenceData.condition,
+                expected: sentenceData.expected,
+                accuracy: accuracy,
+                avgResponseTime: avgResponseTime,
+                totalResponses: totalResponses,
+                correctCount: correctCount,
+                hasData: matchingTrials.length > 0
+            });
+        });
+        
+        if (questionStats.length === 0) {
+            chartContainer.innerHTML = '<p>Aucune donnée disponible pour les questions</p>';
+            return;
+        }
+        
+        // Vider le conteneur
+        chartContainer.innerHTML = '';
+        
+        // Créer le canvas
+        const canvas = document.createElement('canvas');
+        canvas.id = 'questions-chart-canvas';
+        chartContainer.appendChild(canvas);
+        
+        // Détruire l'ancien graphique si existe
+        if (this.questionsChart) {
+            this.questionsChart.destroy();
+        }
+        
+        // Stocker questionStats dans this pour l'utiliser dans les callbacks
+        this.questionsStats = questionStats;
+        
+        // Préparer les données pour Chart.js
+        const labels = questionStats.map(q => `Q${q.questionIndex}`);
+        // Utiliser une hauteur minimale de 1% pour les barres à 0% afin qu'elles soient visibles et survolables
+        const accuracyData = questionStats.map(q => q.accuracy === 0 && q.hasData ? 1 : q.accuracy);
+        const colors = questionStats.map(q => {
+            if (!q.hasData) return '#cbd5e0'; // Gris pour aucune donnée
+            if (q.accuracy === 0) return '#9b2c2c'; // Rouge foncé pour tout le monde a faux
+            if (q.accuracy >= 80) return '#48bb78'; // Vert pour bon
+            if (q.accuracy >= 60) return '#ed8936'; // Orange pour moyen
+            return '#f56565'; // Rouge pour faible
+        });
+        
+        // Créer le graphique
+        const self = this;
+        this.questionsChart = new Chart(canvas.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Taux de réussite (%)',
+                    data: accuracyData,
+                    backgroundColor: colors,
+                    borderColor: '#2d3748',
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: function(context) {
+                                const index = context[0].dataIndex;
+                                const question = self.questionsStats[index];
+                                return `Question ${question.questionIndex}`;
+                            },
+                            label: function(context) {
+                                const index = context.dataIndex;
+                                const question = self.questionsStats[index];
+                                const labels = [
+                                    `"${question.sentence}"`,
+                                    `Condition: ${self.getConditionLabel(question.condition)}`,
+                                    `Attendu: ${question.expected === 'grammatical' ? 'Grammatical' : 'Ungrammatical'}`
+                                ];
+                                
+                                if (question.hasData) {
+                                    // Toujours afficher le vrai taux de réussite (même si 0%)
+                                    labels.push(
+                                        `Taux de réussite: ${question.accuracy.toFixed(1)}%`,
+                                        `Réponses: ${question.correctCount}/${question.totalResponses}`
+                                    );
+                                    if (question.accuracy === 0 && question.totalResponses > 0) {
+                                        labels.push('⚠️ Tous les participants ont répondu incorrectement');
+                                    } else if (question.avgResponseTime > 0) {
+                                        labels.push(`Temps moyen: ${self.formatResponseTime(Math.round(question.avgResponseTime))}`);
+                                    }
+                                } else {
+                                    labels.push('⚠️ Aucune donnée disponible pour cette question');
+                                }
+                                
+                                return labels;
+                            }
+                        },
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        titleFont: {
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 12
+                        },
+                        displayColors: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            },
+                            stepSize: 10
+                        },
+                        title: {
+                            display: true,
+                            text: 'Taux de réussite (%)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Questions'
+                        }
+                    }
+                }
+            }
+        });
     }
 
     // Fonction pour générer un résumé des données d'expérience
@@ -684,11 +922,13 @@ class AnalyticsPage {
                     this.charts.performanceByCondition = new PerformanceByConditionChart('performance-by-condition-chart', allData, labels);
                 } catch (error) {
                     console.error('Erreur lors de la création du graphique de performance par condition:', error);
-                    document.getElementById('performance-by-condition-chart').innerHTML = `<p>Erreur: ${error.message}</p>`;
+                    const container = document.getElementById('performance-by-condition-chart');
+                    if (container) container.innerHTML = `<p>Erreur: ${error.message}</p>`;
                 }
             } else {
                 console.error('PerformanceByConditionChart class not found');
-                document.getElementById('performance-by-condition-chart').innerHTML = '<p>Erreur: Classe PerformanceByConditionChart non trouvée</p>';
+                const container = document.getElementById('performance-by-condition-chart');
+                if (container) container.innerHTML = '<p>Erreur: Classe PerformanceByConditionChart non trouvée</p>';
             }
             
             // Graphiques existants
@@ -697,11 +937,13 @@ class AnalyticsPage {
                     this.charts.accuracy = new AccuracyChart('accuracy-chart', allData, labels);
                 } catch (error) {
                     console.error('Erreur lors de la création du graphique de précision:', error);
-                    document.getElementById('accuracy-chart').innerHTML = `<p>Erreur: ${error.message}</p>`;
+                    const container = document.getElementById('accuracy-chart');
+                    if (container) container.innerHTML = `<p>Erreur: ${error.message}</p>`;
                 }
             } else {
                 console.error('AccuracyChart class not found');
-                document.getElementById('accuracy-chart').innerHTML = '<p>Erreur: Classe AccuracyChart non trouvée</p>';
+                const container = document.getElementById('accuracy-chart');
+                if (container) container.innerHTML = '<p>Erreur: Classe AccuracyChart non trouvée</p>';
             }
             
             if (typeof ResponseTimeChart !== 'undefined') {
@@ -709,11 +951,13 @@ class AnalyticsPage {
                     this.charts.responseTime = new ResponseTimeChart('response-time-chart', allData, labels);
                 } catch (error) {
                     console.error('Erreur lors de la création du graphique de temps de réponse:', error);
-                    document.getElementById('response-time-chart').innerHTML = `<p>Erreur: ${error.message}</p>`;
+                    const container = document.getElementById('response-time-chart');
+                    if (container) container.innerHTML = `<p>Erreur: ${error.message}</p>`;
                 }
             } else {
                 console.error('ResponseTimeChart class not found');
-                document.getElementById('response-time-chart').innerHTML = '<p>Erreur: Classe ResponseTimeChart non trouvée</p>';
+                const container = document.getElementById('response-time-chart');
+                if (container) container.innerHTML = '<p>Erreur: Classe ResponseTimeChart non trouvée</p>';
             }
             
             if (typeof ParticipantComparisonChart !== 'undefined') {
@@ -721,23 +965,30 @@ class AnalyticsPage {
                     this.charts.participant = new ParticipantComparisonChart('participant-chart', this.importedData);
                 } catch (error) {
                     console.error('Erreur lors de la création du graphique de comparaison:', error);
-                    document.getElementById('participant-chart').innerHTML = `<p>Erreur: ${error.message}</p>`;
+                    const container = document.getElementById('participant-chart');
+                    if (container) container.innerHTML = `<p>Erreur: ${error.message}</p>`;
                 }
             } else {
                 console.error('ParticipantComparisonChart class not found');
-                document.getElementById('participant-chart').innerHTML = '<p>Erreur: Classe ParticipantComparisonChart non trouvée</p>';
+                const container = document.getElementById('participant-chart');
+                if (container) container.innerHTML = '<p>Erreur: Classe ParticipantComparisonChart non trouvée</p>';
             }
             
             if (typeof LearningCurveChart !== 'undefined') {
                 try {
-                    this.charts.learningCurve = new LearningCurveChart('learning-curve-chart', allData);
+                    const learningCurveContainer = document.getElementById('learning-curve-chart');
+                    if (learningCurveContainer) {
+                        this.charts.learningCurve = new LearningCurveChart('learning-curve-chart', allData);
+                    }
                 } catch (error) {
                     console.error('Erreur lors de la création du graphique de courbe d\'apprentissage:', error);
-                    document.getElementById('learning-curve-chart').innerHTML = `<p>Erreur: ${error.message}</p>`;
+                    const container = document.getElementById('learning-curve-chart');
+                    if (container) container.innerHTML = `<p>Erreur: ${error.message}</p>`;
                 }
             } else {
                 console.error('LearningCurveChart class not found');
-                document.getElementById('learning-curve-chart').innerHTML = '<p>Erreur: Classe LearningCurveChart non trouvée</p>';
+                const container = document.getElementById('learning-curve-chart');
+                if (container) container.innerHTML = '<p>Erreur: Classe LearningCurveChart non trouvée</p>';
             }
         } else {
             ['performance-summary-chart', 'performance-by-condition-chart', 'accuracy-chart', 'response-time-chart', 'participant-chart', 'learning-curve-chart'].forEach(id => {
@@ -751,8 +1002,12 @@ class AnalyticsPage {
 
     displayRawData() {
         const rawData = document.getElementById('raw-data');
-        if (!rawData) return;
+        if (!rawData) {
+            console.warn('⚠️ Élément raw-data non trouvé dans le DOM');
+            return;
+        }
         const allData = this.getAllExperimentData();
+        console.log('📋 displayRawData - Nombre de données:', allData.length);
         
         // Fonction helper pour les traductions sécurisées
         const t = (key, fallback) => {
@@ -760,53 +1015,56 @@ class AnalyticsPage {
         };
         
         if (allData.length === 0) {
+            console.warn('⚠️ Aucune donnée à afficher dans le tableau des données brutes');
             rawData.innerHTML = `<p>${t('analytics.no_data', 'No data available')}</p>`;
             return;
         }
         const tableHTML = `
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>${t('analytics.participant_label', 'Participant')}</th>
-                        <th>${t('results.trial', 'Trial')}</th>
-                        <th>${t('results.sentence', 'Sentence')}</th>
-                        <th>${t('results.condition', 'Condition')}</th>
-                        <th>${t('results.expected', 'Expected')}</th>
-                        <th>${t('results.response', 'Response')}</th>
-                        <th>${t('results.correct', 'Correct')}</th>
-                        <th>${t('results.time', 'Time')}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${allData.map(trial => {
-                        const participantId = trial.participantId || 'N/A';
-                        const trialNumber = trial.trial || 'N/A';
-                        const sentence = trial.sentence || 'N/A';
-                        const condition = this.getConditionLabel(trial.condition || 'N/A');
-                        const expected = trial.expected || 'N/A';
-                        let response = trial.response;
-                        if (!response) {
-                            response = t('results.missing', 'MISSING');
-                        } else if (response !== 'grammatical' && response !== 'ungrammatical') {
-                            response = t('results.invalid', 'INVALID');
-                        }
-                        const responseTime = this.formatResponseTime(trial.responseTime || 0);
-                        const isCorrect = trial.correct === true;
-                        return `
-                            <tr>
-                                <td>${participantId}</td>
-                                <td>${trialNumber}</td>
-                                <td>${sentence}</td>
-                                <td>${condition}</td>
-                                <td>${expected}</td>
-                                <td>${response}</td>
-                                <td>${isCorrect ? '✅' : '❌'}</td>
-                                <td>${responseTime}</td>
-                            </tr>
-                        `;
-                    }).join('')}
-                </tbody>
-            </table>
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>${t('analytics.participant_label', 'Participant')}</th>
+                            <th>${t('results.trial', 'Trial')}</th>
+                            <th>${t('results.sentence', 'Sentence')}</th>
+                            <th>${t('results.condition', 'Condition')}</th>
+                            <th>${t('results.expected', 'Expected')}</th>
+                            <th>${t('results.response', 'Response')}</th>
+                            <th>${t('results.correct', 'Correct')}</th>
+                            <th>${t('results.time', 'Time')}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${allData.map(trial => {
+                            const participantId = trial.participantId || 'N/A';
+                            const trialNumber = trial.trial || 'N/A';
+                            const sentence = trial.sentence || 'N/A';
+                            const condition = this.getConditionLabel(trial.condition || 'N/A');
+                            const expected = trial.expected || 'N/A';
+                            let response = trial.response;
+                            if (!response) {
+                                response = t('results.missing', 'MISSING');
+                            } else if (response !== 'grammatical' && response !== 'ungrammatical') {
+                                response = t('results.invalid', 'INVALID');
+                            }
+                            const responseTime = this.formatResponseTime(trial.responseTime || 0);
+                            const isCorrect = trial.correct === true;
+                            return `
+                                <tr>
+                                    <td>${participantId}</td>
+                                    <td>${trialNumber}</td>
+                                    <td>${sentence}</td>
+                                    <td>${condition}</td>
+                                    <td>${expected}</td>
+                                    <td>${response}</td>
+                                    <td>${isCorrect ? '✅' : '❌'}</td>
+                                    <td>${responseTime}</td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            </div>
         `;
         rawData.innerHTML = tableHTML;
     }
@@ -815,13 +1073,17 @@ class AnalyticsPage {
         const allData = [];
         this.importedData.forEach(fileInfo => {
             const participantId = fileInfo.data.participant?.id || 'N/A';
-            const experimentData = fileInfo.data.experiment.data;
-            experimentData.forEach(trial => {
-                allData.push({
-                    ...trial,
-                    participantId: participantId
+            const experimentData = fileInfo.data.experiment?.data;
+            if (experimentData && Array.isArray(experimentData)) {
+                experimentData.forEach(trial => {
+                    allData.push({
+                        ...trial,
+                        participantId: participantId
+                    });
                 });
-            });
+            } else {
+                console.warn('⚠️ Données d\'expérience invalides pour le participant', participantId, ':', fileInfo.data);
+            }
         });
         return allData;
     }

@@ -60,6 +60,14 @@
             </select>
           </div>
           <div class="filter-group">
+            <label for="filter-bilingual">Bilingue:</label>
+            <select id="filter-bilingual">
+              <option value="">Tous</option>
+              <option value="yes">Oui</option>
+              <option value="no">Non</option>
+            </select>
+          </div>
+          <div class="filter-group filter-group-buttons">
             <button id="include-filtered-btn" class="btn btn-success" data-i18n="analytics.include_filtered">✓ Inclure les participants filtrés</button>
             <button id="exclude-filtered-btn" class="btn btn-warning" data-i18n="analytics.exclude_filtered">✗ Exclure les participants filtrés</button>
             <button id="clear-filters-btn" class="btn btn-secondary" data-i18n="analytics.reset_filters">Réinitialiser les filtres</button>
@@ -75,11 +83,12 @@
                 <th>Niveau d'allemand</th>
                 <th>Bilingue</th>
                 <th>Date de début</th>
+                <th>Download CSV</th>
               </tr>
             </thead>
           <tbody id="participants-table-body">
             <tr>
-              <td colspan="6" class="empty-state" data-i18n="analytics.loading_participants">Chargement des participants...</td>
+              <td colspan="7" class="empty-state" data-i18n="analytics.loading_participants">Chargement des participants...</td>
             </tr>
           </tbody>
         </table>
@@ -125,6 +134,15 @@
       <div id="condition-stats" class="stats-grid"></div>
     </section>
 
+    <!-- Comparaison par question -->
+    <section class="charts-section">
+      <h2>Comparaison par question</h2>
+      <div class="chart-container">
+        <h3>Performance par question</h3>
+        <div id="questions-chart" class="chart"></div>
+      </div>
+    </section>
+
     <!-- Comparaison des participants -->
     <section class="stats-section">
       <h2 data-i18n="analytics.participant_comparison">Comparaison des participants</h2>
@@ -161,9 +179,9 @@
   <!-- Scripts personnalisés -->
   <script src="js/config.js"></script>
   <script src="js/utils.js"></script>
+  <script src="js/data.js"></script>
   <script src="js/database-analytics.js"></script>
   <script src="js/analytics.js"></script>
-  <script src="js/data.js"></script>
   <script src="js/i18n.js?v=3"></script>
   <script src="js/main.js"></script>
 </body>

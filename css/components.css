@@ -93,6 +93,14 @@
     box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
 }
 
+/* Filter group avec boutons en ligne */
+.filter-group-buttons {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
 /* Conteneur du tableau des participants */
 .participants-table-container {
     background: white;
@@ -1882,4 +1890,89 @@ body:has(.stimulus-area) .container {
     margin-bottom: 1.5rem;
     border-bottom: 3px solid #4299e1;
     padding-bottom: 0.5rem;
+}
+
+/* Cartes de participants - Design minimaliste */
+.participant-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1rem;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.participant-card:hover {
+    border-color: #cbd5e0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+}
+
+.participant-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #f0f4f8;
+    gap: 0.5rem;
+    min-width: 0;
+}
+
+.participant-id {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #2d3748;
+    letter-spacing: 0.5px;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.participant-score-badge {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: white;
+    background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+    padding: 0.4rem 0.75rem;
+    border-radius: 20px;
+    line-height: 1;
+    flex-shrink: 0;
+    white-space: nowrap;
+    box-shadow: 0 2px 4px rgba(66, 153, 225, 0.2);
+}
+
+.participant-score-badge .percent {
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-left: 1px;
+    opacity: 0.95;
+}
+
+.participant-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+}
+
+.info-label {
+    color: #718096;
+    font-weight: 500;
+}
+
+.info-value {
+    color: #2d3748;
+    font-weight: 600;
 } 
