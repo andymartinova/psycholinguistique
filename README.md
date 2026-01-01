@@ -1,4 +1,4 @@
-# 🧪 Expérience Psycholinguistique - Allemand
+# Expérience Psycholinguistique - Allemand
 
 ## Description
 
@@ -215,3 +215,4 @@ Cette application est fournie à des fins de recherche et d'enseignement. Vous �
 
 ## lien bugs
 https://docs.google.com/spreadsheets/d/1MVpRAIouv9qD8R6I3KSqwDZIkVTWI7v6G3FWZUAIl2I/edit?gid=0#gid=0
+
