@@ -1,4 +1,3 @@
-// Gestion de la page d'expérience principale
 class ExperimentPage {
     constructor() {
         this.currentTrial = 0;
