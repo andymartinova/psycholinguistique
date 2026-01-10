@@ -34,11 +34,13 @@
 
 /* Section de gestion des participants depuis la base de données */
 .database-section {
-    margin: 2rem 0;
+    margin: 2rem -1.5rem; /* Compenser le padding du container */
     padding: 1.5rem;
     background: #f7fafc;
     border-radius: 12px;
     border: 1px solid #e2e8f0;
+    width: calc(100% + 3rem); /* Compenser les paddings du container (1.5rem de chaque côté) */
+    box-sizing: border-box;
 }
 
 .database-section h2 {
@@ -106,7 +108,11 @@
     background: white;
     border-radius: 8px;
     border: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    max-height: 70vh; /* Limiter la hauteur à 70% de la hauteur de la fenêtre */
     overflow: hidden;
+    width: 100%;
 }
 
 .table-header {
@@ -149,10 +155,37 @@
     font-size: 0.9rem;
 }
 
+/* Wrapper scrollable pour le tableau */
+.participants-table-scroll {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: auto;
+    max-height: calc(70vh - 200px);
+    width: 100%;
+}
+
+.participants-table-container > .participants-table-scroll > table {
+    width: 100%;
+}
+
 /* Tableau des participants */
 .participants-table {
     width: 100%;
+    min-width: 800px; /* Largeur minimale pour éviter le rétrécissement excessif */
     border-collapse: collapse;
+    display: table;
+}
+
+.participants-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #edf2f7;
+    display: table-header-group;
+}
+
+.participants-table tbody {
+    display: table-row-group;
 }
 
 .participants-table thead {
@@ -446,7 +479,105 @@
     height: 300px;
     position: relative;
     min-height: 600px;
-    overflow: visible !important;
+    overflow: visible;
+}
+
+/* Permettre le scroll horizontal pour les graphiques qui peuvent déborder */
+.chart-container:has(#participant-chart),
+.chart-container:has(#questions-chart) {
+    overflow-x: auto;
+    overflow-y: visible;
+}
+
+/* Overflow horizontal pour les graphiques qui peuvent déborder */
+#participant-chart,
+#questions-chart {
+    overflow-x: auto;
+    overflow-y: visible;
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Légende personnalisée pour le graphique de comparaison des participants */
+.participant-chart-legend {
+    display: grid;
+    grid-template-rows: repeat(2, auto);
+    grid-auto-flow: column;
+    grid-auto-columns: max-content;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+    justify-items: start;
+    align-items: center;
+    background: #f7fafc;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    width: 100%;
+    min-width: 0;
+}
+
+.participant-chart-legend > div {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+    flex-shrink: 0;
+    min-width: fit-content;
+}
+
+.participant-chart-legend > div:hover {
+    background-color: #edf2f7;
+}
+
+.participant-chart-legend span:first-child {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    flex-shrink: 0;
+}
+
+.participant-chart-legend span:last-child {
+    color: #2d3748;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* Cibler spécifiquement le canvas du graphique de comparaison des participants */
+#participant-chart-chart,
+#questions-chart-canvas {
+    max-width: 100% !important;
+    width: 100% !important;
+    height: auto !important;
+}
+
+/* Forcer le conteneur à permettre le scroll si le canvas dépasse */
+#participant-chart,
+#questions-chart {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: visible;
+}
+
+#participant-chart > canvas,
+#questions-chart > canvas {
+    display: block;
+}
+
+
+/* Alternative pour les navigateurs qui ne supportent pas :has() */
+.chart-container {
+    overflow-x: auto;
+    overflow-y: visible;
 }
 
 /* Navigation */
@@ -473,6 +604,17 @@
     gap: 1.25rem;
     margin: 1.5rem 0;
     padding: 0;
+}
+
+/* Overflow horizontal pour la comparaison des participants */
+#participant-comparison {
+    overflow-x: auto;
+    overflow-y: visible;
+    min-width: 0;
+}
+
+#participant-comparison .stats-grid {
+    min-width: max-content;
 }
 
 /* Section principale - Statistiques globales */

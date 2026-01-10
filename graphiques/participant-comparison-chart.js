@@ -93,6 +93,33 @@ class ParticipantComparisonChart {
     }
 
     createChart(container, chartData) {
+        // Nettoyer le conteneur
+        container.innerHTML = '';
+        
+        // Couleurs fixes pour l'ordre d'affichage - palette étendue pour supporter plus de participants
+        const colorList = [
+            '#4299e1', '#48bb78', '#718096', '#ed8936', '#9f7aea', '#38b2ac',
+            '#f56565', '#ed64a6', '#805ad5', '#d69e2e', '#319795', '#2c7a7b',
+            '#c53030', '#9c4221', '#744210', '#7c2d12', '#78350f', '#713f12'
+        ];
+        const participantIds = Object.keys(chartData).sort(); // Trier pour un ordre cohérent
+        
+        // Créer une légende personnalisée au-dessus du graphique
+        const legendContainer = document.createElement('div');
+        legendContainer.className = 'participant-chart-legend';
+        
+        participantIds.forEach((participantId, idx) => {
+            const color = colorList[idx % colorList.length];
+            const legendItem = document.createElement('div');
+            legendItem.innerHTML = `
+                <span style="background-color: ${color};"></span>
+                <span>${participantId}</span>
+            `;
+            legendContainer.appendChild(legendItem);
+        });
+        
+        container.appendChild(legendContainer);
+
         // Créer le canvas pour Chart.js
         const canvas = document.createElement('canvas');
         canvas.id = `${this.containerId}-chart`;
@@ -107,14 +134,6 @@ class ParticipantComparisonChart {
         // Trouver le nombre maximum d'essais pour l'axe X
         const maxTrials = Math.max(...Object.values(chartData).map(p => p.totalTrials));
         const xLabels = Array.from({length: maxTrials}, (_, i) => i + 1);
-
-        // Couleurs fixes pour l'ordre d'affichage - palette étendue pour supporter plus de participants
-        const colorList = [
-            '#4299e1', '#48bb78', '#718096', '#ed8936', '#9f7aea', '#38b2ac',
-            '#f56565', '#ed64a6', '#805ad5', '#d69e2e', '#319795', '#2c7a7b',
-            '#c53030', '#9c4221', '#744210', '#7c2d12', '#78350f', '#713f12'
-        ];
-        const participantIds = Object.keys(chartData).sort(); // Trier pour un ordre cohérent
 
         // Préparer les datasets pour Chart.js
         const datasets = participantIds.map((participantId, idx) => {
@@ -157,41 +176,53 @@ class ParticipantComparisonChart {
                     padding: {
                         left: 10,
                         right: 10,
-                        top: 40,
+                        top: 20,
                         bottom: 20
                     }
                 },
                 plugins: {
                     title: {
-                        display: true,
-                        text: 'Évolution de la performance par participant',
-                        font: { size: 18, weight: 'bold' }
+                        display: false // Désactiver le titre car on a déjà un h3
                     },
                     tooltip: {
                         mode: 'index',
                         intersect: false,
+                        filter: function(tooltipItem) {
+                            // Afficher seulement les participants qui ont une valeur pour cet essai
+                            return tooltipItem.parsed.y !== null;
+                        },
                         callbacks: {
                             title: function(context) {
                                 return `Essai ${context[0].label}`;
                             },
-                            label: function(context) {
-                                return `${context.dataset.label}: ${context.parsed.y.toFixed(1)}%`;
+                            label: function() {
+                                // Ne pas afficher les labels individuels
+                                return null;
+                            },
+                            afterBody: function(context) {
+                                // Filtrer les données valides
+                                const validData = context.filter(item => item.parsed.y !== null);
+                                if (validData.length === 0) return null;
+                                
+                                // Calculer la précision moyenne
+                                const sum = validData.reduce((acc, item) => acc + item.parsed.y, 0);
+                                const avg = sum / validData.length;
+                                
+                                // Trouver min et max
+                                const values = validData.map(item => item.parsed.y);
+                                const min = Math.min(...values);
+                                const max = Math.max(...values);
+                                
+                                return [
+                                    `Précision moyenne: ${avg.toFixed(1)}%`,
+                                    `Min: ${min.toFixed(1)}% | Max: ${max.toFixed(1)}%`,
+                                    `${validData.length} participant${validData.length > 1 ? 's' : ''}`
+                                ];
                             }
                         }
                     },
                     legend: {
-                        display: true,
-                        position: 'top',
-                        labels: {
-                            usePointStyle: true,
-                            pointStyle: 'circle',
-                            font: { size: 11 },
-                            padding: 10,
-                            boxWidth: 12,
-                            boxHeight: 12
-                        },
-                        // Si beaucoup de participants, mettre la légende en colonnes
-                        maxWidth: participantIds.length > 6 ? 400 : undefined
+                        display: false // Désactiver la légende Chart.js car on a une légende personnalisée
                     }
                 },
                 scales: {
