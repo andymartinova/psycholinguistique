@@ -623,6 +623,22 @@ class SyntheticDataGenerator {
                     }
                 }
                 
+                // FORCER l'IP à 1.1.1.1 AVANT d'ajouter aux données
+                // Triple vérification pour garantir que l'IP est toujours 1.1.1.1
+                if (!bestData.participant) {
+                    bestData.participant = {};
+                }
+                bestData.participant.ipAddress = '1.1.1.1';
+                
+                // Vérification finale : s'assurer que l'IP est bien 1.1.1.1
+                if (bestData.participant.ipAddress !== '1.1.1.1') {
+                    console.error(`❌ ERREUR CRITIQUE: Impossible de forcer l'IP pour ${bestData.participant.id}`);
+                    bestData.participant.ipAddress = '1.1.1.1'; // Forcer une dernière fois
+                }
+                
+                // Log pour vérification
+                console.log(`✅ Participant ${bestData.participant.id} - IP forcée à: ${bestData.participant.ipAddress}`);
+                
                 allGeneratedData.push(bestData);
             }
             
@@ -875,7 +891,7 @@ class SyntheticDataGenerator {
                 languageGroup: languageGroup,
                 germanLevel: germanLevel,
                 startTime: startTime.toISOString(),
-                ipAddress: '1.1.1.1' // IP forcée pour identifier les données générées
+                ipAddress: '1.1.1.1' // IP FORCÉE - Toujours 1.1.1.1 pour les données synthétiques
             },
             experiment: {
                 config: {
@@ -1305,12 +1321,24 @@ class SyntheticDataGenerator {
         const sendBtn = document.getElementById('send-api-btn');
         sendBtn.disabled = true;
         
-        // Si génération en masse, envoyer tous les participants
-        const dataToSend = (this.allGeneratedData && this.allGeneratedData.length > 1) 
-            ? this.allGeneratedData 
-            : [this.generatedData];
-        
-        if (!dataToSend || dataToSend.length === 0) return;
+            // Si génération en masse, envoyer tous les participants
+            const dataToSend = (this.allGeneratedData && this.allGeneratedData.length > 1) 
+                ? this.allGeneratedData 
+                : [this.generatedData];
+            
+            if (!dataToSend || dataToSend.length === 0) return;
+            
+            // FORCER l'IP à 1.1.1.1 pour TOUS les participants AVANT l'envoi
+            dataToSend.forEach((data, index) => {
+                if (!data.participant) {
+                    data.participant = {};
+                }
+                const oldIp = data.participant.ipAddress;
+                data.participant.ipAddress = '1.1.1.1';
+                if (oldIp !== '1.1.1.1') {
+                    console.warn(`⚠️ Participant ${data.participant.id || index}: IP corrigée de ${oldIp} à 1.1.1.1`);
+                }
+            });
         
         sendBtn.textContent = `⏳ Envoi en cours... (0/${dataToSend.length})`;
         
@@ -1326,10 +1354,26 @@ class SyntheticDataGenerator {
             
             // Envoyer chaque participant
             for (let i = 0; i < dataToSend.length; i++) {
-                const data = dataToSend[i];
+                let data = dataToSend[i];
                 sendBtn.textContent = `⏳ Envoi en cours... (${i + 1}/${dataToSend.length})`;
                 
                 try {
+                    // FORCER l'IP dans les données brutes AVANT formatage (copie pour éviter mutation)
+                    // Créer une copie profonde pour éviter de modifier les données originales
+                    data = JSON.parse(JSON.stringify(data));
+                    
+                    if (!data.participant) {
+                        data.participant = {};
+                    }
+                    // FORCER l'IP à 1.1.1.1 - AUCUNE EXCEPTION
+                    data.participant.ipAddress = '1.1.1.1';
+                    
+                    // Vérification immédiate
+                    if (data.participant.ipAddress !== '1.1.1.1') {
+                        console.error(`❌ ERREUR: Impossible de forcer l'IP pour ${data.participant.id}`);
+                        throw new Error(`IP non conforme: ${data.participant.ipAddress}`);
+                    }
+                    
                     // Formater les données pour l'API
                     const formattedData = this.formatDataForAPI(data);
                     

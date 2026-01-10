@@ -1,26 +1,152 @@
-# 🔧 Configuration Backend pour Forcer l'IP 1.1.1.1
+# ⚠️ IMPORTANT - Forcer l'IP à 1.1.1.1 pour les données synthétiques
 
 ## Problème
 
-Les participants générés doivent avoir l'IP **1.1.1.1** pour être identifiables, mais le backend peut récupérer l'IP depuis la requête HTTP (`req.ip`) au lieu d'utiliser celle envoyée dans le body JSON.
+Lors de l'envoi de données synthétiques en batch, certains participants ont une IP incorrecte (ex: `15.188.145.20`, `51.44.161.180`) au lieu de `1.1.1.1`.
 
-## Solution
+## Cause
 
-Le frontend envoie l'IP dans le body JSON ET dans des headers spéciaux. Le backend DOIT prioriser l'IP du body JSON.
+Le backend utilise probablement `req.ip` (l'IP de la requête HTTP) au lieu de l'IP fournie dans le body JSON ou dans les headers.
 
-## Format des Données Envoyées
+## Solution Backend
 
-### Body JSON
+### Endpoint concerné
+```
+POST /api/results
+```
+
+### Modifications requises
+
+Le backend **DOIT** utiliser l'IP du body JSON (`participant.ipAddress`) au lieu de `req.ip` lorsque :
+
+1. **Header `X-Synthetic-Data: true`** est présent, OU
+2. **Header `X-Force-IP`** est présent, OU  
+3. **Header `X-Use-Body-IP: true`** est présent, OU
+4. **`metadata.synthetic === true`** dans le body, OU
+5. **`metadata.forceIp === '1.1.1.1'`** dans le body
+
+### Exemple d'implémentation (Node.js/Express)
+
+```javascript
+router.post('/api/results', async (req, res) => {
+    try {
+        const { participant, experiment, metadata } = req.body;
+        
+        // DÉTERMINER L'IP À UTILISER
+        let ipAddress;
+        
+        // Priorité 1: Headers pour données synthétiques
+        const isSynthetic = req.headers['x-synthetic-data'] === 'true' || 
+                           req.headers['x-force-ip'] === '1.1.1.1' ||
+                           req.headers['x-use-body-ip'] === 'true' ||
+                           metadata?.synthetic === true ||
+                           metadata?.forceIp === '1.1.1.1';
+        
+        if (isSynthetic) {
+            // POUR LES DONNÉES SYNTHÉTIQUES: TOUJOURS utiliser l'IP du body
+            ipAddress = participant?.ipAddress || '1.1.1.1';
+            
+            // Vérification: si l'IP n'est pas 1.1.1.1, la forcer
+            if (ipAddress !== '1.1.1.1') {
+                console.warn(`⚠️ IP non conforme pour données synthétiques: ${ipAddress}, correction à 1.1.1.1`);
+                ipAddress = '1.1.1.1';
+            }
+        } else {
+            // POUR LES DONNÉES RÉELLES: utiliser req.ip (comportement normal)
+            ipAddress = req.ip || req.connection.remoteAddress || req.headers['x-forwarded-for']?.split(',')[0];
+        }
+        
+        // Log pour vérification
+        console.log('📥 IP utilisée:', {
+            participantId: participant?.id,
+            isSynthetic,
+            ipFromBody: participant?.ipAddress,
+            ipFromRequest: req.ip,
+            ipFinale: ipAddress
+        });
+        
+        // Créer le participant avec l'IP correcte
+        const participantData = {
+            participantId: participant.id,
+            germanLevel: participant.germanLevel,
+            nativeLanguage: participant.nativeLanguage,
+            notBilingual: participant.notBilingual,
+            startTime: participant.startTime,
+            ipAddress: ipAddress  // ← UTILISER L'IP DÉTERMINÉE CI-DESSUS
+        };
+        
+        // ... reste du code ...
+        
+    } catch (error) {
+        // ...
+    }
+});
+```
+
+### Exemple d'implémentation (Python/Flask)
+
+```python
+@app.route('/api/results', methods=['POST'])
+def create_result():
+    data = request.json
+    participant = data.get('participant', {})
+    metadata = data.get('metadata', {})
+    
+    # DÉTERMINER L'IP À UTILISER
+    is_synthetic = (
+        request.headers.get('X-Synthetic-Data') == 'true' or
+        request.headers.get('X-Force-IP') == '1.1.1.1' or
+        request.headers.get('X-Use-Body-IP') == 'true' or
+        metadata.get('synthetic') == True or
+        metadata.get('forceIp') == '1.1.1.1'
+    )
+    
+    if is_synthetic:
+        # POUR LES DONNÉES SYNTHÉTIQUES: utiliser l'IP du body
+        ip_address = participant.get('ipAddress', '1.1.1.1')
+        if ip_address != '1.1.1.1':
+            print(f"⚠️ IP non conforme pour données synthétiques: {ip_address}, correction à 1.1.1.1")
+            ip_address = '1.1.1.1'
+    else:
+        # POUR LES DONNÉES RÉELLES: utiliser l'IP de la requête
+        ip_address = request.remote_addr or request.headers.get('X-Forwarded-For', '').split(',')[0]
+    
+    # Créer le participant avec l'IP correcte
+    participant_data = {
+        'participantId': participant.get('id'),
+        'germanLevel': participant.get('germanLevel'),
+        'nativeLanguage': participant.get('nativeLanguage'),
+        'notBilingual': participant.get('notBilingual'),
+        'startTime': participant.get('startTime'),
+        'ipAddress': ip_address  # ← UTILISER L'IP DÉTERMINÉE CI-DESSUS
+    }
+    
+    # ... reste du code ...
+```
+
+## Headers envoyés par le frontend
+
+Le frontend envoie les headers suivants pour les données synthétiques :
+
+```http
+POST /api/results
+Content-Type: application/json
+X-Force-IP: 1.1.1.1
+X-Synthetic-Data: true
+X-Use-Body-IP: true
+```
+
+## Body JSON envoyé
 
 ```json
 {
   "participant": {
-    "id": "PXYZ1234ABCD",
-    "germanLevel": "B1",
+    "id": "PMK8FE1222V3W",
+    "germanLevel": "A2",
     "nativeLanguage": "portuguese",
     "notBilingual": true,
-    "startTime": "2025-01-15T10:30:00.000Z",
-    "ipAddress": "1.1.1.1"  // ← IMPORTANT: Utiliser cette IP
+    "startTime": "2026-01-10T14:53:55.034Z",
+    "ipAddress": "1.1.1.1"  ← DOIT ÊTRE UTILISÉE
   },
   "experiment": {
     "config": {...},
@@ -35,110 +161,20 @@ Le frontend envoie l'IP dans le body JSON ET dans des headers spéciaux. Le back
 }
 ```
 
-### Headers HTTP
-
-```
-Content-Type: application/json
-X-Force-IP: 1.1.1.1
-X-Synthetic-Data: true
-```
-
-## Code Backend Requis
-
-### Exemple avec Express/Node.js
-
-```javascript
-app.post('/api/results', async (req, res) => {
-  const { participant, experiment, metadata } = req.body;
-  
-  // PRIORITÉ 1: Utiliser l'IP du body JSON si présente
-  let ipAddress = participant.ipAddress;
-  
-  // PRIORITÉ 2: Si metadata.forceIp existe, l'utiliser
-  if (metadata && metadata.forceIp) {
-    ipAddress = metadata.forceIp;
-  }
-  
-  // PRIORITÉ 3: Si header X-Force-IP existe, l'utiliser
-  if (req.headers['x-force-ip']) {
-    ipAddress = req.headers['x-force-ip'];
-  }
-  
-  // DERNIER RECOURS: Utiliser req.ip (seulement si aucune IP n'est fournie)
-  if (!ipAddress) {
-    ipAddress = req.ip || req.connection.remoteAddress;
-  }
-  
-  // Pour les données synthétiques, FORCER à 1.1.1.1
-  if (metadata && metadata.synthetic) {
-    ipAddress = '1.1.1.1';
-  }
-  
-  // Créer le participant avec l'IP forcée
-  const participantData = {
-    id: participant.id,
-    germanLevel: participant.germanLevel,
-    nativeLanguage: participant.nativeLanguage,
-    notBilingual: participant.notBilingual,
-    startTime: participant.startTime,
-    ipAddress: ipAddress  // ← Utiliser l'IP forcée, pas req.ip
-  };
-  
-  // ... reste du code
-});
-```
-
-### Exemple avec Prisma
-
-```typescript
-// Dans votre route POST /api/results
-const participant = await prisma.participant.create({
-  data: {
-    id: body.participant.id,
-    germanLevel: body.participant.germanLevel,
-    nativeLanguage: body.participant.nativeLanguage,
-    notBilingual: body.participant.notBilingual,
-    startTime: new Date(body.participant.startTime),
-    // IMPORTANT: Utiliser l'IP du body, pas req.ip
-    ipAddress: body.participant.ipAddress || body.metadata?.forceIp || '1.1.1.1'
-  }
-});
-```
-
 ## Vérification
 
-Pour vérifier que l'IP est bien forcée :
+Après modification, vérifier que :
+1. Les participants générés ont TOUS l'IP `1.1.1.1`
+2. Les participants réels gardent leur IP réelle (`req.ip`)
+3. Les logs montrent l'IP utilisée pour chaque participant
 
-1. Générer un participant via `synthetic-generator.html`
-2. Vérifier dans la base de données que `ipAddress = '1.1.1.1'`
-3. Si ce n'est pas le cas, le backend utilise `req.ip` au lieu de `body.participant.ipAddress`
+## Requête SQL pour corriger les données existantes
 
-## Logs de Débogage
-
-Le frontend log les données envoyées dans la console :
-
-```javascript
-console.log('📤 Envoi avec IP forcée:', {
-  participantId: formattedData.participant.id,
-  ipAddress: formattedData.participant.ipAddress,
-  fullData: formattedData
-});
+```sql
+-- Mettre à jour les IP incorrectes pour les participants générés le 2026-01-10
+UPDATE participants
+SET "ipAddress" = '1.1.1.1'
+WHERE DATE("startTime") = '2026-01-10'
+  AND "ipAddress" != '1.1.1.1'
+  AND "ipAddress" IN ('15.188.145.20', '51.44.161.180'); -- IPs incorrectes observées
 ```
-
-Vérifiez que `ipAddress` est bien `'1.1.1.1'` dans ces logs.
-
-## Points Critiques
-
-1. **NE JAMAIS utiliser `req.ip`** pour les données générées
-2. **TOUJOURS utiliser `body.participant.ipAddress`** si présent
-3. **Vérifier `metadata.synthetic`** pour forcer l'IP à 1.1.1.1
-4. **Les headers `X-Force-IP` et `X-Synthetic-Data`** sont des indicateurs supplémentaires
-
-## Test
-
-Pour tester si le backend force bien l'IP :
-
-1. Générer un participant avec IP 1.1.1.1
-2. Vérifier dans la base de données
-3. Si l'IP est différente, le backend doit être modifié
-
