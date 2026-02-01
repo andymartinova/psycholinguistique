@@ -671,10 +671,15 @@ class DatabaseAnalytics {
                 const formatted = {
                     participant: {
                         id: participant.participantId || participant.id,
-                        languageGroup: participant.nativeLanguage === 'french' ? 'fr' : 
+                        languageGroup: participant.nativeLanguage === 'french' ? 'fr' :
                                       participant.nativeLanguage === 'portuguese' ? 'pt' : null,
                         germanLevel: participant.germanLevel,
                         learningDuration: participant.learningDuration,
+                        age: participant.age || null,
+                        gender: participant.gender || null,
+                        feeling: participant.feeling || null,
+                        educationLevel: participant.educationLevel || null,
+                        germanUsageFrequency: participant.germanUsageFrequency || null,
                         startTime: participant.startTime
                     },
                     experiment: {

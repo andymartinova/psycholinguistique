@@ -1,2 +1,6 @@
 .vscode/
 API.md
+claude.md
+backups/
+analytics_complete_*.json
+*.sql
