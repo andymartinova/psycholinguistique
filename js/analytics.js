@@ -67,6 +67,11 @@ class AnalyticsPage {
             exportBtn.addEventListener('click', () => this.exportAnalytics());
         }
 
+        const exportCsvBtn = document.getElementById('export-analytics-csv-btn');
+        if (exportCsvBtn) {
+            exportCsvBtn.addEventListener('click', () => this.exportAnalyticsCSV());
+        }
+
         const clearBtn = document.getElementById('clear-data-btn');
         if (clearBtn) {
             clearBtn.addEventListener('click', () => this.clearAllData());
@@ -1176,6 +1181,88 @@ class AnalyticsPage {
             }
         };
         downloadData(analyticsData, 'analytics_complete');
+    }
+
+    exportAnalyticsCSV() {
+        const t = (key, fallback) => {
+            return window.i18n && window.i18n.t ? window.i18n.t(key) : fallback;
+        };
+
+        if (this.importedData.length === 0) {
+            alert(t('analytics.no_files', 'No files to export'));
+            return;
+        }
+
+        const header = 'participant_id,languageGroup,germanLevel,trial,sentence,condition,expected,response,responseTime,correct,startTime,createdAt,updatedAt,nativeLanguage,notBilingual,age,gender,learningDuration,feeling,questionnaireSubmittedAt,educationLevel,germanUsageFrequency';
+        const rows = [header];
+
+        this.importedData.forEach(fileInfo => {
+            const participant = fileInfo.data.participant || {};
+            const trials = fileInfo.data.experiment?.data || [];
+            const participantId = participant.id || participant.participantId || '';
+
+            let nativeLanguage = participant.nativeLanguage || '';
+            if (!nativeLanguage && participant.languageGroup) {
+                nativeLanguage = participant.languageGroup === 'fr' ? 'french'
+                    : participant.languageGroup === 'pt' ? 'portuguese'
+                    : participant.languageGroup;
+            }
+            const languageGroup = participant.languageGroup
+                || (nativeLanguage === 'french' ? 'fr' : nativeLanguage === 'portuguese' ? 'pt' : '');
+
+            const metadata = [
+                participant.startTime || '',
+                participant.createdAt || '',
+                participant.updatedAt || '',
+                nativeLanguage,
+                participant.notBilingual === true ? 'true' : (participant.notBilingual === false ? 'false' : ''),
+                participant.age || '',
+                participant.gender || '',
+                participant.learningDuration || '',
+                participant.feeling || '',
+                participant.questionnaireSubmittedAt || '',
+                participant.educationLevel || '',
+                participant.germanUsageFrequency || ''
+            ];
+
+            trials.forEach((trial, index) => {
+                const trialNumber = trial.trial || (index + 1);
+                const row = [
+                    this.escapeCSV(participantId),
+                    this.escapeCSV(languageGroup),
+                    this.escapeCSV(participant.germanLevel || ''),
+                    trialNumber,
+                    this.escapeCSV(trial.sentence || ''),
+                    this.escapeCSV(trial.condition || ''),
+                    this.escapeCSV(trial.expected || ''),
+                    this.escapeCSV(trial.response || ''),
+                    trial.responseTime || 0,
+                    trial.correct === true ? 'True' : 'False',
+                    ...metadata.map(v => this.escapeCSV(v))
+                ].join(',');
+                rows.push(row);
+            });
+        });
+
+        const csvContent = rows.join('\n');
+        const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `analytics_complete_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    escapeCSV(value) {
+        if (value === null || value === undefined) return '';
+        const stringValue = String(value);
+        if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+            return `"${stringValue.replace(/"/g, '""')}"`;
+        }
+        return stringValue;
     }
 
     calculateGlobalStats() {

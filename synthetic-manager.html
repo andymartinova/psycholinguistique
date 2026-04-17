@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Données Synthétiques</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+        .manager-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header-section {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-section h1 {
+            margin: 0;
+        }
+        
+        .actions-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .table-container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        
+        thead {
+            background: #f8f9fa;
+            position: sticky;
+            top: 0;
+        }
+        
+        th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .btn-delete:hover {
+            background: #c82333;
+        }
+        
+        .btn-delete:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .btn-refresh {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        
+        .btn-refresh:hover {
+            background: #0056b3;
+        }
+        
+        .btn-delete-all {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        
+        .btn-delete-all:hover {
+            background: #c82333;
+        }
+        
+        .stats-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .badge-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .badge-danger {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .link-back {
+            color: #007bff;
+            text-decoration: none;
+            margin-left: 10px;
+        }
+        
+        .link-back:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="manager-container">
+        <div class="header-section">
+            <div>
+                <h1>🗑️ Gestion des Données Synthétiques</h1>
+                <p style="margin: 5px 0 0 0; color: #666;">
+                    Gérer et supprimer les participants générés (IP: 1.1.1.1)
+                </p>
+            </div>
+            <div>
+                <a href="synthetic-generator.html" class="link-back">← Retour au générateur</a>
+            </div>
+        </div>
+        
+        <div class="actions-section">
+            <button id="refresh-btn" class="btn-refresh">🔄 Actualiser</button>
+            <button id="delete-all-btn" class="btn-delete-all">🗑️ Supprimer tous les participants générés</button>
+            <span id="participant-count" style="margin-left: 20px; font-weight: 600; color: #333;"></span>
+        </div>
+        
+        <div class="table-container">
+            <div id="loading" class="loading" style="display: none;">
+                <p>⏳ Chargement en cours...</p>
+            </div>
+            
+            <div id="empty-state" class="empty-state" style="display: none;">
+                <p>✅ Aucun participant généré trouvé (IP: 1.1.1.1)</p>
+            </div>
+            
+            <table id="participants-table" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>ID Participant</th>
+                        <th>Langue</th>
+                        <th>Niveau</th>
+                        <th>Date de début</th>
+                        <th>Nombre de trials</th>
+                        <th>Précision</th>
+                        <th>Temps moyen</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="participants-table-body">
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <script src="js/config.js"></script>
+    <script src="js/synthetic-manager.js"></script>
+</body>
+</html>
+

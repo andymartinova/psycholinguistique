@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Générateur de Données Synthétiques Optimisées</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+        .generator-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .form-section {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .analysis-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .stat-card h4 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .stat-card .value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .btn-generate {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .btn-generate:hover {
+            background: #45a049;
+        }
+        
+        .btn-generate:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .loading.active {
+            display: block;
+        }
+        
+        .results-section {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            margin-top: 20px;
+        }
+        
+        .preview-data {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        
+        .info-badge {
+            display: inline-block;
+            background: #2196F3;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        
+        .warning-badge {
+            background: #ff9800;
+        }
+        
+        .success-badge {
+            background: #4CAF50;
+        }
+        
+        .validation-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+        
+        .validation-score {
+            font-size: 32px;
+            font-weight: bold;
+            text-align: center;
+            margin: 10px 0;
+        }
+        
+        .score-excellent { color: #4CAF50; }
+        .score-good { color: #2196F3; }
+        .score-acceptable { color: #ff9800; }
+        .score-poor { color: #f44336; }
+    </style>
+</head>
+<body>
+    <div class="generator-container">
+        <h1>🎲 Générateur de Données Synthétiques Optimisées</h1>
+        <p class="info-badge">IP forcée: 1.1.1.1 pour identifier les données générées</p>
+        <div style="margin-top: 10px;">
+            <a href="synthetic-manager.html" style="color: #007bff; text-decoration: none; font-weight: 600;">
+                🗑️ Gérer les participants générés →
+            </a>
+        </div>
+        
+        <!-- Formulaire de génération -->
+        <div class="form-section">
+            <h2>Paramètres du Participant</h2>
+            <form id="generator-form">
+                <div class="form-group">
+                    <label for="language-group">Groupe Linguistique *</label>
+                    <select id="language-group" required>
+                        <option value="">Sélectionner...</option>
+                        <option value="fr">Français (fr)</option>
+                        <option value="pt">Portugais (pt)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="german-level">Niveau d'Allemand *</label>
+                    <select id="german-level" required>
+                        <option value="">Sélectionner...</option>
+                        <option value="A1">A1 (Débutant)</option>
+                        <option value="A2">A2 (Élémentaire)</option>
+                        <option value="B1">B1 (Intermédiaire)</option>
+                        <option value="B2">B2 (Intermédiaire supérieur)</option>
+                        <option value="C1">C1 (Avancé)</option>
+                        <option value="C2">C2 (Maîtrise)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="participant-count">Nombre de participants à générer *</label>
+                    <input type="number" id="participant-count" min="1" max="100" value="1" required>
+                    <small style="display: block; margin-top: 5px; color: #666; font-size: 12px;">
+                        Les IDs seront générés automatiquement (format: P + timestamp + aléatoire)
+                    </small>
+                </div>
+                
+                <button type="submit" id="generate-btn" class="btn-generate">
+                    ✨ Générer les données optimisées
+                </button>
+                <small style="display: block; margin-top: 5px; color: #666; font-size: 12px;">
+                    💡 L'analyse des données existantes se fait automatiquement avant la génération
+                </small>
+            </form>
+        </div>
+        
+        <!-- Section d'analyse -->
+        <div class="analysis-section" id="analysis-section" style="display: none;">
+            <h2>📊 Analyse des Données Existantes</h2>
+            <div id="analysis-stats" class="stats-grid"></div>
+            <div id="analysis-details" style="margin-top: 20px;"></div>
+        </div>
+        
+        <!-- Section de chargement -->
+        <div class="loading" id="loading">
+            <p>⏳ Génération en cours...</p>
+        </div>
+        
+        <!-- Section des résultats -->
+        <div class="results-section" id="results-section" style="display: none;">
+            <h2>✅ Données Générées</h2>
+            <div id="generation-stats"></div>
+            <div style="margin-top: 20px;">
+                <button id="download-btn" class="btn btn-primary">💾 Télécharger JSON</button>
+                <button id="send-api-btn" class="btn btn-success" style="margin-left: 10px;">📤 Envoyer à l'API</button>
+            </div>
+            <div id="preview-container" style="margin-top: 20px;">
+                <h3>Aperçu des données:</h3>
+                <pre class="preview-data" id="preview-data"></pre>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/config.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/optimization-engine.js"></script>
+    <script src="js/synthetic-generator.js"></script>
+</body>
+</html>
+

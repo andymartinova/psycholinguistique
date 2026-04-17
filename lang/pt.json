@@ -131,6 +131,7 @@
     "no_files": "Nenhum arquivo importado",
     "remove_file": "Remover",
     "export_data": "📥 Exportar dados",
+    "export_data_csv": "📥 Exportar em CSV",
     "email_data": "📧 Enviar resultados para análise",
     "clear_data": "🗑️ Limpar todos os dados",
     "load_participants": "Carregar participantes",
